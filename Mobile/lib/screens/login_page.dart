@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/screens/home/home_screen.dart';
-import 'package:flutter_application_2/screens/login_page.dart';
 import 'package:flutter_application_2/screens/signup_page.dart';
 import 'package:flutter_application_2/services/auth_services.dart';
 import 'package:flutter_application_2/screens/forgotpass_page.dart';
@@ -113,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                           textStyle: const TextStyle(fontSize: 18),
                         ),
-                        child: Text('Login'),
+                        child: const Text('Login'),
                       ),
                     ],
                   ),

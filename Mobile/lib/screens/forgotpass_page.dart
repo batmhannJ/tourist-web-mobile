@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/screens/home/home_screen.dart';
 import 'package:flutter_application_2/screens/login_page.dart';
-import 'package:flutter_application_2/screens/signup_page.dart';
 import 'package:flutter_application_2/services/auth_services.dart';
 
 class ForgotpassPage extends StatefulWidget {
@@ -80,7 +78,7 @@ class _ForgotpassPageState extends State<ForgotpassPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                           textStyle: const TextStyle(fontSize: 18),
                         ),
-                        child: Text('Submit'),
+                        child: const Text('Submit'),
                       ),
                     ],
                   ),
@@ -95,7 +93,7 @@ class _ForgotpassPageState extends State<ForgotpassPage> {
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                   ),
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
               ],
             ),

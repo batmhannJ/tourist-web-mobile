@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/screens/home/home_screen.dart';
 import 'package:flutter_application_2/services/auth_services.dart';
 import 'login_page.dart';
 
@@ -118,7 +117,7 @@ class _SignupPageState extends State<SignupPage> {
                           padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                           textStyle: const TextStyle(fontSize: 18),
                         ),
-                        child: Text('Sign Up'),
+                        child: const Text('Sign Up'),
                       ),
                     ],
                   ),

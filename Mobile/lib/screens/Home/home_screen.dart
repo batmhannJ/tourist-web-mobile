@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/model/place_model.dart';
 import 'package:flutter_application_2/screens/Home/widgets/recommended_card.dart';
@@ -50,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Navigate to the data analytics page
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Bookmark()),
+                    MaterialPageRoute(builder: (context) => const Bookmark()),
                   );
                 },
                 child: const Column(
@@ -88,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Navigate to the itinerary planner page
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ItineraryPlannerPage()),
+                    MaterialPageRoute(builder: (context) => const ItineraryPlannerPage()),
                   );
                 },
                 child: const Column(

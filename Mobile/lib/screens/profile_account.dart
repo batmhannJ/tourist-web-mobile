@@ -42,7 +42,7 @@ class ProfileAccountPage extends StatelessWidget {
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout),
-              title: const Text(''),
+              title: const Text('Logout'),
               onTap: () {
                 _logout(context); // Call the logout function when tapped
               },
