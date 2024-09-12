@@ -1,0 +1,27 @@
+name: flutter_application_2
+description: "A new Flutter project."
+publish_to: 'none'
+version: 1.0.0+1
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+dependencies:
+  cupertino_icons: ^1.0.2
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  google_maps_flutter: ^2.9.0
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
+  geocoding: ^3.0.0
+  mongo_dart: ^0.10.3
+  #provider: ^5.0.0 # Add this line
+dev_dependencies:
+  flutter_lints: ^2.0.0
+  flutter_test:
+    sdk: flutter
+  http: ^1.2.0
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/

@@ -1,0 +1,65 @@
+const mongoose = require("mongoose")
+mongoose.connect("mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test")
+.then(()=>{
+    console.log("mongodb connected")
+})
+.catch(()=>{
+    console.log("failed")
+})
+
+
+const newSchema = new mongoose.Schema({
+    name: {
+        type: String, 
+        required: true
+    },
+    email:{
+        type: String,
+        required: true,
+        unique: true
+    },
+    password:{
+        type: String,
+        required: true
+    },
+    role:{
+        type: String,
+        default: 'manager'
+    }
+    ,
+    status:{
+        type: String,
+        required: true,
+        default: 'pending'
+    }
+})
+
+const collection = mongoose.model("accounts", newSchema)
+
+const locationSchema = new mongoose.Schema({
+    destinationName: {
+        type: String, 
+        required: true
+    },
+    latitude:{
+        type: Number,
+        required: true
+    },
+    longitude:{
+        type: Number,
+        required: true
+    },
+    description:{
+        type: String,
+        required: true,
+    },
+    destinationType:{
+        type: String,
+        required: true,
+        default: 'local'
+    }
+});
+
+const collection2 = mongoose.model("locationcollection", locationSchema)
+
+module.exports = { collection, collection2 };
