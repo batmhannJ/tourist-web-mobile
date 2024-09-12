@@ -10,7 +10,7 @@ class ProfileAccountPage extends StatelessWidget {
     await prefs.clear();
 
     // Navigate to login screen
-    Navigator.pushReplacementNamed(context, '/login'); // Change '/login' to your login route
+    Navigator.pushReplacementNamed(context, '/login_page'); // Change '/login' to your login route
   }
 
   @override

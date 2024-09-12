@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
 import 'package:flutter_application_2/screens/login_page.dart';
+import 'package:flutter_application_2/screens/profile_account.dart'; // Make sure to import other screens
 import 'package:provider/provider.dart';
+import '../services/otp_service.dart';
 
 void main() {
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(create: (_) => UserProvider())
+      ChangeNotifierProvider(create: (_) => UserProvider()),
     ],
-  child: const MyApp(),
-    ),
-  );
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -23,7 +24,17 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: const LoginPage(),
+      // Define your routes here
+      initialRoute: '/login_page',
+      routes: {
+        '/login_page': (context) => const LoginPage(),
+        '/profile_account': (context) => const ProfileAccountPage(),
+        // Add other routes here as needed
+      },
+      // Optionally define onUnknownRoute if you want to handle unknown routes
+      // onUnknownRoute: (settings) {
+      //   return MaterialPageRoute(builder: (context) => const UnknownPage());
+      // },
     );
   }
 }

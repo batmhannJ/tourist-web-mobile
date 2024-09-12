@@ -7,7 +7,8 @@ import 'package:flutter_application_2/screens/map_page.dart'; // Import the MapP
 import 'package:flutter_application_2/screens/itinerary_planner_page.dart'; // Import the ItineraryPlannerPage
 import 'package:flutter_application_2/screens/profile_account.dart'; // Import the ProfileAccountPage
 import 'package:flutter_application_2/utilities/colors.dart';
-
+import 'package:flutter_application_2/services/auth_services.dart'; // Import the correct file for AuthService
+import 'dart:async'; // Import Timer
 import 'widgets/category_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,9 +19,54 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final AuthService _authService = AuthService();
+  Timer? _sessionTimer;
+  static const Duration _sessionTimeoutLimit = Duration(minutes: 2); // 2 minutes of inactivity
+  DateTime _lastActivityTime = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _startSessionTimer(); // Call the method here to start the timer
+  }
+
+  @override
+  void dispose() {
+    _sessionTimer?.cancel(); // Cancel timer when disposing
+    super.dispose();
+  }
+
+  void _startSessionTimer() {
+    _sessionTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (DateTime.now().difference(_lastActivityTime) >= _sessionTimeoutLimit) {
+        // Session expired
+        _handleSessionExpired();
+      }
+    });
+  }
+
+  void _handleSessionExpired() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushReplacementNamed(context, '/login_page');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Session expired. Please log in again.')),
+      );
+    });
+  }
+
+  void _updateActivityTime() {
+    setState(() {
+      _lastActivityTime = DateTime.now();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+      return GestureDetector(
+      onPanUpdate: (_) => _updateActivityTime(), // Detect user interaction
+      onTap: () => _updateActivityTime(), // Detect user interaction
+      onPanEnd: (_) => _updateActivityTime(), // Detect user interaction
+      child: Scaffold(
       backgroundColor: kWhiteClr,
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -335,6 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
