@@ -66,11 +66,11 @@ class _DetailScreenState extends State<DetailScreen> {
                       child: Container(
                         height: 25,
                         width: 25,
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: kWhiteClr,
                           shape: BoxShape.circle
                         ),
-                        child: Center(
+                        child: const Center(
                           child: Icon(
                             Icons.bookmark_rounded, 
                             color: kPrimaryClr,

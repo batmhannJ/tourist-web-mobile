@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () {
                   // Navigate to the home page
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (context) => Bookmark()),
                   );
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -69,10 +69,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Navigate to the map page
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MapPage()),
+                    MaterialPageRoute(builder: (context) => const MapPage()),
                   );
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -91,7 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     MaterialPageRoute(builder: (context) => ItineraryPlannerPage()),
                   );
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -107,10 +107,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Navigate to the profile account page
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProfileAccountPage()),
+                    MaterialPageRoute(builder: (context) => const ProfileAccountPage()),
                   );
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -137,18 +137,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   child: Row(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 27,
                         backgroundImage: AssetImage("assets/images/welcome.jpeg"),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 15,
                       ),
                       RichText(
-                        text: TextSpan(
+                        text: const TextSpan(
                           text: "Hello",
                           style: TextStyle(
                             color: Colors.white,
@@ -170,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 //search section
-                SizedBox(
+                const SizedBox(
                   height: 15,
                 ),
                 Container(
@@ -178,10 +178,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   child: Column(
                     children: [
-                      Text(
+                      const Text(
                         "Explore new destinations",
                         style: TextStyle(
                           fontSize: 26,
@@ -189,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Material(
@@ -204,7 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Expanded(
                                   child: TextFormField(
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       hintText: "Search your destination",
                                       hintStyle: TextStyle(color: Colors.grey),
                                       prefixIcon: Icon(Icons.search, color: Colors.grey),
@@ -213,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                 ),
-                                CircleAvatar(
+                                const CircleAvatar(
                                   radius: 22,
                                   backgroundColor: kPrimaryClr,
                                   child: Icon(
@@ -230,10 +230,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 //category
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
-                Row(
+                const Row(
                   children: [
                     Text(
                       "Category",
@@ -244,10 +244,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
-                Container(
+                SizedBox(
                   height: 70,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
@@ -286,10 +286,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 //Recommended
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
-                Row(
+                const Row(
                   children: [
                     Text(
                       "Popular Tourist Spots",
@@ -300,10 +300,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
-                Container(
+                SizedBox(
                   height: 350,
                   child: ListView.builder(
                     itemCount: places.length,

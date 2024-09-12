@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileAccountPage extends StatelessWidget {
   const ProfileAccountPage({Key? key}) : super(key: key);
+
+  Future<void> _logout(BuildContext context) async {
+    // Clear user session data (example: using SharedPreferences)
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    // Navigate to login screen
+    Navigator.pushReplacementNamed(context, '/login'); // Change '/login' to your login route
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Profile Account'),
+        title: const Text('Profile Account'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -15,26 +25,26 @@ class ProfileAccountPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ListTile(
-              leading: Icon(Icons.edit),
-              title: Text('Edit Account'),
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit Account'),
               onTap: () {
-                // lagay dito functionality
+                // Add edit account functionality
               },
             ),
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.bar_chart),
-              title: Text('View Data Analytics'),
+              leading: const Icon(Icons.bar_chart),
+              title: const Text('View Data Analytics'),
               onTap: () {
-                
+                // Add data analytics functionality
               },
             ),
-            Divider(),
+            const Divider(),
             ListTile(
-              leading: Icon(Icons.logout),
-              title: Text('Logout'),
+              leading: const Icon(Icons.logout),
+              title: const Text(''),
               onTap: () {
-               
+                _logout(context); // Call the logout function when tapped
               },
             ),
           ],

@@ -29,7 +29,7 @@ class _ForgotpassPageState extends State<ForgotpassPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF5B247A), Color(0xFF1BCEDF)],
             begin: Alignment.topLeft,
@@ -38,10 +38,10 @@ class _ForgotpassPageState extends State<ForgotpassPage> {
         ),
         child: Center(
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(32.0),
+            padding: const EdgeInsets.all(32.0),
             child: Column(
               children: [
-                Text(
+                const Text(
                   'Please enter your email to search for your account',
                   style: TextStyle(
                     fontSize: 20,
@@ -49,14 +49,14 @@ class _ForgotpassPageState extends State<ForgotpassPage> {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 Form(
                   key: _formKey,
                   child: Column(
                     children: [
                       TextFormField(
                         controller: emailController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           labelText: 'Email',
                           filled: true,
                           fillColor: Colors.white,
@@ -72,15 +72,15 @@ class _ForgotpassPageState extends State<ForgotpassPage> {
                           return null;
                         },
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: loginUser,
-                        child: Text('Submit'),
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.white, backgroundColor: Colors.deepPurple,
-                          padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                          textStyle: TextStyle(fontSize: 18),
+                          padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                          textStyle: const TextStyle(fontSize: 18),
                         ),
+                        child: Text('Submit'),
                       ),
                     ],
                   ),
@@ -89,13 +89,13 @@ class _ForgotpassPageState extends State<ForgotpassPage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => LoginPage()),
+                      MaterialPageRoute(builder: (context) => const LoginPage()),
                     );
                   },
-                  child: Text('Cancel'),
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.white,
                   ),
+                  child: Text('Cancel'),
                 ),
               ],
             ),
