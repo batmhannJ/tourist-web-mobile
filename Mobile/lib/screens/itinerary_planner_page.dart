@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,12 +16,14 @@ class MyApp extends StatelessWidget {
         visualDensity: VisualDensity.adaptivePlatformDensity,
         fontFamily: 'Montserrat',
       ),
-      home: ItineraryPlannerPage(),
+      home: const ItineraryPlannerPage(),
     );
   }
 }
 
 class ItineraryPlannerPage extends StatefulWidget {
+  const ItineraryPlannerPage({super.key});
+
   @override
   _ItineraryPlannerPageState createState() => _ItineraryPlannerPageState();
 }
@@ -31,22 +35,22 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Travel Itinerary'),
+        title: const Text('Travel Itinerary'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             ElevatedButton(
               onPressed: _addTravelItinerary,
-              child: Text('Add New Travel'),
+              child: const Text('Add New Travel'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ListView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: travelItineraries.length,
               itemBuilder: (context, index) {
                 return _buildTravelCard(index);
@@ -61,7 +65,7 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
   Widget _buildTravelCard(int index) {
     Map<String, dynamic> itinerary = travelItineraries[index];
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 10),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -72,18 +76,18 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
               children: [
                 Text(
                   'Destination: ${itinerary['destination']}',
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
                 Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.edit),
+                      icon: const Icon(Icons.edit),
                       onPressed: () {
                         _editTravelItinerary(index);
                       },
                     ),
                     IconButton(
-                      icon: Icon(Icons.delete),
+                      icon: const Icon(Icons.delete),
                       onPressed: () {
                         setState(() {
                           travelItineraries.removeAt(index);
@@ -94,18 +98,18 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                 ),
               ],
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(
               'Staying Period: ${itinerary['stayingPeriod']}',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 5),
+            const SizedBox(height: 5),
             Text(
               'Budget: ${itinerary['budget']}',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 16),
             ),
-            SizedBox(height: 10),
-            Text(
+            const SizedBox(height: 10),
+            const Text(
               'Itinerary:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -120,9 +124,9 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                     children: [
                       Text(
                         'Day ${dayIndex + 1}:',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Column(
                         children: List.generate(
                           day['activities'].length,
@@ -137,12 +141,12 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                                         activity['time'] = value;
                                       });
                                     },
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: 'Time',
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Expanded(
                                   flex: 2,
                                   child: TextField(
@@ -151,13 +155,13 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                                         activity['activity'] = value;
                                       });
                                     },
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       labelText: 'Activity',
                                     ),
                                   ),
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.delete),
+                                  icon: const Icon(Icons.delete),
                                   onPressed: () {
                                     setState(() {
                                       day['activities'].removeAt(activityIndex);
@@ -169,16 +173,16 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                           },
                         ),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       ElevatedButton(
                         onPressed: () {
                           setState(() {
                             day['activities'].add({'time': '', 'activity': ''});
                           });
                         },
-                        child: Text('Add Activity'),
+                        child: const Text('Add Activity'),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                     ],
                   );
                 },
@@ -203,7 +207,7 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Add New Travel'),
+              title: const Text('Add New Travel'),
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,32 +215,32 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                   children: <Widget>[
                     TextField(
                       onChanged: (value) => destination = value,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Destination',
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     TextField(
                       onChanged: (value) => stayingPeriod = value,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Staying Period',
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     TextField(
                       onChanged: (value) => budget = value,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Budget',
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       'Days and Activities:',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     _buildDayActivitiesTextField(days),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         ElevatedButton(
@@ -246,11 +250,11 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               dayCounter++;
                             });
                           },
-                          child: Text('Add Day'),
+                          child: const Text('Add Day'),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Text('$dayCounter days added'),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
                             if (dayCounter > 0) {
@@ -260,7 +264,7 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               });
                             }
                           },
-                          child: Text('Remove Day'),
+                          child: const Text('Remove Day'),
                         ),
                       ],
                     ),
@@ -272,7 +276,7 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                   onPressed: () {
                     Navigator.pop(context);
                   },
-                  child: Text('Cancel'),
+                  child: const Text('Cancel'),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -283,7 +287,7 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                       'days': days,
                     });
                   },
-                  child: Text('Save'),
+                  child: const Text('Save'),
                 ),
               ],
             );
@@ -292,12 +296,10 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
       },
     );
 
-    if (newItinerary != null) {
-      setState(() {
-        travelItineraries.add(newItinerary);
-      });
+    setState(() {
+      travelItineraries.add(newItinerary);
+    });
     }
-  }
 
   void _editTravelItinerary(int index) async {
     TextEditingController destinationController = TextEditingController(text: travelItineraries[index]['destination']);
@@ -312,7 +314,7 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('Edit Travel'),
+              title: const Text('Edit Travel'),
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,33 +322,33 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                   children: <Widget>[
                     TextField(
                       controller: destinationController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Destination',
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: stayingPeriodController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Staying Period',
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     TextField(
                       controller: budgetController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Budget',
                       ),
                     ),
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       'Days and Activities:',
                       style
                       : TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     _buildDayActivitiesTextField(days),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         ElevatedButton(
@@ -356,11 +358,11 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               dayCounter++;
                             });
                           },
-                          child: Text('Add Day'),
+                          child: const Text('Add Day'),
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Text('$dayCounter days added'),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         ElevatedButton(
                           onPressed: () {
                             if (dayCounter > 0) {
@@ -370,26 +372,24 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               });
                             }
                           },
-                          child: Text('Remove Day'),
+                          child: const Text('Remove Day'),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-              actions: <Widget>[                TextButton(                  onPressed: () {                    Navigator.pop(context);                  },                  child: Text('Cancel'),                ),                ElevatedButton(                  onPressed: () {                    Navigator.pop(context, {                      'destination': destinationController.text,                      'stayingPeriod': stayingPeriodController.text,                      'budget': budgetController.text,                      'days': days,                    });                  },                  child: Text('Save'),                ),              ],
+              actions: <Widget>[                TextButton(                  onPressed: () {                    Navigator.pop(context);                  },                  child: const Text('Cancel'),                ),                ElevatedButton(                  onPressed: () {                    Navigator.pop(context, {                      'destination': destinationController.text,                      'stayingPeriod': stayingPeriodController.text,                      'budget': budgetController.text,                      'days': days,                    });                  },                  child: const Text('Save'),                ),              ],
             );
           },
         );
       },
     );
 
-    if (editedItinerary != null) {
-      setState(() {
-        travelItineraries[index] = editedItinerary;
-      });
+    setState(() {
+      travelItineraries[index] = editedItinerary;
+    });
     }
-  }
 
  Widget _buildDayActivitiesTextField(List<Map<String, dynamic>> days) {
   return Column(
@@ -418,12 +418,12 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               activity['time'] = value;
                             });
                           },
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Time',
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Expanded(
                         flex: 2,
                         child: TextField(
@@ -433,13 +433,13 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               activity['activity'] = value;
                             });
                           },
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             labelText: 'Activity',
                           ),
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.delete),
+                        icon: const Icon(Icons.delete),
                         onPressed: () {
                           setState(() {
                             day['activities'].removeAt(activityIndex);
@@ -451,7 +451,7 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                 },
               ),
             ),
-            if (dayIndex != days.length - 1) Divider(),
+            if (dayIndex != days.length - 1) const Divider(),
           ],
         );
       },

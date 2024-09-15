@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/model/place_model.dart';
 import 'package:flutter_application_2/screens/Home/widgets/recommended_card.dart';
@@ -8,7 +7,8 @@ import 'package:flutter_application_2/screens/map_page.dart'; // Import the MapP
 import 'package:flutter_application_2/screens/itinerary_planner_page.dart'; // Import the ItineraryPlannerPage
 import 'package:flutter_application_2/screens/profile_account.dart'; // Import the ProfileAccountPage
 import 'package:flutter_application_2/utilities/colors.dart';
-
+import 'package:flutter_application_2/services/auth_services.dart'; // Import the correct file for AuthService
+import 'dart:async'; // Import Timer
 import 'widgets/category_card.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -19,9 +19,54 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final AuthService _authService = AuthService();
+  Timer? _sessionTimer;
+  static const Duration _sessionTimeoutLimit = Duration(minutes: 2); // 2 minutes of inactivity
+  DateTime _lastActivityTime = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _startSessionTimer(); // Call the method here to start the timer
+  }
+
+  @override
+  void dispose() {
+    _sessionTimer?.cancel(); // Cancel timer when disposing
+    super.dispose();
+  }
+
+  void _startSessionTimer() {
+    _sessionTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+      if (DateTime.now().difference(_lastActivityTime) >= _sessionTimeoutLimit) {
+        // Session expired
+        _handleSessionExpired();
+      }
+    });
+  }
+
+  void _handleSessionExpired() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushReplacementNamed(context, '/login_page');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Session expired. Please log in again.')),
+      );
+    });
+  }
+
+  void _updateActivityTime() {
+    setState(() {
+      _lastActivityTime = DateTime.now();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+      return GestureDetector(
+      onPanUpdate: (_) => _updateActivityTime(), // Detect user interaction
+      onTap: () => _updateActivityTime(), // Detect user interaction
+      onPanEnd: (_) => _updateActivityTime(), // Detect user interaction
+      child: Scaffold(
       backgroundColor: kWhiteClr,
       bottomNavigationBar: SafeArea(
         child: Padding(
@@ -33,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 onTap: () {
                   // Navigate to the home page
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -50,10 +95,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Navigate to the data analytics page
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Bookmark()),
+                    MaterialPageRoute(builder: (context) => const Bookmark()),
                   );
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -69,10 +114,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Navigate to the map page
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MapPage()),
+                    MaterialPageRoute(builder: (context) => const MapPage()),
                   );
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -88,10 +133,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Navigate to the itinerary planner page
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ItineraryPlannerPage()),
+                    MaterialPageRoute(builder: (context) => const ItineraryPlannerPage()),
                   );
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -107,10 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Navigate to the profile account page
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => ProfileAccountPage()),
+                    MaterialPageRoute(builder: (context) => const ProfileAccountPage()),
                   );
                 },
-                child: Column(
+                child: const Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
@@ -137,18 +182,18 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   child: Row(
                     children: [
-                      CircleAvatar(
+                      const CircleAvatar(
                         radius: 27,
                         backgroundImage: AssetImage("assets/images/welcome.jpeg"),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 15,
                       ),
                       RichText(
-                        text: TextSpan(
+                        text: const TextSpan(
                           text: "Hello",
                           style: TextStyle(
                             color: Colors.white,
@@ -170,7 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 //search section
-                SizedBox(
+                const SizedBox(
                   height: 15,
                 ),
                 Container(
@@ -178,10 +223,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: Colors.red,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   child: Column(
                     children: [
-                      Text(
+                      const Text(
                         "Explore new destinations",
                         style: TextStyle(
                           fontSize: 26,
@@ -189,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       Material(
@@ -204,7 +249,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Expanded(
                                   child: TextFormField(
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       hintText: "Search your destination",
                                       hintStyle: TextStyle(color: Colors.grey),
                                       prefixIcon: Icon(Icons.search, color: Colors.grey),
@@ -213,7 +258,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                 ),
-                                CircleAvatar(
+                                const CircleAvatar(
                                   radius: 22,
                                   backgroundColor: kPrimaryClr,
                                   child: Icon(
@@ -230,10 +275,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
                 //category
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
-                Row(
+                const Row(
                   children: [
                     Text(
                       "Category",
@@ -244,10 +289,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
-                Container(
+                SizedBox(
                   height: 70,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
@@ -286,10 +331,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
 
                 //Recommended
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
-                Row(
+                const Row(
                   children: [
                     Text(
                       "Popular Tourist Spots",
@@ -300,10 +345,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 10,
                 ),
-                Container(
+                SizedBox(
                   height: 350,
                   child: ListView.builder(
                     itemCount: places.length,
@@ -336,6 +381,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

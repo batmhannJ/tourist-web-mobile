@@ -38,25 +38,25 @@ class RecommendedCard extends StatelessWidget {
                         image: AssetImage(
                           placeInfo.image))),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   Text(
                     placeInfo.name, 
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                     SizedBox(
+                     const SizedBox(
                     height: 8.0
                   ),
                   Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.location_on, 
                       color: kPrimaryClr,
                       ),
                       Text(
                         placeInfo.location, 
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.grey, 
                           fontSize: 15
                         ),

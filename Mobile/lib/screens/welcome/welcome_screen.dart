@@ -29,7 +29,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
 
                     children: [
-                      Spacer(),
+                      const Spacer(),
                    const   Text(
                         "Welcome",
                         style: TextStyle(
