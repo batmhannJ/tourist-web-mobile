@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/model/user.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
@@ -125,10 +124,18 @@ class AuthService {
         },
       );
 
+      // Log the status code and body for debugging
+      print('Status Code: ${res.statusCode}');
+      print('Response Body: ${res.body}');
+
+      // Check for successful status code (200 OK)
       if (res.statusCode == 200) {
+        // Success case - user updated
         return true;
       } else {
-        throw Exception('Failed to update user details');
+        // Handle error case with a detailed message from the response
+        final responseBody = jsonDecode(res.body);
+        throw Exception('Failed to update user: ${responseBody['message']}');
       }
     } catch (e) {
       print('Error updating user details: $e');
