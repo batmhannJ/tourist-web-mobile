@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'edit_profile_page.dart';
 
 class ProfileAccountPage extends StatelessWidget {
   const ProfileAccountPage({Key? key}) : super(key: key);
 
   Future<void> _logout(BuildContext context) async {
-    // Clear user session data (example: using SharedPreferences)
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-
-    // Navigate to login screen
-    Navigator.pushReplacementNamed(context, '/login_page'); // Change '/login' to your login route
+    Navigator.pushReplacementNamed(context, '/login_page');
   }
 
   @override
@@ -28,8 +26,12 @@ class ProfileAccountPage extends StatelessWidget {
               leading: const Icon(Icons.edit),
               title: const Text('Edit Account'),
               onTap: () {
-                // Add edit account functionality
-              },
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => EditAccountPage()),
+            );
+          },
+
             ),
             const Divider(),
             ListTile(
@@ -44,7 +46,7 @@ class ProfileAccountPage extends StatelessWidget {
               leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
-                _logout(context); // Call the logout function when tapped
+                _logout(context);
               },
             ),
           ],

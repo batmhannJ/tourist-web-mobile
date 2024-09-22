@@ -12,10 +12,10 @@ const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(cors({origin:true, credentials:true}))
+app.use(cors({ origin: true, credentials: true }));
 
 app.use(express.json());
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({ extended: true }));
 app.use(authRouter);
 app.use("/api", markersRouter);
 
@@ -23,16 +23,16 @@ mongoose.connect("mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseracco
     .then(() => console.log("MongoDB connected"))
     .catch(err => console.log(err));
 
-    const transporter = nodemailer.createTransport({
-        service: 'gmail', // or another email service provider
-        auth: {
-            user: 'reyeshannahjoy82@gmail.com',
-            pass: 'cnoy eucq dvka vrlt' // Make sure to use environment variables for sensitive data
-        },
-        tls: {
-            rejectUnauthorized: false
-        }
-    });
+const transporter = nodemailer.createTransport({
+    service: 'gmail', // or another email service provider
+    auth: {
+        user: 'reyeshannahjoy82@gmail.com',
+        pass: 'cnoy eucq dvka vrlt' // Make sure to use environment variables for sensitive data
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+});
 
 app.post('/send-email', async (req, res) => {
     const { to } = req.body;
