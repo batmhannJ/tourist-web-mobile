@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
+//const TouristSpot = require('./models/TouristSpot');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -24,6 +25,7 @@ app.use("/api", markersRouter);
 mongoose.connect("mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test")
     .then(() => console.log("MongoDB connected"))
     .catch(err => console.log(err));
+
 
 const transporter = nodemailer.createTransport({
     service: 'gmail', // or another email service provider
