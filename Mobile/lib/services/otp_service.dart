@@ -1,5 +1,5 @@
 import 'package:mongo_dart/mongo_dart.dart';
-import '../model/otp_model.dart'; // Adjust the import path based on your directory structure
+// Adjust the import path based on your directory structure
 
 class OtpService {
   final Db _db;
@@ -34,7 +34,7 @@ class OtpService {
 
     final createdAt = otpDoc['createdAt'].toDate();
     final now = DateTime.now();
-    final expirationTime = const Duration(minutes: 10);
+    const expirationTime = Duration(minutes: 10);
 
     return now.isBefore(createdAt.add(expirationTime));
   }
