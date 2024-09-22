@@ -6,9 +6,11 @@ const authRouter = require("./routes/auth");
 const markersRouter = require("./routes/markers");
 const Otp = require('./model/otp');
 const nodemailer = require('nodemailer');
-
+const User = require('./model/user'); // Adjust the path as necessary
 const PORT = process.env.PORT || 3000;
 const app = express();
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -88,6 +90,29 @@ app.post('/api/verify-otp', async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error' });
     }
 });
+
+app.post('/api/reset-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    try {
+        // Find the user by email
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update the user's password with plain text
+        user.password = await bcrypt.hash(newPassword, saltRounds);
+        await user.save();
+
+        res.status(200).json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Failed to reset password:', error);
+        res.status(500).json({ message: 'Failed to reset password' });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

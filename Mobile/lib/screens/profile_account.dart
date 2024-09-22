@@ -28,7 +28,7 @@ class ProfileAccountPage extends StatelessWidget {
               onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => EditAccountPage()),
+              MaterialPageRoute(builder: (context) => const EditAccountPage()),
             );
           },
 
