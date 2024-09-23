@@ -82,7 +82,7 @@ app.post('/api/verify-otp', async (req, res) => {
 
         // Check if OTP is expired
         const now = new Date();
-        if (now - otpRecord.createdAt > 10 * 60 * 1000) { // 10 minutes
+        if (now - otpRecord.createdAt > 5 * 60 * 1000) { // 10 minutes
             return res.status(400).json({ success: false, message: 'OTP expired' });
         }
 

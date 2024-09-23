@@ -174,7 +174,7 @@ Future<void> resetPassword(String email, String newPassword) async {
       // If no login time is stored, assume no session
       return Duration.zero;
     }
-  }
+    }
   // Update user details locally using SharedPreferences
   Future<bool> updateUserDetails({
     required String name,

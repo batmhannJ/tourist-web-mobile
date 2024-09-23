@@ -40,7 +40,7 @@ void requestOtp() async {
       otpSent = true; // Update UI to show OTP input field
     });
 
-    print('OTP: $otp'); // For debugging, print the OTP to the console
+    //print('OTP: $otp'); // For debugging, print the OTP to the console
   }
 }
 
@@ -54,11 +54,16 @@ void requestOtp() async {
   // Method to verify OTP
   // Method to verify OTP
 void verifyOtp() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? storedOtp = prefs.getString('generatedOtp');
-  String enteredOtp = otpController.text;
+  //SharedPreferences prefs = await SharedPreferences.getInstance();
+  //String? storedOtp = prefs.getString('generatedOtp');
+  //String enteredOtp = otpController.text;
 
-  if (enteredOtp == storedOtp) {
+  String enteredOtp = otpController.text;
+  String email = emailController.text;
+
+  bool isValid = await authService.verifyOtp(email, enteredOtp);
+
+  if (isValid) {
     setState(() {
       otpVerified = true;
     });
