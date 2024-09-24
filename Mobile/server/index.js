@@ -7,11 +7,10 @@ const markersRouter = require("./routes/markers");
 const Otp = require('./model/otp');
 const nodemailer = require('nodemailer');
 const User = require('./model/user'); // Adjust the path as necessary
+const bcrypt = require('bcrypt');
+const saltRounds = 10; // para sa bcrypt encryption
 const PORT = process.env.PORT || 3000;
 const app = express();
-const bcrypt = require('bcrypt');
-const saltRounds = 10;
-//const TouristSpot = require('./models/TouristSpot');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -26,30 +25,31 @@ mongoose.connect("mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseracco
     .then(() => console.log("MongoDB connected"))
     .catch(err => console.log(err));
 
-
+// Nodemailer transporter setup
 const transporter = nodemailer.createTransport({
     service: 'gmail', // or another email service provider
     auth: {
         user: 'reyeshannahjoy82@gmail.com',
-        pass: 'cnoy eucq dvka vrlt' // Make sure to use environment variables for sensitive data
+        pass: 'cnoy eucq dvka vrlt' // Use environment variables for sensitive data
     },
     tls: {
         rejectUnauthorized: false
     }
 });
 
+// Route para mag-send ng OTP
 app.post('/send-email', async (req, res) => {
     const { to } = req.body;
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Save OTP to database
+    // Save OTP sa database
     await Otp.findOneAndUpdate(
         { email: to },
         { otp, createdAt: new Date() },
         { upsert: true }
     );
 
-    // Setup email options
+    // Setup ng email options
     const mailOptions = {
         from: 'reyeshannahjoy82@gmail.com',
         to: to,
@@ -57,7 +57,7 @@ app.post('/send-email', async (req, res) => {
         text: `Your OTP is ${otp}. It is valid for 5 minutes.`
     };
 
-    // Send the email with OTP
+    // Send ng OTP email
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             return res.status(500).send('Error sending email: ' + error.toString());
@@ -66,6 +66,7 @@ app.post('/send-email', async (req, res) => {
     });
 });
 
+// Route para i-verify ang OTP
 app.post('/api/verify-otp', async (req, res) => {
     const { email, otp } = req.body;
 
@@ -80,9 +81,9 @@ app.post('/api/verify-otp', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid OTP' });
         }
 
-        // Check if OTP is expired
+        // Check kung expired na ang OTP
         const now = new Date();
-        if (now - otpRecord.createdAt > 5 * 60 * 1000) { // 10 minutes
+        if (now - otpRecord.createdAt > 5 * 60 * 1000) { // 5 minutes expiration
             return res.status(400).json({ success: false, message: 'OTP expired' });
         }
 
@@ -93,18 +94,19 @@ app.post('/api/verify-otp', async (req, res) => {
     }
 });
 
+// Route para i-reset ang password
 app.post('/api/reset-password', async (req, res) => {
     const { email, newPassword } = req.body;
 
     try {
-        // Find the user by email
+        // Hanapin ang user gamit ang email
         const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Update the user's password with plain text
+        // I-encrypt ang bagong password
         user.password = await bcrypt.hash(newPassword, saltRounds);
         await user.save();
 
@@ -114,7 +116,6 @@ app.post('/api/reset-password', async (req, res) => {
         res.status(500).json({ message: 'Failed to reset password' });
     }
 });
-
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
