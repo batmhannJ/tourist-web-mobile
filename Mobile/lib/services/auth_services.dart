@@ -139,6 +139,21 @@ Future<void> sendOtpEmail(String email, String otp) async {
     }
 }
 
+Future<void> logout() async {
+  try {
+    // Clear the user data from SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('x-auth-token'); // Remove the token
+    await prefs.remove('name'); // Remove the name if you are storing it
+    await prefs.remove('email'); // Remove the email if you are storing it
+    // Add any other user-specific data you want to clear
+  } catch (e) {
+    print('Logout error: $e');
+    // Handle any errors if necessary
+  }
+}
+
+
 Future<void> resetPassword(String email, String newPassword) async {
     try {
       final response = await http.post(
