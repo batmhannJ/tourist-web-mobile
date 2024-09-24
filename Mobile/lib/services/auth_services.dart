@@ -110,7 +110,7 @@ Future<void> logout() async {
 }
 
 
-Future<void> resetPassword(String email, String newPassword) async {
+//Future<void> resetPassword(String email, String newPassword) async {
   // VERIFY OTP
   Future<bool> verifyOtp(String email, String otp) async {
     try {
@@ -255,5 +255,4 @@ Future<void> resetPassword(String email, String newPassword) async {
       return false;
     }
   }
-}
 }
