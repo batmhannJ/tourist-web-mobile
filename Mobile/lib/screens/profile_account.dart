@@ -44,7 +44,7 @@ class ProfileAccountPage extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 40,
                     backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
                   ),
@@ -109,7 +109,7 @@ class ProfileAccountPage extends StatelessWidget {
             const SizedBox(height: 10),
 
             // Logout Button
-            Spacer(),
+            const Spacer(),
             ElevatedButton.icon(
               onPressed: () {
                 _logout(context);

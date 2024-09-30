@@ -12,6 +12,7 @@ import 'dart:async';
 import 'widgets/category_card.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
+import 'package:flutter_application_2/services/TouristSpotService.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -26,6 +27,27 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _sessionTimer;
   static const Duration _sessionTimeoutLimit = Duration(minutes: 2);
   DateTime _lastActivityTime = DateTime.now();
+  final TouristSpotService _touristSpotService = TouristSpotService(); // Add service
+  List<dynamic> _touristSpots = [];
+  final String _searchQuery = '';
+  final Map<String, List<dynamic>> _cachedResults = {}; // Cache search results
+  Timer? _debounce;
+
+
+// Function to search for tourist spots using the API with caching and delay
+void _searchForSpots(String query) async {
+  try {
+    final spots = await _touristSpotService.searchTouristSpots(query);
+    setState(() {
+      _touristSpots = spots;
+    });
+  } catch (e) {
+    print('Error searching for spots: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error searching for spots: $e')),
+    );
+  }
+}
 
   // Month selection feature
   String? _selectedMonth;
@@ -33,7 +55,15 @@ class _HomeScreenState extends State<HomeScreen> {
     "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
   ];
 
-  
+  // Function to debounce user input
+void _onSearchChanged(String query) {
+  if (_debounce?.isActive ?? false) _debounce!.cancel();
+  _debounce = Timer(const Duration(milliseconds: 500), () {
+    print('Search query: $query');  // Debugging
+    _searchForSpots(query);  // Call search method after debounce delay
+  });
+}
+
 
   @override
   void initState() {
@@ -73,108 +103,180 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Function to build tourist spots filtered by month
   Widget _buildTouristSpotsByMonth() {
-    int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1; // Convert month name to index
-    List<PlaceInfo> filteredPlaces = places.where((place) {
-      return place.bestMonths.contains(selectedMonthIndex);
-    }).toList();
+  if (_selectedMonth == null) {
+    return const SizedBox();  // If no month selected, return empty
+  }
 
-    if (filteredPlaces.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text("No tourist spots found for this month."),
+  int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;  // Convert month to index
+  List<PlaceInfo> filteredPlaces = places.where((place) {
+    return place.bestMonths.contains(selectedMonthIndex);
+  }).toList();
+
+  print('Filtered places for month $_selectedMonth: $filteredPlaces');  // Debugging
+
+  if (filteredPlaces.isEmpty) {
+    return const Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Text("No tourist spots found for this month."),
+    );
+  }
+
+  return ListView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    itemCount: filteredPlaces.length,
+    itemBuilder: (context, index) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 5, right: 15),
+        child: RecommendedCard(
+          placeInfo: filteredPlaces[index],
+          press: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailScreen(
+                  placeInfo: filteredPlaces[index],
+                ),
+              ),
+            );
+          },
+        ),
       );
-    }
+    },
+  );
+}
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredPlaces.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 5, right: 15),
-          child: RecommendedCard(
-            placeInfo: filteredPlaces[index],
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailScreen(
-                    placeInfo: filteredPlaces[index],
-                  ),
+
+   // Function to search for tourist spots using the API
+  /*void _searchForSpots(String query) async {
+    try {
+      final spots = await _touristSpotService.searchTouristSpots(query);
+      setState(() {
+        _touristSpots = spots;
+      });
+    } catch (e) {
+      print('Error searching for spots: $e');
+    }
+  }*/
+
+  // Function to build the tourist spots list from API
+  // Function to build the tourist spots list from API
+// Function to build the tourist spots list from API
+Widget _buildTouristSpotsList() {
+  if (_touristSpots.isEmpty) {
+    return const Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Text("No tourist spots found."),
+    );
+  }
+
+  return ListView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    itemCount: _touristSpots.length,
+    itemBuilder: (context, index) {
+      final spot = _touristSpots[index];
+      return ListTile(
+        leading: ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            spot['imageUrl'] ?? 'https://example.com/default_image.jpg',
+            width: 80,
+            height: 80,
+            fit: BoxFit.cover,
+            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                      : null,
                 ),
               );
             },
-          ),
-        );
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Retrieve user name from UserProvider
-    final userName = Provider.of<UserProvider>(context).user.name;
-
-    return GestureDetector(
-      onPanUpdate: (_) => _updateActivityTime(),
-      onTap: () => _updateActivityTime(),
-      onPanEnd: (_) => _updateActivityTime(),
-      child: Scaffold(
-        backgroundColor: kWhiteClr,
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildNavIcon(Icons.home, "Home", () {}),
-                _buildNavIcon(Icons.bookmark, "Bookmarks", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Bookmark()));
-                }),
-                _buildNavIcon(Icons.map, "Map", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MapPage()));
-                }),
-                _buildNavIcon(Icons.event_note, "Planner", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ItineraryPlannerPage()));
-                }),
-                _buildNavIcon(Icons.account_circle, "Account", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileAccountPage()));
-                }),
-              ],
-            ),
+            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+              return Image.asset('assets/images/tagtay.jpg', width: 80, height: 80, fit: BoxFit.cover);
+            },
           ),
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildAppBar(userName),
-                const SizedBox(height: 15),
-                _buildSearchSection(),
-                const SizedBox(height: 20),
-                const Row(
-                  children: [
-                    Text("Category", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _buildCategorySection(),
-                const SizedBox(height: 10),
-                const Row(
-                  children: [
-                    Text("Popular Tourist Spots", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                _buildDropdownToSelectMonth(),
-                if (_selectedMonth != null) _buildTouristSpotsByMonth(),
-              ],
-            ),
+        title: Text(spot['name'] ?? 'Unknown'),
+        subtitle: Text(spot['country'] ?? 'Unknown country'),
+        onTap: () {
+          // Handle tap if needed, perhaps navigate to a detail screen
+        },
+      );
+    },
+  );
+}
+
+
+  @override
+Widget build(BuildContext context) {
+  // Retrieve user name from UserProvider
+  final userName = Provider.of<UserProvider>(context).user.name;
+
+  return GestureDetector(
+    onPanUpdate: (_) => _updateActivityTime(),
+    onTap: () => _updateActivityTime(),
+    onPanEnd: (_) => _updateActivityTime(),
+    child: Scaffold(
+      backgroundColor: kWhiteClr,
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildNavIcon(Icons.home, "Home", () {}),
+              _buildNavIcon(Icons.bookmark, "Bookmarks", () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const Bookmark()));
+              }),
+              _buildNavIcon(Icons.map, "Map", () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const MapPage()));
+              }),
+              _buildNavIcon(Icons.event_note, "Planner", () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ItineraryPlannerPage()));
+              }),
+              _buildNavIcon(Icons.account_circle, "Account", () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileAccountPage()));
+              }),
+            ],
           ),
         ),
       ),
-    );
-  }
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildAppBar(userName),
+              const SizedBox(height: 15),
+              _buildSearchSection(),
+              const SizedBox(height: 20),
+              const Row(
+                children: [
+                  Text("Category", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _buildCategorySection(),
+              const SizedBox(height: 10),
+              const Row(
+                children: [
+                  Text("Popular Tourist Spots", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _buildDropdownToSelectMonth(),
+              if (_selectedMonth != null) _buildTouristSpotsByMonth(),
+              const SizedBox(height: 20),
+              _buildTouristSpotsList(),  // Add this line to display the fetched tourist spots
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
 
   // Helper method to build navigation icons
   GestureDetector _buildNavIcon(IconData icon, String label, VoidCallback onTap) {
@@ -224,56 +326,58 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // Helper method to build the search section
   Widget _buildSearchSection() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.red,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        children: [
-          const Text(
-            "Explore new destinations",
-            style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
-          ),
-          const SizedBox(height: 20),
-          Material(
-            borderRadius: BorderRadius.circular(100),
-            elevation: 5,
-            child: Container(
-              decoration: BoxDecoration(
-                color: kWhiteClr,
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        decoration: const InputDecoration(
-                          hintText: "Search your destination",
-                          hintStyle: TextStyle(color: Colors.grey),
-                          prefixIcon: Icon(Icons.search, color: Colors.grey),
-                          enabledBorder: InputBorder.none,
-                          focusedBorder: InputBorder.none,
-                        ),
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.red,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    padding: const EdgeInsets.all(10),
+    child: Column(
+      children: [
+        const Text(
+          "Explore new destinations",
+          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        const SizedBox(height: 20),
+        Material(
+          borderRadius: BorderRadius.circular(100),
+          elevation: 5,
+          child: Container(
+            decoration: BoxDecoration(
+              color: kWhiteClr,
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      onChanged: _onSearchChanged, // Use debounced search method
+                      decoration: const InputDecoration(
+                        hintText: "Search your destination",
+                        hintStyle: TextStyle(color: Colors.grey),
+                        prefixIcon: Icon(Icons.search, color: Colors.grey),
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
                       ),
                     ),
-                    const CircleAvatar(
-                      radius: 22,
-                      backgroundColor: kPrimaryClr,
-                      child: Icon(Icons.sort_by_alpha_sharp, color: kWhiteClr),
-                    ),
-                  ],
-                ),
+                  ),
+                  const CircleAvatar(
+                    radius: 22,
+                    backgroundColor: kPrimaryClr,
+                    child: Icon(Icons.sort_by_alpha_sharp, color: kWhiteClr),
+                  ),
+                ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 
   // Helper method to build the category section
   Widget _buildCategorySection() {

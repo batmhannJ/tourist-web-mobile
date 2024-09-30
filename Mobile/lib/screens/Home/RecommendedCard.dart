@@ -24,11 +24,11 @@ class RecommendedCard extends StatelessWidget {
           if (navigationButton != null) // Only show if it's provided
             ElevatedButton(
               onPressed: navigationButton,
-              child: Text('Navigate'),
+              child: const Text('Navigate'),
             ),
           TextButton(
             onPressed: press,
-            child: Text('Details'),
+            child: const Text('Details'),
           ),
         ],
       ),

@@ -62,7 +62,7 @@ class _MyAppState extends State<MapPage> {
       // Add marker for user's location
       _markers.add(
         Marker(
-          markerId: MarkerId('userLocation'),
+          markerId: const MarkerId('userLocation'),
           position: _userLocation!,
           infoWindow: const InfoWindow(
             title: 'Your Location',
@@ -191,7 +191,7 @@ class _MyAppState extends State<MapPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8.0),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
                       blurRadius: 6.0,
@@ -202,11 +202,11 @@ class _MyAppState extends State<MapPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Weather at Center:',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(weatherInfo), // Display weather data
                   ],
                 ),

@@ -32,7 +32,7 @@ class _SignupPageState extends State<SignupPage> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         body: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/backg.png'), // Use the same background image as the login page
               fit: BoxFit.cover,
@@ -45,7 +45,7 @@ class _SignupPageState extends State<SignupPage> {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.8), // Semi-transparent white background
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
                       blurRadius: 10,
@@ -73,10 +73,10 @@ class _SignupPageState extends State<SignupPage> {
                             controller: nameController,
                             decoration: InputDecoration(
                               labelText: 'Name',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               filled: true,
                               fillColor: Colors.grey[200],
-                              prefixIcon: Icon(Icons.person, color: Colors.orange),
+                              prefixIcon: const Icon(Icons.person, color: Colors.orange),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -90,10 +90,10 @@ class _SignupPageState extends State<SignupPage> {
                             controller: emailController,
                             decoration: InputDecoration(
                               labelText: 'Email',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               filled: true,
                               fillColor: Colors.grey[200],
-                              prefixIcon: Icon(Icons.email, color: Colors.orange),
+                              prefixIcon: const Icon(Icons.email, color: Colors.orange),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -111,10 +111,10 @@ class _SignupPageState extends State<SignupPage> {
                             obscureText: true,
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               filled: true,
                               fillColor: Colors.grey[200],
-                              prefixIcon: Icon(Icons.lock, color: Colors.orange),
+                              prefixIcon: const Icon(Icons.lock, color: Colors.orange),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {

@@ -50,7 +50,7 @@ class _LoginPageState extends State<LoginPage> {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         body: Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/backg.png'), // Add your travel-themed background image
               fit: BoxFit.cover,
@@ -63,7 +63,7 @@ class _LoginPageState extends State<LoginPage> {
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.8), // Semi-transparent white background
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
                       blurRadius: 10,
@@ -91,10 +91,10 @@ class _LoginPageState extends State<LoginPage> {
                             controller: emailController,
                             decoration: InputDecoration(
                               labelText: 'Email',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               filled: true,
                               fillColor: Colors.grey[200],
-                              prefixIcon: Icon(Icons.email, color: Colors.orange),
+                              prefixIcon: const Icon(Icons.email, color: Colors.orange),
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
@@ -112,10 +112,10 @@ class _LoginPageState extends State<LoginPage> {
                             obscureText: !_isPasswordVisible,
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              border: OutlineInputBorder(),
+                              border: const OutlineInputBorder(),
                               filled: true,
                               fillColor: Colors.grey[200],
-                              prefixIcon: Icon(Icons.lock, color: Colors.orange),
+                              prefixIcon: const Icon(Icons.lock, color: Colors.orange),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _isPasswordVisible

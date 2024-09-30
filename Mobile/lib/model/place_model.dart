@@ -1,15 +1,19 @@
-class PlaceInfo{
-  final String location, image, name, desc;
-  final List<int> bestMonths;
+class PlaceInfo {
+  final String name;
+  final String location;
+  final String image; // Image path or URL
+  final String desc;
+  final List<int> bestMonths; // Adjust as necessary
 
-  PlaceInfo ({
-    required this.desc,
+  PlaceInfo({
     required this.name,
-    required this.image,
     required this.location,
-    required this.bestMonths,
+    required this.image,
+    required this.desc,
+    required this.bestMonths, // Ensure this is part of the constructor
   });
 }
+
 
 List<PlaceInfo> places =[
   PlaceInfo(
