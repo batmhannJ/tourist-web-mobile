@@ -15,10 +15,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
   late TextEditingController nameController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
-  late TextEditingController confirmPasswordController; // New controller for confirmation password
   final AuthService authService = AuthService();
   bool _isLoading = false;
-  bool _showConfirmPassword = false; // Determines if the confirmation field should be shown
 
   @override
   void didChangeDependencies() {
@@ -27,7 +25,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
     nameController = TextEditingController(text: user.name);
     emailController = TextEditingController(text: user.email);
     passwordController = TextEditingController(); // Empty initially
-    confirmPasswordController = TextEditingController(); // Empty initially
   }
 
   @override
@@ -35,7 +32,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
     nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose(); // Dispose of confirmation password controller
     super.dispose();
   }
 
@@ -79,6 +75,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
             );
           },
         );
+
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to update account')),
@@ -110,7 +107,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                     decoration: BoxDecoration(
                       color: Colors.white.withOpacity(0.8), // Semi-transparent white background
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black26,
                           blurRadius: 10,
@@ -174,31 +171,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                               }
                               return null;
                             },
-                            onChanged: (value) {
-                              setState(() {
-                                _showConfirmPassword = value.isNotEmpty;
-                              });
-                            },
                           ),
-                          if (_showConfirmPassword) ...[
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: confirmPasswordController,
-                              decoration: const InputDecoration(
-                                labelText: 'Confirm New Password',
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(),
-                              ),
-                              obscureText: true,
-                              validator: (value) {
-                                if (value != passwordController.text) {
-                                  return 'Passwords do not match';
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: _updateAccount,
