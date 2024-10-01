@@ -15,10 +15,10 @@ class _EditAccountPageState extends State<EditAccountPage> {
   late TextEditingController nameController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
-  late TextEditingController confirmPasswordController; // New controller for confirmation password
+  late TextEditingController confirmPasswordController;
   final AuthService authService = AuthService();
   bool _isLoading = false;
-  bool _showConfirmPassword = false; // Determines if the confirmation field should be shown
+  bool _showConfirmPassword = false;
 
   @override
   void didChangeDependencies() {
@@ -26,8 +26,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
     final user = Provider.of<UserProvider>(context, listen: false).user;
     nameController = TextEditingController(text: user.name);
     emailController = TextEditingController(text: user.email);
-    passwordController = TextEditingController(); // Empty initially
-    confirmPasswordController = TextEditingController(); // Empty initially
+    passwordController = TextEditingController();
+    confirmPasswordController = TextEditingController();
   }
 
   @override
@@ -35,7 +35,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
     nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
-    confirmPasswordController.dispose(); // Dispose of confirmation password controller
+    confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -45,7 +45,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
         _isLoading = true;
       });
 
-      // Handle account update logic
       final success = await authService.updateUserDetails(
         name: nameController.text,
         email: emailController.text,
@@ -60,7 +59,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         userProvider.updateUserDetails(nameController.text, emailController.text);
 
-        // Optional: show a success dialog
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -70,8 +68,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
               actions: [
                 TextButton(
                   onPressed: () {
-                    Navigator.pop(context); // Close the dialog
-                    Navigator.pop(context); // Close the page
+                    Navigator.pop(context);
+                    Navigator.pop(context);
                   },
                   child: const Text('OK'),
                 ),
@@ -108,7 +106,7 @@ class _EditAccountPageState extends State<EditAccountPage> {
                   padding: const EdgeInsets.all(32.0),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.8), // Semi-transparent white background
+                      color: Colors.white.withOpacity(0.8),
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -169,8 +167,22 @@ class _EditAccountPageState extends State<EditAccountPage> {
                             ),
                             obscureText: true,
                             validator: (value) {
-                              if (value != null && value.isNotEmpty && value.length < 6) {
-                                return 'Password must be at least 6 characters long';
+                              if (value != null && value.isNotEmpty) {
+                                if (value.length < 6) {
+                                  return 'Password must be at least 6 characters long';
+                                }
+                                if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
+                                  return 'Password must contain at least one uppercase letter';
+                                }
+                                if (!RegExp(r'(?=.*[a-z])').hasMatch(value)) {
+                                  return 'Password must contain at least one lowercase letter';
+                                }
+                                if (!RegExp(r'(?=.*[0-9])').hasMatch(value)) {
+                                  return 'Password must contain at least one number';
+                                }
+                                if (!RegExp(r'(?=.*[!@#$%^&*(),.?":{}|<>])').hasMatch(value)) {
+                                  return 'Password must contain at least one special character';
+                                }
                               }
                               return null;
                             },
