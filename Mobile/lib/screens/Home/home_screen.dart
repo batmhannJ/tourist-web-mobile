@@ -8,12 +8,12 @@ import 'package:flutter_application_2/screens/itinerary_planner_page.dart';
 import 'package:flutter_application_2/screens/profile_account.dart';
 import 'package:flutter_application_2/utilities/colors.dart';
 import 'package:flutter_application_2/services/auth_services.dart';
+import 'package:flutter_application_2/services/unsplash_service.dart'; // Unsplash service import
 import 'dart:async'; 
 import 'widgets/category_card.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
 import 'package:flutter_application_2/services/TouristSpotService.dart';
-
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -27,43 +27,18 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _sessionTimer;
   static const Duration _sessionTimeoutLimit = Duration(minutes: 2);
   DateTime _lastActivityTime = DateTime.now();
-  final TouristSpotService _touristSpotService = TouristSpotService(); // Add service
+  final TouristSpotService _touristSpotService = TouristSpotService();
+  final UnsplashService _unsplashService = UnsplashService(); // Unsplash service
+
   List<dynamic> _touristSpots = [];
-  final String _searchQuery = '';
+  List<String> _imageUrls = []; // Store Unsplash images
+  String? _selectedMonth;
   final Map<String, List<dynamic>> _cachedResults = {}; // Cache search results
   Timer? _debounce;
 
-
-// Function to search for tourist spots using the API with caching and delay
-void _searchForSpots(String query) async {
-  try {
-    final spots = await _touristSpotService.searchTouristSpots(query);
-    setState(() {
-      _touristSpots = spots;
-    });
-  } catch (e) {
-    print('Error searching for spots: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error searching for spots: $e')),
-    );
-  }
-}
-
-  // Month selection feature
-  String? _selectedMonth;
   List<String> months = [
     "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
   ];
-
-  // Function to debounce user input
-void _onSearchChanged(String query) {
-  if (_debounce?.isActive ?? false) _debounce!.cancel();
-  _debounce = Timer(const Duration(milliseconds: 500), () {
-    print('Search query: $query');  // Debugging
-    _searchForSpots(query);  // Call search method after debounce delay
-  });
-}
-
 
   @override
   void initState() {
@@ -74,13 +49,13 @@ void _onSearchChanged(String query) {
   @override
   void dispose() {
     _sessionTimer?.cancel();
+    _debounce?.cancel(); // Cancel debounce timer
     super.dispose();
   }
 
   void _startSessionTimer() {
     _sessionTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
       if (DateTime.now().difference(_lastActivityTime) >= _sessionTimeoutLimit) {
-        // Session expired
         _handleSessionExpired();
       }
     });
@@ -101,88 +76,123 @@ void _onSearchChanged(String query) {
     });
   }
 
-  // Function to build tourist spots filtered by month
-  Widget _buildTouristSpotsByMonth() {
-  if (_selectedMonth == null) {
-    return const SizedBox();  // If no month selected, return empty
-  }
+  // Function to search for tourist spots using the API with caching and delay
+  void _searchForSpots(String query) async {
+    if (_cachedResults.containsKey(query)) {
+      setState(() {
+        _touristSpots = _cachedResults[query]!;
+      });
+      return;
+    }
 
-  int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;  // Convert month to index
-  List<PlaceInfo> filteredPlaces = places.where((place) {
-    return place.bestMonths.contains(selectedMonthIndex);
-  }).toList();
-
-  print('Filtered places for month $_selectedMonth: $filteredPlaces');  // Debugging
-
-  if (filteredPlaces.isEmpty) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Text("No tourist spots found for this month."),
-    );
-  }
-
-  return ListView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: filteredPlaces.length,
-    itemBuilder: (context, index) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 5, right: 15),
-        child: RecommendedCard(
-          placeInfo: filteredPlaces[index],
-          press: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailScreen(
-                  placeInfo: filteredPlaces[index],
-                ),
-              ),
-            );
-          },
-        ),
-      );
-    },
-  );
-}
-
-
-   // Function to search for tourist spots using the API
-  /*void _searchForSpots(String query) async {
     try {
       final spots = await _touristSpotService.searchTouristSpots(query);
       setState(() {
         _touristSpots = spots;
+        _cachedResults[query] = spots;
       });
     } catch (e) {
       print('Error searching for spots: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error searching for spots: $e')),
+      );
     }
-  }*/
+  }
 
-  // Function to build the tourist spots list from API
-  // Function to build the tourist spots list from API
-// Function to build the tourist spots list from API
-Widget _buildTouristSpotsList() {
-  if (_touristSpots.isEmpty) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Text("No tourist spots found."),
+  // Search Unsplash for images
+  void _searchForImages(String query) async {
+    try {
+      final images = await _unsplashService.searchImages(query);
+      setState(() {
+        _imageUrls = images;
+      });
+    } catch (e) {
+      print('Error fetching images: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error fetching images: $e')),
+      );
+    }
+  }
+
+  // Function to debounce user input
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _searchForSpots(query);
+      _searchForImages(query); // Fetch images from Unsplash
+    });
+  }
+
+  // Function to build tourist spots filtered by month
+  Widget _buildTouristSpotsByMonth() {
+    if (_selectedMonth == null) {
+      return const SizedBox(); // If no month selected, return empty
+    }
+
+    int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1; // Convert month to index
+    List<PlaceInfo> filteredPlaces = places.where((place) {
+      return place.bestMonths.contains(selectedMonthIndex);
+    }).toList();
+
+    if (filteredPlaces.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text("No tourist spots found for this month."),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: filteredPlaces.length,
+      itemBuilder: (context, index) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 5, right: 15),
+          child: RecommendedCard(
+            placeInfo: filteredPlaces[index],
+            press: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailScreen(
+                    placeInfo: filteredPlaces[index],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 
-  return ListView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: _touristSpots.length,
-    itemBuilder: (context, index) {
-      final spot = _touristSpots[index];
-      return ListTile(
-        leading: ClipRRect(
+  // Function to display Unsplash search results
+  Widget _buildSearchResults() {
+    if (_imageUrls.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('No images found.'),
+      );
+    }
+
+    // Use MediaQuery to determine screen size for responsiveness
+    final screenWidth = MediaQuery.of(context).size.width;
+    final crossAxisCount = (screenWidth / 200).round(); // Adjust based on screen width
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount, // Dynamic grid columns
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+      ),
+      itemCount: _imageUrls.length,
+      itemBuilder: (context, index) {
+        return ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Image.network(
-            spot['imageUrl'] ?? 'https://example.com/default_image.jpg',
-            width: 80,
-            height: 80,
+            _imageUrls[index],
             fit: BoxFit.cover,
             loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
               if (loadingProgress == null) return child;
@@ -195,88 +205,143 @@ Widget _buildTouristSpotsList() {
               );
             },
             errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-              return Image.asset('assets/images/tagtay.jpg', width: 80, height: 80, fit: BoxFit.cover);
+              return const Icon(Icons.error); // Handle error case
             },
           ),
-        ),
-        title: Text(spot['name'] ?? 'Unknown'),
-        subtitle: Text(spot['country'] ?? 'Unknown country'),
-        onTap: () {
-          // Handle tap if needed, perhaps navigate to a detail screen
-        },
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
+  // Build the main content that was duplicated
+  Widget _buildMainContent(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const Row(
+            children: [
+              Text("Category", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _buildCategorySection(),
+          const SizedBox(height: 10),
+          const Row(
+            children: [
+              Text("Popular Tourist Spots", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _buildDropdownToSelectMonth(),
+          if (_selectedMonth != null) _buildTouristSpotsByMonth(),
+          const SizedBox(height: 20),
+          _buildTouristSpotsList(),  // Add this line to display the fetched tourist spots
+          const SizedBox(height: 20),
+          _buildSearchResults(),  // Add this line to display Unsplash search results
+        ],
+      ),
+    );
+  }
+
+  // Build the list of tourist spots
+  Widget _buildTouristSpotsList() {
+    if (_touristSpots.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text("No tourist spots found."),
+      );
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _touristSpots.length,
+      itemBuilder: (context, index) {
+        final spot = _touristSpots[index];
+        return ListTile(
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.network(
+              spot['imageUrl'] ?? 'https://example.com/default_image.jpg',
+              width: 80,
+              height: 80,
+              fit: BoxFit.cover,
+              loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                        : null,
+                  ),
+                );
+              },
+              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                return Image.asset('assets/images/tagtay.jpg', width: 80, height: 80, fit: BoxFit.cover);
+              },
+            ),
+          ),
+          title: Text(spot['name'] ?? 'Unknown'),
+          subtitle: Text(spot['country'] ?? 'Unknown country'),
+          onTap: () {
+            // Handle tap if needed, perhaps navigate to a detail screen
+          },
+        );
+      },
+    );
+  }
 
   @override
-Widget build(BuildContext context) {
-  // Retrieve user name from UserProvider
-  final userName = Provider.of<UserProvider>(context).user.name;
+  Widget build(BuildContext context) {
+    // Retrieve user name from UserProvider
+    final userName = Provider.of<UserProvider>(context).user.name;
 
-  return GestureDetector(
-    onPanUpdate: (_) => _updateActivityTime(),
-    onTap: () => _updateActivityTime(),
-    onPanEnd: (_) => _updateActivityTime(),
-    child: Scaffold(
-      backgroundColor: kWhiteClr,
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 15),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _buildNavIcon(Icons.home, "Home", () {}),
-              _buildNavIcon(Icons.bookmark, "Bookmarks", () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const Bookmark()));
-              }),
-              _buildNavIcon(Icons.map, "Map", () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const MapPage()));
-              }),
-              _buildNavIcon(Icons.event_note, "Planner", () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ItineraryPlannerPage()));
-              }),
-              _buildNavIcon(Icons.account_circle, "Account", () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileAccountPage()));
-              }),
-            ],
+    return GestureDetector(
+      onPanUpdate: (_) => _updateActivityTime(),
+      onTap: () => _updateActivityTime(),
+      onPanEnd: (_) => _updateActivityTime(),
+      child: Scaffold(
+        backgroundColor: kWhiteClr,
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildNavIcon(Icons.home, "Home", () {}),
+                _buildNavIcon(Icons.bookmark, "Bookmarks", () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Bookmark()));
+                }),
+                _buildNavIcon(Icons.map, "Map", () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MapPage()));
+                }),
+                _buildNavIcon(Icons.event_note, "Planner", () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ItineraryPlannerPage()));
+                }),
+                _buildNavIcon(Icons.account_circle, "Account", () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileAccountPage()));
+                }),
+              ],
+            ),
+          ),
+        ),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                _buildAppBar(userName),
+                const SizedBox(height: 15),
+                _buildSearchSection(),
+                const SizedBox(height: 20),
+                _buildMainContent(context),  // Call the renamed function here
+              ],
+            ),
           ),
         ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              _buildAppBar(userName),
-              const SizedBox(height: 15),
-              _buildSearchSection(),
-              const SizedBox(height: 20),
-              const Row(
-                children: [
-                  Text("Category", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 10),
-              _buildCategorySection(),
-              const SizedBox(height: 10),
-              const Row(
-                children: [
-                  Text("Popular Tourist Spots", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-                ],
-              ),
-              const SizedBox(height: 10),
-              _buildDropdownToSelectMonth(),
-              if (_selectedMonth != null) _buildTouristSpotsByMonth(),
-              const SizedBox(height: 20),
-              _buildTouristSpotsList(),  // Add this line to display the fetched tourist spots
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
+    );
+  }
+
 
   // Helper method to build navigation icons
   GestureDetector _buildNavIcon(IconData icon, String label, VoidCallback onTap) {
