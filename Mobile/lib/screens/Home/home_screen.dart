@@ -28,16 +28,17 @@ class _HomeScreenState extends State<HomeScreen> {
   static const Duration _sessionTimeoutLimit = Duration(minutes: 2);
   DateTime _lastActivityTime = DateTime.now();
   final TouristSpotService _touristSpotService = TouristSpotService();
-  final UnsplashService _unsplashService = UnsplashService(); // Unsplash service
+  final UnsplashService _unsplashService = UnsplashService();
 
   List<dynamic> _touristSpots = [];
-  List<String> _imageUrls = []; // Store Unsplash images
+  List<String> _imageUrls = [];
   String? _selectedMonth;
-  final Map<String, List<dynamic>> _cachedResults = {}; // Cache search results
+  final Map<String, List<dynamic>> _cachedResults = {};
   Timer? _debounce;
 
   List<String> months = [
-    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
+    "January", "February", "March", "April", "May", "June", "July", "August",
+    "September", "October", "November", "December"
   ];
 
   @override
@@ -49,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _sessionTimer?.cancel();
-    _debounce?.cancel(); // Cancel debounce timer
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -76,7 +77,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  // Function to search for tourist spots using the API with caching and delay
   void _searchForSpots(String query) async {
     if (_cachedResults.containsKey(query)) {
       setState(() {
@@ -99,7 +99,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Search Unsplash for images
   void _searchForImages(String query) async {
     try {
       final images = await _unsplashService.searchImages(query);
@@ -114,22 +113,21 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Function to debounce user input
   void _onSearchChanged(String query) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () {
       _searchForSpots(query);
-      _searchForImages(query); // Fetch images from Unsplash
+      _searchForImages(query);
     });
   }
 
   // Function to build tourist spots filtered by month
   Widget _buildTouristSpotsByMonth() {
     if (_selectedMonth == null) {
-      return const SizedBox(); // If no month selected, return empty
+      return const SizedBox();
     }
 
-    int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1; // Convert month to index
+    int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;
     List<PlaceInfo> filteredPlaces = places.where((place) {
       return place.bestMonths.contains(selectedMonthIndex);
     }).toList();
@@ -166,54 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Function to display Unsplash search results
-  Widget _buildSearchResults() {
-    if (_imageUrls.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text('No images found.'),
-      );
-    }
-
-    // Use MediaQuery to determine screen size for responsiveness
-    final screenWidth = MediaQuery.of(context).size.width;
-    final crossAxisCount = (screenWidth / 200).round(); // Adjust based on screen width
-
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount, // Dynamic grid columns
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-      ),
-      itemCount: _imageUrls.length,
-      itemBuilder: (context, index) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            _imageUrls[index],
-            fit: BoxFit.cover,
-            loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: CircularProgressIndicator(
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-                      : null,
-                ),
-              );
-            },
-            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-              return const Icon(Icons.error); // Handle error case
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  // Build the main content that was duplicated
+  // Build the main content
   Widget _buildMainContent(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
@@ -235,9 +186,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildDropdownToSelectMonth(),
           if (_selectedMonth != null) _buildTouristSpotsByMonth(),
           const SizedBox(height: 20),
-          _buildTouristSpotsList(),  // Add this line to display the fetched tourist spots
+          _buildTouristSpotsList(),
           const SizedBox(height: 20),
-          _buildSearchResults(),  // Add this line to display Unsplash search results
+          _buildSearchResults(),
         ],
       ),
     );
@@ -258,37 +209,127 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: _touristSpots.length,
       itemBuilder: (context, index) {
         final spot = _touristSpots[index];
-        return ListTile(
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              spot['imageUrl'] ?? 'https://example.com/default_image.jpg',
-              width: 80,
-              height: 80,
-              fit: BoxFit.cover,
-              loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Center(
-                  child: CircularProgressIndicator(
-                    value: loadingProgress.expectedTotalBytes != null
-                        ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-                        : null,
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 10), // Space between tourist spots
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center, // Center the content vertically
+            children: [
+              // Image for the tourist spot
+              Padding(
+                padding: const EdgeInsets.only(left: 16.0), // Add space to the left of the image
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    spot['imageUrl'] ?? 'https://example.com/default_image.jpg',
+                    fit: BoxFit.cover,
+                    height: 100, // Set a fixed height for the image
+                    width: 100, // Set a fixed width for the image
+                    loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                              : null,
+                        ),
+                      );
+                    },
+                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                      return Image.asset('assets/images/tagtay.jpg', fit: BoxFit.cover);
+                    },
                   ),
-                );
-              },
-              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-                return Image.asset('assets/images/tagtay.jpg', width: 80, height: 80, fit: BoxFit.cover);
-              },
-            ),
+                ),
+              ),
+              const SizedBox(width: 10), // Space between the image and text
+              // Column for text beside the image
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start, // Align text to the left
+                  children: [
+                    Text(
+                      spot['name'] ?? 'Unknown',
+                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      spot['country'] ?? 'Unknown country',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          title: Text(spot['name'] ?? 'Unknown'),
-          subtitle: Text(spot['country'] ?? 'Unknown country'),
-          onTap: () {
-            // Handle tap if needed, perhaps navigate to a detail screen
-          },
         );
       },
     );
+  }
+
+  // Function to display Unsplash search results for a specific tourist spot
+  Widget _buildUnsplashImages(String spotName) {
+    // Filter Unsplash images based on the tourist spot name
+    final filteredImages = _imageUrls.where((url) => url.contains(spotName)).toList();
+
+    if (filteredImages.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('No related images found.'),
+      );
+    }
+
+    return SizedBox(
+      height: 100, // Set a fixed height for the image container
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: filteredImages.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4.0), // Space between images
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                filteredImages[index],
+                fit: BoxFit.cover,
+                height: 100, // Set a fixed height for the image
+                width: 100, // Set a fixed width for the image
+                loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent? loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
+                          : null,
+                    ),
+                  );
+                },
+                errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                  return const Icon(Icons.error);
+                },
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  // Function to display Unsplash search results
+  Widget _buildSearchResults() {
+    if (_imageUrls.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text('No images found.'),
+      );
+    }
+
+    return const SizedBox.shrink(); // No longer needed as we're displaying in the tourist spots list
+  }
+
+  // Build the search results from Unsplash and display below the tourist spots
+  void _searchImagesAndDisplay(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      _searchForImages(query);
+    });
   }
 
   @override
