@@ -11,7 +11,7 @@ class TouristSpotService {
 
     final response = await http.get(Uri.parse(url));
     print('Response status: ${response.statusCode}');
-    print('Response body: ${response.body}'); // Log the response body
+    print('Response body: ${response.body}'); // Log the response body 
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
