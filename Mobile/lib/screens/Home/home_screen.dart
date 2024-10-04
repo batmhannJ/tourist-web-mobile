@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _startSessionTimer() {
-    _sessionTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+    _sessionTimer = Timer.periodic(const Duration(minutes: 10), (timer) {
       if (DateTime.now().difference(_lastActivityTime) >= _sessionTimeoutLimit) {
         _handleSessionExpired();
       }
