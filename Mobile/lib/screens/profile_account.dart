@@ -3,7 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart'; // Import Provider package
 import 'edit_profile_page.dart';
 import 'package:flutter_application_2/services/auth_services.dart';
-import 'package:flutter_application_2/providers/user_provider.dart'; // Adjust the path according to your project structure
+import 'package:flutter_application_2/providers/user_provider.dart';
+import 'package:flutter_application_2/screens/landing_page.dart'; // Adjust the path according to your project structure
+ // Adjust the path according to your project structure
 
 class ProfileAccountPage extends StatelessWidget {
   const ProfileAccountPage({Key? key}) : super(key: key);
@@ -100,11 +102,15 @@ class ProfileAccountPage extends StatelessWidget {
                 leading: const Icon(Icons.bar_chart, color: Colors.orange),
                 title: const Text('View Data Analytics'),
                 onTap: () {
-                  // Add data analytics functionality
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => LandingPage()),
+                  );
                 },
                 trailing: const Icon(Icons.arrow_forward_ios, color: Colors.orange),
               ),
             ),
+
 
             const SizedBox(height: 10),
 

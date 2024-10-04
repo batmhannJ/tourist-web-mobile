@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _startSessionTimer() {
-    _sessionTimer = Timer.periodic(const Duration(minutes: 5), (timer) {
+    _sessionTimer = Timer.periodic(const Duration(minutes: 10), (timer) {
       if (DateTime.now().difference(_lastActivityTime) >= _sessionTimeoutLimit) {
         _handleSessionExpired();
       }
@@ -164,6 +164,57 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+   // Calendar-like grid to display months
+ Widget _buildMonthGrid() {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+    child: GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,  // 3 months per row
+        childAspectRatio: 1.5,  // Adjust for more calendar-like appearance
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 12,
+      ),
+      itemCount: months.length,
+      itemBuilder: (context, index) {
+        bool isSelected = _selectedMonth == months[index];
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _selectedMonth = months[index];
+            });
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: isSelected ? Colors.blueAccent : Colors.grey[200],
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: isSelected
+                  ? [BoxShadow(color: Colors.blueAccent.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, 4))]
+                  : [BoxShadow(color: Colors.grey.withOpacity(0.5), blurRadius: 5, offset: const Offset(0, 4))],
+              border: Border.all(
+                color: isSelected ? Colors.blueAccent : Colors.grey[400]!,
+                width: 2,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              months[index],
+              style: TextStyle(
+                fontSize: 18,
+                color: isSelected ? Colors.white : Colors.black87,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ),
+        );
+      },
+    ),
+  );
+}
+
+
   // Build the main content
   Widget _buildMainContent(BuildContext context) {
     return SingleChildScrollView(
@@ -183,8 +234,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          _buildDropdownToSelectMonth(),
-          if (_selectedMonth != null) _buildTouristSpotsByMonth(),
+        const Text("Select a Month", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        _buildMonthGrid(),
+        const SizedBox(height: 20),
+        if (_selectedMonth != null) _buildTouristSpotsByMonth(),
           const SizedBox(height: 20),
           _buildTouristSpotsList(),
           const SizedBox(height: 20),
