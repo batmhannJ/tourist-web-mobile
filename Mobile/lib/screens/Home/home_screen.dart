@@ -191,8 +191,8 @@ class _HomeScreenState extends State<HomeScreen> {
               color: isSelected ? Colors.blueAccent : Colors.grey[200],
               borderRadius: BorderRadius.circular(12),
               boxShadow: isSelected
-                  ? [BoxShadow(color: Colors.blueAccent.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, 4))]
-                  : [BoxShadow(color: Colors.grey.withOpacity(0.5), blurRadius: 5, offset: const Offset(0, 4))],
+                  ? [BoxShadow(color: Colors.blueAccent.withOpacity(0.5), blurRadius: 10, offset: Offset(0, 4))]
+                  : [BoxShadow(color: Colors.grey.withOpacity(0.5), blurRadius: 5, offset: Offset(0, 4))],
               border: Border.all(
                 color: isSelected ? Colors.blueAccent : Colors.grey[400]!,
                 width: 2,
