@@ -11,6 +11,11 @@ const bcrypt = require('bcrypt');
 const saltRounds = 10; // para sa bcrypt encryption
 const PORT = process.env.PORT || 3000;
 const app = express();
+const axios = require('axios'); // I-import ang axios dito\
+const corsAnywhere = require('cors-anywhere');
+const { prototype } = require("jsonwebtoken/lib/NotBeforeError");
+const port = 8080; // o anumang ibang port na hindi ginagamit
+
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -36,7 +41,24 @@ const transporter = nodemailer.createTransport({
         rejectUnauthorized: false
     }
 });
+corsAnywhere.createServer({
+    // Pinapayagan ang lahat ng origin
+    originWhitelist: [], // ['http://localhost:57191'] kung nais mong limitahan
+  }).listen(port, () => {
+    console.log(`CORS Anywhere running on port ${port}`);
+  });
 
+  app.get('/proxy-image', async (req, res) => {
+    const imageUrl = req.query.url;
+    try {
+      const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+      res.set('Content-Type', 'image/png');
+      res.send(response.data);
+    } catch (error) {
+      res.status(500).send('Error fetching the image');
+    }
+  });
+  
 // Route para mag-send ng OTP
 app.post('/send-email', async (req, res) => {
     const { to } = req.body;
