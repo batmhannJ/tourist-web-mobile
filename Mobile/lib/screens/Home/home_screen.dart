@@ -13,8 +13,7 @@ import 'widgets/category_card.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
 import 'package:flutter_application_2/services/dbpedia_service.dart';
-import 'package:http/http.dart' as http; // Make sure this line is present
-import 'dart:convert'; 
+// Make sure this line is present
 
 
 class HomeScreen extends StatefulWidget {
@@ -163,7 +162,7 @@ void _onSearchChanged(String query) {
                 context,
                 MaterialPageRoute(
                   builder: (context) => DetailScreen(
-                    placeInfo: filteredPlaces[index],
+                    spot: filteredPlaces[index],
                   ),
                 ),
               );
@@ -339,14 +338,22 @@ Widget _buildTouristSpotsList() {
                       ),
                       const SizedBox(height: 8),
                       TextButton(
-                        onPressed: () {
-                          // Action when 'View More' is pressed
-                        },
-                        child: const Text(
-                          "View More",
-                          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                          onPressed: () {
+                            // Action when 'View More' is pressed
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailScreen(
+                                  spot: spot,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "View More",
+                            style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -405,9 +412,23 @@ Widget _buildTouristSpotsList() {
                 _buildNavIcon(Icons.bookmark, "Bookmarks", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const Bookmark()));
                 }),
-                _buildNavIcon(Icons.map, "Map", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const MapPage()));
+              _buildNavIcon(Icons.map, "Map", () {
+                  // Define default latitude and longitude values
+                  double defaultLat = 14.5995;  // Example latitude (Manila)
+                  double defaultLong = 120.9842; // Example longitude (Manila)
+
+                  // Navigate to MapPage and pass the latitude and longitude
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MapPage(
+                        destinationLat: defaultLat,
+                        destinationLong: defaultLong,
+                      ),
+                    ),
+                  );
                 }),
+
                 _buildNavIcon(Icons.event_note, "Planner", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const ItineraryPlannerPage()));
                 }),
