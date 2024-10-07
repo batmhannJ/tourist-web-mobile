@@ -1,23 +1,20 @@
-const express = require("express");
+const express = require("express")
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const jwtSecret = 'pC4l7f9H2a7Y1dC9Uk1ZjX6D8ErO23Dk5FxR7e0vF0O=';
-const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const session = require('express-session')
+const MongoStore = require('connect-mongo')
 const { collection, collection2 } = require("./mongo");
 const nodemailer = require('nodemailer');
-const cors = require("cors");
-const app = express();
-const PORT = process.env.PORT || 4000;
-const maxAttempts = 5;
-const lockoutDuration = 2 * 60 * 1000;
 
-let loginAttempts = {};
+const cors = require("cors")
+const app = express()
+const PORT = process.env.PORT || 4000
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json())
+app.use(express.urlencoded({extended: true}))
 app.use(cors({
-    origin: 'http://localhost:4000',
+    origin: 'http://localhost:3000', // React app's origin
     credentials: true
 }));
 
@@ -28,7 +25,7 @@ app.use(session({
     store: MongoStore.create({
         mongoUrl: 'mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test'
     }),
-    cookie: { maxAge: 180 * 60 * 1000 }
+    cookie: { maxAge: 180 * 60 * 1000 } // 3 hours
 }));
 
 app.get('/check-session', (req, res) => {
@@ -41,8 +38,8 @@ app.get('/check-session', (req, res) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'olshco.electionupdates@gmail.com',
-        pass: 'nxgb fqoh qkxk svjs',
+        user: 'olshco.electionupdates@gmail.com', 
+        pass: 'nxgb fqoh qkxk svjs', 
     },
 });
 
@@ -80,8 +77,8 @@ app.post('/forgotpassword', async (req, res) => {
             return res.status(404).json({ error: "User not found" });
         }
 
-        const token = generateToken();
-        await sendVerificationEmail(email, token);
+        const token = generateToken(); 
+        await sendVerificationEmail(email, token); 
 
         res.status(200).send('Reset token sent successfully');
     } catch (error) {
@@ -112,21 +109,12 @@ app.patch("/forgotpassword", async (req, res) => {
     }
 });
 
-app.get("/login", cors(), (req, res) => {});
+app.get("/login", cors(), (req, res)=>{
+
+})
 
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
-
-    // Check if the user is locked out
-    if (loginAttempts[email] && loginAttempts[email].attempts >= maxAttempts) {
-        const timeElapsed = Date.now() - loginAttempts[email].time;
-        if (timeElapsed < lockoutDuration) {
-            return res.status(403).json({ error: "Too many login attempts. Please try again later.", lockout: true });
-        } else {
-            // Reset attempts if lockout period has passed
-            loginAttempts[email] = { attempts: 0, time: null };
-        }
-    }
 
     try {
         let user = await collection.findOne({ email: email });
@@ -137,18 +125,8 @@ app.post("/login", async (req, res) => {
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            // Increment login attempts if the password is incorrect
-            if (!loginAttempts[email]) {
-                loginAttempts[email] = { attempts: 1, time: Date.now() };
-            } else {
-                loginAttempts[email].attempts++;
-            }
-
-            return res.status(400).json({ error: 'Invalid username or password', attemptsLeft: maxAttempts - loginAttempts[email].attempts });
+            return res.status(400).json({ error: 'Invalid username or password' });
         }
-
-        // On successful login, reset attempts
-        delete loginAttempts[email];
 
         if (user.role === 'admin') {
             req.session.userId = user._id;
@@ -173,103 +151,122 @@ app.post("/login", async (req, res) => {
     }
 });
 
+
+
 app.post('/logout', (req, res) => {
     req.session.destroy(err => {
         if (err) {
-            return res.status(500).json({ message: 'Logout error' });
+            return res.status(500).json({ message: 'Logout error' })
         }
-        res.status(200).json({ message: 'Logout successful' });
-    });
-});
+        res.status(200).json({ message: 'Logout successful' })
+    })
+})
 
-app.post("/signupdata", async (req, res) => {
-    const { name, email, password } = req.body;
+app.post("/signupdata", async(req, res)=>{
+    const{name, email, password} = req.body
+
 
     try {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const data = {
-            name: name,
-            email: email,
-            password: hashedPassword
-        };
-        const check = await collection.findOne({ email: email });
-
-        if (check) {
-            res.json("exist");
-        } else {
-            res.json("not exist");
-            await collection.insertMany([data]);
-        }
-    } catch (e) {
-        res.json("not exist");
+            const data = {
+                name: name,
+                email:email,
+                password:hashedPassword
     }
-});
+        const check = await collection.findOne({email:email})
 
-app.post("/addmanager", async (req, res) => {
-    const { name, email, password, role } = req.body;
+        if (check){
+            res.json("exist")
+        } else{
+            res.json("not exist")
+            await collection.insertMany([data])
+        }
+    }
+    catch(e){
+        res.json("not exist")
+    }
 
-    try {
+})
+
+app.post("/addmanager", async(req, res)=>{
+    const{name, email, password, role} = req.body
+
+    try{ 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const data = {
-            name: name,
-            email: email,
-            password: hashedPassword,
-            role: role
-        };
-        await collection.insertMany([data]);
-    } catch (e) {
-        res.json("manager insert error");
+            const data = {
+                name: name,
+                email: email,
+                password: hashedPassword,
+                role: role
+    };
+        await collection.insertMany([data])
     }
-});
+    catch(e){
+        res.json("manager insert error")
+    }
+})
 
-app.get("/getmanagers", async (req, res) => {
+app.get("/getmanagers", async(req, res) => {
     try {
-        const managers = await collection.find({ role: 'manager' });
+        const managers = await collection.find({role: 'manager'});
         res.json(managers);
     } catch (e) {
         res.status(500).json({ error: "Manager retrieval error" });
     }
 });
 
-app.delete("/deletemanager/:id", async (req, res) => {
-    const { id } = req.params;
+app.delete("/deletemanager/:id", async(req, res) => {
+
+    
+
+    const {id} = req.params;
     try {
         await collection.findByIdAndDelete(id);
+        
         res.status(200).json({ message: "Manager deleted successfully" });
+   
     } catch (e) {
         res.status(500).json({ error: "Manager deletion error" });
     }
 });
 
-app.patch("/editmanager/:id", async (req, res) => {
-    const { id } = req.params;
+app.patch("/editmanager/:id", async(req, res) => {
+    const {id} = req.params;
     const { name, email, password } = req.body;
 
     try {
-        const data = {
+        // Create the data object with updated fields
+        const data = { 
             name: name,
             email: email,
             password: password
         };
 
+        // Find the manager by ID and update it with the new data
         const updatedManager = await collection.findByIdAndUpdate(id, data);
+
+        // Send the updated manager data in the response
         res.status(200).json(updatedManager);
-    } catch (e) {
+    }
+    
+    catch (e) {
         res.status(500).json({ error: "Manager edit error" });
     }
 });
 
-app.patch("/approvemanager/:id", async (req, res) => {
+app.patch("/approvemanager/:id",  async (req, res) => {
     const { id } = req.params;
 
     try {
         const data = {
-            status: 'approved'
+            status: 'approved' 
         };
 
         const updatedManager = await collection.findByIdAndUpdate(id, data, { new: true });
+
+
         res.status(200).json(updatedManager);
     } catch (e) {
         console.error("Manager approval error:", e);
@@ -277,90 +274,94 @@ app.patch("/approvemanager/:id", async (req, res) => {
     }
 });
 
-app.patch("/declinemanager/:id", async (req, res) => {
+app.patch("/declinemanager/:id",  async (req, res) => {
     const { id } = req.params;
 
     try {
         const data = {
-            status: 'decline'
+            status: 'decline' 
         };
 
         const updatedManager = await collection.findByIdAndUpdate(id, data, { new: true });
+
+
         res.status(200).json(updatedManager);
     } catch (e) {
         console.error("Manager approval error:", e);
         res.status(500).json({ error: "Manager approval error" });
     }
-});
+}); 
 
-app.post("/addlocation", async (req, res) => {
-    const { destinationName, latitude, longitude, description, destinationType } = req.body;
+app.post("/addlocation", async(req, res)=>{
+
+   
+    const{destinationName, latitude, longitude, description, destionationType} = req.body
 
     const data = {
         destinationName: destinationName,
         latitude: latitude,
         longitude: longitude,
         description: description,
-        destinationType: destinationType
+        destionationType: destionationType
     };
-    try {
-        await collection2.insertMany([data]);
-    } catch (e) {
-        res.json("location insert error");
+    try{ 
+        await collection2.insertMany([data])
+        
+
+    }
+    catch(e){
+        res.json("location insert error")
     }
 });
 
-app.get("/getlocation", async (req, res) => {
+app.get("/getlocation", async(req, res) => {
     try {
-        const locations = await collection2.find();
+        const locations = await collection2.find({destinationType: 'local'});
         res.json(locations);
     } catch (e) {
-        res.status(500).json({ error: "Location retrieval error" });
+        res.status(500).json({ error: "Manager retrieval error" });
     }
 });
 
-app.delete("/deletelocation/:id", async (req, res) => {
+app.delete("/deletelocation/:id", async (req, res) => { // Correct route
     const { id } = req.params;
+
     try {
         await collection2.findByIdAndDelete(id);
         res.status(200).json({ message: "Location deleted successfully" });
-    } catch (e) {
-        res.status(500).json({ error: "Location deletion error" });
+    } catch (error) {
+        console.error("Error deleting location:", error);
+        // Send an error response
+        res.status(500).json({ error: "Location delete error" });
     }
 });
 
-app.patch("/editlocation/:id", async (req, res) => {
-    const { id } = req.params;
-    const { destinationName, latitude, longitude, description, destinationType } = req.body;
+
+app.patch("/editlocation/:id", async(req, res) => {
+    const {id} = req.params;
+    const { destinationName, latitude, longitude, description } = req.body;
 
     try {
-        const data = {
-            destinationName: destinationName,
+        // Create the data object with updated fields
+        const data = { 
+            destinationName: destinationName,  
             latitude: latitude,
             longitude: longitude,
-            description: description,
-            destinationType: destinationType
+            description: description
         };
 
+        // Find the manager by ID and update it with the new data
         const updatedLocation = await collection2.findByIdAndUpdate(id, data);
+
+        // Send the updated manager data in the response
         res.status(200).json(updatedLocation);
-    } catch (e) {
-        res.status(500).json({ error: "Location edit error" });
+    }
+    
+    catch (e) {
+        res.status(500).json({ error: "Manager edit error" });
     }
 });
 
-app.get("/landing", (req, res) => {
-    res.send("Welcome to the Landing Page!");
-});
-
-app.get("/edit-profile", (req, res) => {
-    if (req.session.user) {
-        res.json({ user: req.session.user });
-    } else {
-        res.status(401).json({ message: 'Not authenticated' });
-    }
-});
-
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
+app.listen(4000, ()=>{
+    console.log("port connected")
+})
