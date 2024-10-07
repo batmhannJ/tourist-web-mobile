@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/model/place_model.dart';
-import 'package:flutter_application_2/screens/Home/widgets/recommended_card.dart';
 import 'package:flutter_application_2/screens/detailscreen/detail_screen.dart';
 import 'package:flutter_application_2/screens/bookmark_page.dart';
 import 'package:flutter_application_2/screens/map_page.dart';
@@ -13,8 +12,8 @@ import 'widgets/category_card.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
 import 'package:flutter_application_2/services/dbpedia_service.dart';
-// Make sure this line is present
-
+import 'package:http/http.dart' as http;
+import 'dart:convert'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -28,12 +27,21 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _sessionTimer;
   static const Duration _sessionTimeoutLimit = Duration(minutes: 2);
   DateTime _lastActivityTime = DateTime.now();
-
+  List<dynamic> mostSearchedCategories = []; // To store most searched categories
   List<dynamic> _touristSpots = [];
   final List<String> _imageUrls = [];
-  String? _selectedMonth;
   final Map<String, List<dynamic>> _cachedResults = {};
   Timer? _debounce;
+   bool isSearching = false;
+  String searchQuery = '';
+
+  // Function to handle search
+  void _search(String query) {
+    setState(() {
+      searchQuery = query;
+      isSearching = query.isNotEmpty; // Set isSearching to true if there's a query
+    });
+  }
 
   List<String> months = [
     "January", "February", "March", "April", "May", "June", "July", "August",
@@ -46,6 +54,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _startSessionTimer();
     fetchTouristSpots();
+    fetchMostSearchedCategories(); 
+    fetchDestinations();
   }
 
   void fetchTouristSpots() async {
@@ -86,6 +96,12 @@ class _HomeScreenState extends State<HomeScreen> {
       _lastActivityTime = DateTime.now();
     });
   }
+  
+ Future<List<PlaceInfo>> fetchDestinations() async {
+  await Future.delayed(Duration(seconds: 1)); // Optional: simulate network delay
+  // Return the hardcoded list of places
+  return places;
+}
 
  final Map<String, String?> imageCache = {};
 
@@ -100,6 +116,9 @@ void _searchForSpots(String query) async {
 
   try {
     final service = DBpediaService();
+
+    // Log the search term before fetching results
+    await logSearch(query);  // Call the logSearch function here
     
     // Fetching tourist spots with image URLs
     final allSpots = await service.fetchTouristSpots(query);
@@ -113,6 +132,8 @@ void _searchForSpots(String query) async {
       _touristSpots = filteredSpots;
       _cachedResults[query] = filteredSpots;
     });
+        // Optionally, update the most searched categories here
+    await updateMostSearchedCategories(query);
   } catch (e) {
     print('Error searching for spots: $e');
     ScaffoldMessenger.of(context).showSnackBar(
@@ -121,144 +142,112 @@ void _searchForSpots(String query) async {
   }
 }
 
+Future<void> logSearch(String searchTerm) async {
+  final response = await http.post(
+    Uri.parse('http://localhost:3000/logSearch'),
+    body: {'searchTerm': searchTerm},
+  );
+
+  if (response.statusCode == 200) {
+    print('Search term logged successfully.');
+  } else {
+    print('Failed to log search term: ${response.reasonPhrase}');
+  }
+}
+
+Future<void> updateMostSearchedCategories(String query) async {
+  final response = await http.post(
+    Uri.parse('http://localhost:3000/logSearch'),  // Update this to your API URL
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode({'searchTerm': query}),
+  );
+
+  if (response.statusCode == 200) {
+    print('Search term updated successfully.');
+  } else {
+    print('Failed to update search term: ${response.reasonPhrase}');
+  }
+}
+
+Future<List<dynamic>> fetchMostSearchedCategories() async {
+  final response = await http.get(Uri.parse('http://localhost:3000/mostSearched'));
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = json.decode(response.body);
+    return data.map((item) => {
+      'title': item['title'],
+      'image': item['image'],
+    }).toList();
+  } else {
+    throw Exception('Failed to load most searched categories');
+  }
+}
 
 void _onSearchChanged(String query) {
   if (_debounce?.isActive ?? false) _debounce!.cancel();
-  _debounce = Timer(const Duration(milliseconds: 500), () {
+  _debounce = Timer(const Duration(seconds: 3), () {
     _searchForSpots(query);  // Call the updated function
   });
 }
 
+// Build the main content
+Widget _buildMainContent(BuildContext context) {
+  return SingleChildScrollView(
+    child: Column(
+      children: [
+        const Row(
+          children: [
+            Text("Most Search Destinations", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        _buildCategorySection(),
+        const SizedBox(height: 10),
+        const Row(
+          children: [
+            Text("Popular Tourist Spots", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+          ],
+        ),
+        const SizedBox(height: 10),
+        _buildTouristSpotsList(),
+        const SizedBox(height: 20),
+        
+        // Add FutureBuilder to fetch destinations
+        FutureBuilder<List<PlaceInfo>>(
+          future: fetchDestinations(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator()); // Show loading spinner
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return Center(child: Text('No destinations found.'));
+            }
 
-  // Function to build tourist spots filtered by month
-  Widget _buildTouristSpotsByMonth() {
-    if (_selectedMonth == null) {
-      return const SizedBox();
-    }
-
-    int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;
-    List<PlaceInfo> filteredPlaces = places.where((place) {
-      return place.bestMonths.contains(selectedMonthIndex);
-    }).toList();
-
-    if (filteredPlaces.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text("No tourist spots found for this month."),
-      );
-    }
-
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredPlaces.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 5, right: 15),
-          child: RecommendedCard(
-            placeInfo: filteredPlaces[index],
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailScreen(
-                    spot: filteredPlaces[index],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-   // Calendar-like grid to display months
- Widget _buildMonthGrid() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-    child: GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,  // 3 months per row
-        childAspectRatio: 1.5,  // Adjust for more calendar-like appearance
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: months.length,
-      itemBuilder: (context, index) {
-        bool isSelected = _selectedMonth == months[index];
-        return GestureDetector(
-          onTap: () {
-            setState(() {
-              _selectedMonth = months[index];
-            });
+            // Build a list of destinations
+            List<PlaceInfo> destinations = snapshot.data!;
+            return ListView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: destinations.length,
+              itemBuilder: (context, index) {
+                PlaceInfo place = destinations[index];
+                return ListTile(
+                  title: Text(place.name),
+                  subtitle: Text(place.location),
+                  leading: Image.asset(place.image), // Make sure to load the image properly
+                  onTap: () {
+                    // Handle tap, e.g., navigate to a details page
+                  },
+                );
+              },
+            );
           },
-          child: Container(
-            decoration: BoxDecoration(
-              color: isSelected ? Colors.blueAccent : Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: isSelected
-                  ? [BoxShadow(color: Colors.blueAccent.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, 4))]
-                  : [BoxShadow(color: Colors.grey.withOpacity(0.5), blurRadius: 5, offset: const Offset(0, 4))],
-              border: Border.all(
-                color: isSelected ? Colors.blueAccent : Colors.grey[400]!,
-                width: 2,
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              months[index],
-              style: TextStyle(
-                fontSize: 18,
-                color: isSelected ? Colors.white : Colors.black87,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ),
-        );
-      },
+        ),
+      ],
     ),
   );
 }
-
-  // Build the main content
-  Widget _buildMainContent(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          const Row(
-            children: [
-              Text("Category", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          _buildCategorySection(),
-          const SizedBox(height: 10),
-          const Row(
-            children: [
-              Text("Popular Tourist Spots", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          _buildDropdownToSelectMonth(),
-          if (_selectedMonth != null) _buildTouristSpotsByMonth(),
-        const Text("Select a Month", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-        const SizedBox(height: 10),
-        _buildMonthGrid(),
-        const SizedBox(height: 20),
-        if (_selectedMonth != null) _buildTouristSpotsByMonth(),
-          const SizedBox(height: 20),
-          _buildTouristSpotsList(),
-          const SizedBox(height: 20),
-          _buildSearchResults(),
-        ],
-      ),
-    );
-  }
-  
-
 
 Widget _buildTouristSpotsList() {
   if (_touristSpots.isEmpty) {
@@ -365,31 +354,6 @@ Widget _buildTouristSpotsList() {
     },
   );
 }
-
-
-  // Function to display Unsplash search results
- Widget _buildSearchResults() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _imageUrls.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 5, right: 15),
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            child: Image.network(
-              _imageUrls[index],
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Center(child: Text('Image could not be loaded'));
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -503,7 +467,6 @@ Widget _buildTouristSpotsList() {
     );
   }
 
-  // Helper method to build the search section
   Widget _buildSearchSection() {
   return Container(
     decoration: BoxDecoration(
@@ -557,67 +520,43 @@ Widget _buildTouristSpotsList() {
   );
 }
 
-
-  // Helper method to build the category section
   Widget _buildCategorySection() {
-    return SizedBox(
-      height: 70,
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        children: [
-          Row(
-            children: [
-              CategoryCard(
-                press: () {},
-                image: "assets/images/app.jpg",
-                title: "Tagaytay",
-              ),
-              CategoryCard(
-                press: () {},
-                image: "assets/images/antipolo1.jpg",
-                title: "Antipolo, Rizal",
-              ),
-              CategoryCard(
-                press: () {},
-                image: "assets/images/baguio.jpg",
-                title: "Baguio",
-              ),
-              CategoryCard(
-                press: () {},
-                image: "assets/images/siargao1-img.jpg",
-                title: "Siargao",
-              ),
-              CategoryCard(
-                press: () {},
-                image: "assets/images/ilocossur1-img.jpg",
-                title: "Ilocos Sur",
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+  return SizedBox(
+    height: 70,
+    child: FutureBuilder<List<dynamic>>(
+      future: fetchMostSearchedCategories(), // Fetch categories
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // While waiting for data, show a loading indicator
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          // If there was an error, show an error message
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          // If no data is available, show a message
+          return Center(child: Text('No categories available.'));
+        }
 
-  // Helper method to build the month selection dropdown
-  Widget _buildDropdownToSelectMonth() {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: DropdownButtonFormField<String>(
-        value: _selectedMonth,
-        hint: const Text("Select a month"),
-        onChanged: (newValue) {
-          setState(() {
-            _selectedMonth = newValue;
-          });
-        },
-        items: months.map((month) {
-          return DropdownMenuItem(
-            value: month,
-            child: Text(month),
-          );
-        }).toList(),
-      ),
-    );
-  }
+        // If data is available, build the list of category cards
+        final categories = snapshot.data!;
+
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: categories.length,
+          itemBuilder: (context, index) {
+            final category = categories[index];
+            return CategoryCard(
+              press: () {
+                // Add your onTap functionality here
+                print('Selected: ${category['title']}');
+              },
+              image: category['image'],  // Use image URL from the database
+              title: category['title'],  // Use title from the database
+            );
+          },
+        );
+      },
+    ),
+  );
+}
 }

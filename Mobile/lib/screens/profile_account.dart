@@ -91,7 +91,7 @@ class ProfileAccountPage extends StatelessWidget {
             const SizedBox(height: 10),
 
             // View Data Analytics Card
-            Card(
+            /*Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
@@ -104,7 +104,7 @@ class ProfileAccountPage extends StatelessWidget {
                 },
                 trailing: const Icon(Icons.arrow_forward_ios, color: Colors.orange),
               ),
-            ),
+            ),*/
 
 
             const SizedBox(height: 10),

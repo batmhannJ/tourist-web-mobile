@@ -139,6 +139,74 @@ app.post('/api/reset-password', async (req, res) => {
     }
 });
 
+// In-memory storage for simplicity
+async function fetchThumbnailFromDBpedia(searchTerm) {
+    const query = encodeURIComponent(searchTerm);
+    const dbpediaUrl = `http://dbpedia.org/sparql?query=SELECT%20?thumbnail%20WHERE%20{?s%20rdfs:label%20"${query}"@en.%20?s%20dbo:thumbnail%20?thumbnail.}`;
+
+    try {
+        const response = await axios.get(dbpediaUrl);
+        const results = response.data.results.bindings;
+
+        if (results.length > 0) {
+            return results[0].thumbnail.value;  // Return the first thumbnail URL found
+        }
+    } catch (error) {
+        console.error('Error fetching thumbnail from DBpedia:', error);
+    }
+
+    return null;  // Return null if no thumbnail found
+}
+
+app.post('/logSearch', async (req, res) => {
+    const { searchTerm } = req.body;
+
+    try {
+        // Find the search term in the database
+        const thumbnailUrl = await fetchThumbnailFromDBpedia(searchTerm);
+        let searchEntry = await Search.findOne({ title: searchTerm });
+
+        if (searchEntry) {
+            // If it exists, increment the count
+            searchEntry.count += 1;
+        } else {
+            // If it doesn't exist, create a new entry
+            searchEntry = new Search({
+                title: searchTerm,
+                image: thumbnailUrl || '/images/tagtay.jpg', // Set a default image URL or customize it
+                count: 1
+            });
+        }
+
+        // Save the updated or new entry
+        await searchEntry.save();
+
+        res.status(200).json({ message: 'Search term logged successfully.' });
+    } catch (error) {
+        console.error('Error logging search term:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+const searchSchema = new mongoose.Schema({
+    title: String,
+    image: String,
+    count: { type: Number, default: 0 }
+});
+
+const Search = mongoose.model('Search', searchSchema);
+
+// Endpoint to fetch most searched categories
+app.get('/mostSearched', async (req, res) => {
+    try {
+        const mostSearched = await Search.find().sort({ count: -1 }).limit(10); // Fetch top 10 most searched
+        res.status(200).json(mostSearched);
+    } catch (error) {
+        console.error('Error fetching most searched categories:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);
 });
