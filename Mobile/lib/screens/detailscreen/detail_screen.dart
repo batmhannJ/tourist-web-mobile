@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_2/model/place_model.dart';
-import 'package:flutter_application_2/utilities/colors.dart';
 import 'package:flutter_application_2/screens/map_page.dart'; // Import the MapPage
 
 class DetailScreen extends StatelessWidget {

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart'; // Import Provider package
 import 'edit_profile_page.dart';
 import 'package:flutter_application_2/services/auth_services.dart';

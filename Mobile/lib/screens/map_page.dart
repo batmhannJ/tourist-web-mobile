@@ -25,9 +25,18 @@ class _MyAppState extends State<MapPage> {
   final String openWeatherApiKey = '2bc98ff38408a672a88464642be09e6f'; // Replace with your OpenWeather API key
   String weatherInfo = ''; // Store weather info for display
   LatLng? _userLocation; // To store the user's current location
-  Set<Polyline> _polylines = {};
+  final Set<Polyline> _polylines = {};
   final PolylinePoints polylinePoints = PolylinePoints();
   List<LatLng> polylineCoordinates = []; // Store your decoded polyline coordinates here
+
+
+  String routeId = '';
+  String sectionId = '';
+  String type = '';
+  String departureTime = '';
+  String departureLocation = '';
+  String arrivalTime = '';
+  String arrivalLocation = '';
 
 
   @override
@@ -49,7 +58,7 @@ Future<void> fetchRoute() async {
   final double endLat = widget.destinationLat;
   final double endLon = widget.destinationLong;
 
-  final String apiKey = 'W8rx2Ay1muHkc3LL5ZRMOuzACoINfI5Jzav8sGKV8o4'; // Your HERE API key
+  const String apiKey = 'W8rx2Ay1muHkc3LL5ZRMOuzACoINfI5Jzav8sGKV8o4'; // Your HERE API key
   final String url = 'https://router.hereapi.com/v8/routes?origin=$startLat,$startLon&destination=$endLat,$endLon&transportMode=car&return=polyline,summary,actions&apiKey=$apiKey';
 
   try {
@@ -74,14 +83,15 @@ if (data['routes'].isNotEmpty && data['routes'][0]['sections'].isNotEmpty) {
   // Debugging: Check polyline response
   print('Encoded Polyline: $encodedPolyline');
   
-  if (encodedPolyline != null && encodedPolyline.isNotEmpty) {
-    List<PointLatLng> result = polylinePoints.decodePolyline(encodedPolyline);
-    if (result.isNotEmpty) {
-      displayRoute(result);
-    } else {
-      print('No points found in polyline.');
-    }
+  if (encodedPolyline.isNotEmpty) {
+  List<PointLatLng> result = polylinePoints.decodePolyline(encodedPolyline); // flutter_polyline_points decoding
+  if (result.isNotEmpty) {
+    displayRoute(result);
   } else {
+    print('No points found in polyline.');
+  }
+}
+ else {
     print('Encoded polyline is empty.');
   }
 }
@@ -97,44 +107,57 @@ if (data['routes'].isNotEmpty && data['routes'][0]['sections'].isNotEmpty) {
   }
 }
 void processRoute(Map<String, dynamic> response) {
-  if (response['routes'] == null || response['routes'].isEmpty) {
-    print("No routes found in the response.");
-    return;
-  }
-
-  for (var route in response['routes']) {
-    print('Route ID: ${route['id']}');
-
-    for (var section in route['sections']) {
-      print('Section ID: ${section['id']}');
-      print('Type: ${section['type']}');
-
-      final departure = section['departure'];
-      if (departure != null) {
-        print('Departure Time: ${departure['time']}');
-        print('Departure Location: lat=${departure['place']['location']['lat']}, lng=${departure['place']['location']['lng']}');
-      }
-
-      final arrival = section['arrival'];
-      if (arrival != null) {
-        print('Arrival Time: ${arrival['time']}');
-        print('Arrival Location: lat=${arrival['place']['location']['lat']}, lng=${arrival['place']['location']['lng']}');
-      }
-
-      print('Polyline: ${section['polyline'] ?? "No polyline available"}');
+    if (response['routes'] == null || response['routes'].isEmpty) {
+      print("No routes found in the response.");
+      return;
     }
+
+    setState(() {
+      final route = response['routes'][0];
+      final section = route['sections'][0];
+
+      routeId = route['id'];
+      sectionId = section['id'];
+      type = section['type'];
+      departureTime = section['departure']['time'];
+      departureLocation = 'lat=${section['departure']['place']['location']['lat']}, lng=${section['departure']['place']['location']['lng']}';
+      arrivalTime = section['arrival']['time'];
+      arrivalLocation = 'lat=${section['arrival']['place']['location']['lat']}, lng=${section['arrival']['place']['location']['lng']}';
+    });
   }
-}
+  // Add this widget to display route and weather details below the map
+  Widget _buildRouteDetails() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Route Details',
+            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          //Text('Route ID: $routeId'),
+          //Text('Section ID: $sectionId'),
+          Text('Type: $type'),
+          Text('Departure Time: $departureTime'),
+          Text('Departure Location: $departureLocation'),
+          Text('Arrival Time: $arrivalTime'),
+          Text('Arrival Location: $arrivalLocation'),
+        ],
+      ),
+    );
+  }
 void _showNoRouteFoundDialog() {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('No Route Found'),
-        content: Text('Sorry, we could not calculate a route between your location and the destination.'),
+        title: const Text('No Route Found'),
+        content: const Text('Sorry, we could not calculate a route between your location and the destination. It cannot be traveled by vehicle.'),
         actions: <Widget>[
           TextButton(
-            child: Text('OK'),
+            child: const Text('OK'),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -147,58 +170,57 @@ void _showNoRouteFoundDialog() {
 
 // --- ADD DECODE POLYLINE FUNCTION HERE ---
  List<LatLng> decodePolyline(String encoded) {
-  // HERE API returns base64 encoded polyline, so we decode it
-  var bytes = base64Decode(encoded);
-  String decoded = utf8.decode(bytes);
-
-  // Now decode the polyline
-  List<LatLng> points = [];
-  int index = 0, len = decoded.length;
+  List<LatLng> polyline = [];
+  int index = 0, len = encoded.length;
   int lat = 0, lng = 0;
 
   while (index < len) {
     int b, shift = 0, result = 0;
     do {
-      b = decoded.codeUnitAt(index++) - 63;
+      b = encoded.codeUnitAt(index++) - 63;
       result |= (b & 0x1F) << shift;
       shift += 5;
     } while (b >= 0x20);
-    int dlat = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+    int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
     lat += dlat;
 
     shift = 0;
     result = 0;
     do {
-      b = decoded.codeUnitAt(index++) - 63;
+      b = encoded.codeUnitAt(index++) - 63;
       result |= (b & 0x1F) << shift;
       shift += 5;
     } while (b >= 0x20);
-    int dlng = (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
+    int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
     lng += dlng;
 
-    points.add(LatLng(lat / 1E5, lng / 1E5));
+    polyline.add(LatLng(lat / 1E5, lng / 1E5));
   }
 
-  return points;
+  return polyline;
 }
 void displayRoute(List<PointLatLng> points) {
-    List<LatLng> routeCoords = points
-        .map((point) => LatLng(point.latitude, point.longitude))
-        .toList();
-  print('Route Coordinates: $routeCoords');
-    setState(() {
-      polylineCoordinates = routeCoords; // Store the polyline coordinates
+  // Map List<PointLatLng> to List<LatLng>
+  List<LatLng> routeCoords = points
+      .map((point) => LatLng(point.latitude, point.longitude))
+      .toList();
 
-      _polylines.add(
-        Polyline(
-          polylineId: const PolylineId('route'),
-          points: routeCoords,
-          color: Colors.red,
-          width: 100,
-        ),
-      );
-    });
-  }
+  print('Route Coordinates: $routeCoords');
+
+  setState(() {
+    polylineCoordinates = routeCoords; // Store the polyline coordinates
+
+    // Add the polyline to the map
+    _polylines.add(
+      Polyline(
+        polylineId: const PolylineId('routes'), // Dynamically assigned ID
+        points: routeCoords, // Use the mapped coordinates
+        color: Colors.red,   // Customizable color
+        width: 5,            // Customizable width
+      ),
+    );
+  });
+}
 
  // Function to request location permission and get the user's current location
   Future<void> _determinePosition() async {
@@ -252,80 +274,27 @@ void displayRoute(List<PointLatLng> points) {
       );
 
       // Move camera to show both user location and destination
-      mapController.animateCamera(CameraUpdate.newLatLngBounds(
-        LatLngBounds(
-          southwest: LatLng(
-            widget.destinationLat < position.latitude ? widget.destinationLat : position.latitude,
-            widget.destinationLong < position.longitude ? widget.destinationLong : position.longitude,
+      mapController.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          LatLngBounds(
+            southwest: LatLng(
+              widget.destinationLat < _userLocation!.latitude ? widget.destinationLat : _userLocation!.latitude,
+              widget.destinationLong < _userLocation!.longitude ? widget.destinationLong : _userLocation!.longitude,
+            ),
+            northeast: LatLng(
+              widget.destinationLat > _userLocation!.latitude ? widget.destinationLat : _userLocation!.latitude,
+              widget.destinationLong > _userLocation!.longitude ? widget.destinationLong : _userLocation!.longitude,
+            ),
           ),
-          northeast: LatLng(
-            widget.destinationLat > position.latitude ? widget.destinationLat : position.latitude,
-            widget.destinationLong > position.longitude ? widget.destinationLong : position.longitude,
-          ),
+          100, // padding
         ),
-        100, // padding
-      ));
+      );
       fetchRoute();
-
     });
   }
 
   void _onMapCreated(GoogleMapController controller) {
     mapController = controller;
-  }
-  // Fetch weather data at user's location
-  Future<void> _getWeatherAtLocation(LatLng location) async {
-    final url =
-        'https://api.openweathermap.org/data/2.5/weather?lat=${location.latitude}&lon=${location.longitude}&appid=$openWeatherApiKey&units=metric';
-
-    try {
-      final response = await http.get(Uri.parse(url));
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final temperature = data['main']['temp'];
-        final weatherDescription = data['weather'][0]['description'];
-        setState(() {
-          weatherInfo = 'Temp: $temperature°C, $weatherDescription';
-        });
-      } else {
-        print('Failed to fetch weather data: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error fetching weather data: $e');
-    }
-  }
-  // Fetch markers from your backend server
-  Future<void> _fetchMarkersFromServer() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:3000/api/markers'));
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        setState(() {
-          _markers.clear();
-          for (var item in data) {
-            final LatLng latLng = LatLng(
-              item['latitude'],
-              item['longitude'],
-            );
-            _markers.add(
-              Marker(
-                markerId: MarkerId(item['_id']),
-                position: latLng,
-                infoWindow: InfoWindow(
-                  title: item['destinationName'], // Add a title to the marker's info window
-                  snippet: item['description'], // Add a description or snippet
-                ),
-              ),
-            );
-          }
-        });
-      } else {
-        print('Failed to load markers');
-      }
-    } catch (e) {
-      print('Error fetching data: $e');
-    }
   }
 
   // Fetch weather data at the map's center (_center LatLng)
@@ -394,6 +363,7 @@ void displayRoute(List<PointLatLng> points) {
                     ),
                     const SizedBox(height: 5),
                     Text(weatherInfo), // Display weather data
+                    _buildRouteDetails(), 
                   ],
                 ),
               ),
