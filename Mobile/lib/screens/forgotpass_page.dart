@@ -20,43 +20,31 @@ class _ForgotpassPageState extends State<ForgotpassPage> {
   bool otpSent = false;
   bool otpVerified = false;
 
-  // Method to request OTP
-  // Method to request OTP
 void requestOtp() async {
   if (_formKey.currentState?.validate() ?? false) {
     String email = emailController.text;
 
-    // Generate OTP
     String otp = generateOtp();
 
-    // Store OTP locally
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('generatedOtp', otp);
 
-    // Send OTP for the email
     await authService.sendOtpEmail(email, otp);
 
     setState(() {
-      otpSent = true; // Update UI to show OTP input field
+      otpSent = true; 
     });
 
-    //print('OTP: $otp'); // For debugging, print the OTP to the console
   }
 }
 
-  // Method to generate OTP
   String generateOtp() {
     var random = Random();
-    int otp = random.nextInt(900000) + 100000; // Generates a 6-digit OTP
+    int otp = random.nextInt(900000) + 100000;
     return otp.toString();
   }
 
-  // Method to verify OTP
-  // Method to verify OTP
 void verifyOtp() async {
-  //SharedPreferences prefs = await SharedPreferences.getInstance();
-  //String? storedOtp = prefs.getString('generatedOtp');
-  //String enteredOtp = otpController.text;
 
   String enteredOtp = otpController.text;
   String email = emailController.text;
@@ -75,7 +63,6 @@ void verifyOtp() async {
   }
 }
 
-  // Method to reset password
   void resetPassword() async {
     if (_formKey.currentState?.validate() ?? false) {
       String newPassword = newPasswordController.text;
