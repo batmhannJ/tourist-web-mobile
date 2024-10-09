@@ -52,6 +52,12 @@ List<PlaceInfo> places =[
     bestMonths: [11, 12, 1, 2, 3, 4], // June to August
     desc: "A UNESCO World Heritage site, Vigan Heritage Village is famous for its well-preserved Spanish colonial and Asian architecture. Cobblestone streets, historical houses, and horse-drawn carriages give visitors a glimpse into the Philippines' colonial past."
   ),
-  
+  PlaceInfo(
+    image: 'assets/images/calle.jpg',
+    location: "Vigan City",
+    name: 'Calle Crisologo',
+    bestMonths: [11, 12, 1, 2, 3, 4], // June to August
+    desc: "As one of the UNESCO World Heritage Sites in the Philippines, Vigan City is a must-visit, with Calle Crisologo being one of the crown jewels of this historic town in Ilocos Sur province."
+  ),
 
 ];

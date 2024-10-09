@@ -31,7 +31,7 @@ class _Bookmark extends State<Bookmark> {
   static const Duration _sessionTimeoutLimit = Duration(minutes: 2);
   DateTime _lastActivityTime = DateTime.now();
   List<dynamic> mostSearchedCategories = []; // To store most searched categories
-  List<dynamic> _touristSpots = [];
+  final List<dynamic> _touristSpots = [];
   final List<String> _imageUrls = [];
   String? _selectedMonth;
   final Map<String, List<dynamic>> _cachedResults = {};

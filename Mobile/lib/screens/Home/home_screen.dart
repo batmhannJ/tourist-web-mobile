@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
   
  Future<List<PlaceInfo>> fetchDestinations() async {
-  await Future.delayed(Duration(seconds: 1)); // Optional: simulate network delay
+  await Future.delayed(const Duration(seconds: 1)); // Optional: simulate network delay
   // Return the hardcoded list of places
   return places;
 }
@@ -194,51 +194,91 @@ void _onSearchChanged(String query) {
 Widget _buildMainContent(BuildContext context) {
   return SingleChildScrollView(
     child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Row(
-          children: [
-            Text("Most Search Destinations", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-          ],
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            "Most Search Destinations", 
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Colors.blueAccent),
+          ),
         ),
-        const SizedBox(height: 10),
-        _buildCategorySection(),
-        const SizedBox(height: 10),
-        const Row(
-          children: [
-            Text("Popular Tourist Spots", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-          ],
+        const SizedBox(height: 16),
+        _buildCategorySection(), // Preserved function
+
+        const SizedBox(height: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Text(
+            "Popular Tourist Spots", 
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Colors.blueAccent),
+          ),
         ),
-        const SizedBox(height: 10),
-        _buildTouristSpotsList(),
-        const SizedBox(height: 20),
-        
-        // Add FutureBuilder to fetch destinations
+        const SizedBox(height: 16),
+        _buildTouristSpotsList(), // Preserved function
+
+        const SizedBox(height: 24),
+
+        // Fetch and display destinations using FutureBuilder
         FutureBuilder<List<PlaceInfo>>(
           future: fetchDestinations(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator()); // Show loading spinner
+              return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return Center(child: Text('No destinations found.'));
+              return const Center(child: Text('No destinations found.'));
             }
 
-            // Build a list of destinations
             List<PlaceInfo> destinations = snapshot.data!;
-            return ListView.builder(
+            return GridView.builder(
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 3 / 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+              ),
               itemCount: destinations.length,
               itemBuilder: (context, index) {
                 PlaceInfo place = destinations[index];
-                return ListTile(
-                  title: Text(place.name),
-                  subtitle: Text(place.location),
-                  leading: Image.asset(place.image), // Make sure to load the image properly
-                  onTap: () {
-                    // Handle tap, e.g., navigate to a details page
-                  },
+                return Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                          child: Image.asset(
+                            place.image, 
+                            fit: BoxFit.cover, 
+                            width: double.infinity,
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              place.name, 
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(place.location, style: const TextStyle(color: Colors.grey)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
             );
@@ -248,6 +288,7 @@ Widget _buildMainContent(BuildContext context) {
     ),
   );
 }
+
 
 Widget _buildTouristSpotsList() {
   if (_touristSpots.isEmpty) {
@@ -528,13 +569,13 @@ Widget _buildTouristSpotsList() {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           // While waiting for data, show a loading indicator
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           // If there was an error, show an error message
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           // If no data is available, show a message
-          return Center(child: Text('No categories available.'));
+          return const Center(child: Text('No categories available.'));
         }
 
         // If data is available, build the list of category cards

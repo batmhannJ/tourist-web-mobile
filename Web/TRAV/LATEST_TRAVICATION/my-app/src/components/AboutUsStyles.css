@@ -1,18 +1,67 @@
-.about-container{
+.about-container {
     margin: 4rem 6rem;
     text-align: start;
+    background-color: #f9f9f9; /* Light background for contrast */
+    border-radius: 12px; /* Slightly more rounded corners */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); /* Deeper shadow for more depth */
+    padding: 2rem; /* Added padding for spacing */
+    transition: transform 0.3s, box-shadow 0.3s; /* Smooth hover transition */
 }
 
-.about-container h1{
+.about-container:hover {
+    transform: translateY(-5px); /* Slight lift effect on hover */
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+.about-container h1 {
     padding-bottom: 1rem;
-
+    font-family: 'Arial', sans-serif; /* Font choice */
+    color: #333; /* Darker text for better readability */
+    font-size: 2rem; /* Larger font size */
+    border-bottom: 2px solid #e0e0e0; /* Underline for emphasis */
 }
-.about-container p{
+
+.about-container p {
     padding-bottom: 2rem;
+    font-family: 'Georgia', serif; /* Different font for body */
+    color: #555; /* Slightly lighter color for text */
+    line-height: 1.7; /* Better line spacing */
 }
 
-@media screen and (max-width: 850px){
-    .about-container{
+.about-container ul {
+    list-style-type: disc; /* Bullet points for lists */
+    padding-left: 1.5rem; /* Indent for better alignment */
+}
+
+.about-container ul li {
+    margin-bottom: 1rem; /* Space between list items */
+}
+
+.about-container a {
+    color: #007BFF; /* Bootstrap primary color */
+    text-decoration: none; /* Remove underline */
+    transition: color 0.3s; /* Smooth color transition */
+}
+
+.about-container a:hover {
+    color: #0056b3; /* Darker shade on hover */
+}
+
+@media screen and (max-width: 850px) {
+    .about-container {
         margin: 4rem 2rem;
+        padding: 1.5rem; /* Adjust padding for smaller screens */
+    }
+    
+    .about-container h1 {
+        font-size: 2rem; /* Smaller font size on mobile */
+    }
+    
+    .about-container p {
+        font-size: 1rem; /* Smaller font size for paragraphs */
+    }
+    
+    .about-container ul {
+        padding-left: 1rem; /* Less padding for lists on mobile */
     }
 }
