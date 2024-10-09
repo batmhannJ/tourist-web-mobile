@@ -200,7 +200,7 @@ Widget _buildMainContent(BuildContext context) {
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             "Most Search Destinations", 
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Colors.blueAccent),
+            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w600, color: Color.fromARGB(255, 0, 0, 0)),
           ),
         ),
         const SizedBox(height: 16),
@@ -211,7 +211,7 @@ Widget _buildMainContent(BuildContext context) {
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
             "Popular Tourist Spots", 
-            style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: Colors.blueAccent),
+            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w600, color: Color.fromARGB(255, 0, 0, 0)),
           ),
         ),
         const SizedBox(height: 16),
@@ -292,11 +292,39 @@ Widget _buildMainContent(BuildContext context) {
 
 Widget _buildTouristSpotsList() {
   if (_touristSpots.isEmpty) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Text("No tourist spots found."),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.search_rounded, // Search icon to encourage user action
+            size: 80,
+            color: Colors.grey,
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            "No tourist spots found.",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            "Search for any place you'd like to explore, and we'll load the tourist spots for that location.",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
     );
   }
+
 
   return ListView.builder(
     shrinkWrap: true,
@@ -381,7 +409,7 @@ Widget _buildTouristSpotsList() {
                           },
                           child: const Text(
                             "View More",
-                            style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.bold),
                           ),
                         ),
                     ],
@@ -397,27 +425,40 @@ Widget _buildTouristSpotsList() {
 }
 
   @override
-  Widget build(BuildContext context) {
-    // Retrieve user name from UserProvider
-    final userName = Provider.of<UserProvider>(context).user.name;
+Widget build(BuildContext context) {
+  // Retrieve user name from UserProvider
+  final userName = Provider.of<UserProvider>(context).user.name;
 
-    return GestureDetector(
-      onPanUpdate: (_) => _updateActivityTime(),
-      onTap: () => _updateActivityTime(),
-      onPanEnd: (_) => _updateActivityTime(),
-      child: Scaffold(
-        backgroundColor: kWhiteClr,
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
+  return GestureDetector(
+    onPanUpdate: (_) => _updateActivityTime(),
+    onTap: () => _updateActivityTime(),
+    onPanEnd: (_) => _updateActivityTime(),
+    child: Scaffold(
+      backgroundColor: Colors.grey[100],
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: Container(
+            height: 60,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(25),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.15),
+                  blurRadius: 12,
+                  offset: Offset(0, -4),
+                ),
+              ],
+            ),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildNavIcon(Icons.home, "Home", () {}),
-                _buildNavIcon(Icons.bookmark, "Bookmarks", () {
+                _buildNavIcon(Icons.bookmark, "Calendar", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const Bookmark()));
                 }),
-              _buildNavIcon(Icons.map, "Map", () {
+                _buildNavIcon(Icons.map, "Map", () {
                   // Define default latitude and longitude values
                   double defaultLat = 14.5995;  // Example latitude (Manila)
                   double defaultLong = 120.9842; // Example longitude (Manila)
@@ -433,7 +474,6 @@ Widget _buildTouristSpotsList() {
                     ),
                   );
                 }),
-
                 _buildNavIcon(Icons.event_note, "Planner", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const ItineraryPlannerPage()));
                 }),
@@ -444,22 +484,24 @@ Widget _buildTouristSpotsList() {
             ),
           ),
         ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildAppBar(userName),
-                const SizedBox(height: 15),
-                _buildSearchSection(),
-                const SizedBox(height: 20),
-                _buildMainContent(context),  // Call the renamed function here
-              ],
-            ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _buildAppBar(userName),
+              const SizedBox(height: 20),
+              _buildSearchSection(),
+              const SizedBox(height: 20),
+              _buildMainContent(context),  // Call the renamed function here
+            ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
 
   // Helper method to build navigation icons
@@ -476,69 +518,124 @@ Widget _buildTouristSpotsList() {
     );
   }
 
-  // Helper method to build the app bar
-  Widget _buildAppBar(String userName) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.red,
-        borderRadius: BorderRadius.circular(20),
+// Helper method to build the app bar
+Widget _buildAppBar(String userName) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+    decoration: BoxDecoration(
+      gradient: LinearGradient(
+        colors: [Colors.orange, const Color.fromARGB(255, 255, 230, 0)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
       ),
-      padding: const EdgeInsets.all(10),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 27,
-            backgroundImage: AssetImage("assets/images/welcome.jpeg"),
-          ),
-          const SizedBox(width: 15),
-          RichText(
-            text: TextSpan(
-              text: "Hello",
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-              children: [
-                TextSpan(
-                  text: userName.isNotEmpty ? ", $userName" : ", User",
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
-                ),
-              ],
+      borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(30),
+        bottomRight: Radius.circular(30),
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withOpacity(0.25),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    ),
+    child: Row(
+      children: [
+        Container(
+          height: 50,
+          width: 50,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            image: DecorationImage(
+              image: AssetImage("assets/images/welcome.jpeg"),
+              fit: BoxFit.cover,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.4),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        const SizedBox(width: 16),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Welcome Back!",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                fontFamily: 'Arial',
+                letterSpacing: 0.8,
+              ),
+            ),
+            Text(
+              userName.isNotEmpty ? userName : "Guest",
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+                fontFamily: 'Arial',
+              ),
+            ),
+          ],
+        ),
+        const Spacer(),
+        Icon(
+          Icons.notifications,
+          color: Colors.white,
+          size: 28,
+        ),
+      ],
+    ),
+  );
+}
 
-  Widget _buildSearchSection() {
+
+
+
+ Widget _buildSearchSection() {
   return Container(
     decoration: BoxDecoration(
-      color: Colors.red,
-      borderRadius: BorderRadius.circular(20),
+      color: Colors.orange, // Changed to teal for a more fresh look
+      borderRadius: BorderRadius.circular(10), // Slightly less rounded corners
     ),
-    padding: const EdgeInsets.all(10),
+    padding: const EdgeInsets.all(12), // Padding is reduced for a more compact design
     child: Column(
       children: [
         const Text(
-          "Explore new destinations",
-          style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
+          "Explore New Places",
+          style: TextStyle(
+            fontSize: 28, // Larger font size for emphasis
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
         Material(
-          borderRadius: BorderRadius.circular(100),
-          elevation: 5,
+          borderRadius: BorderRadius.circular(50), // Keeping the rounded shape
+          elevation: 6, // A bit higher elevation for better shadow effect
           child: Container(
             decoration: BoxDecoration(
-              color: kWhiteClr,
-              borderRadius: BorderRadius.circular(100),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(color: Colors.orange.withOpacity(0.5), width: 1), // Adding a border
             ),
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
               child: Row(
                 children: [
                   Expanded(
                     child: TextFormField(
-                      onChanged: _onSearchChanged, // Use debounced search method
+                      onChanged: _onSearchChanged, // Functionality remains unchanged
                       decoration: const InputDecoration(
-                        hintText: "Search your destination",
+                        hintText: "Enter a destination",
                         hintStyle: TextStyle(color: Colors.grey),
                         prefixIcon: Icon(Icons.search, color: Colors.grey),
                         enabledBorder: InputBorder.none,
@@ -546,10 +643,11 @@ Widget _buildTouristSpotsList() {
                       ),
                     ),
                   ),
+                  const SizedBox(width: 10),
                   const CircleAvatar(
                     radius: 22,
-                    backgroundColor: kPrimaryClr,
-                    child: Icon(Icons.sort_by_alpha_sharp, color: kWhiteClr),
+                    backgroundColor: Color.fromARGB(255, 218, 164, 17),
+                    child: Icon(Icons.sort_by_alpha_sharp, color: Colors.white),
                   ),
                 ],
               ),
@@ -561,40 +659,52 @@ Widget _buildTouristSpotsList() {
   );
 }
 
-  Widget _buildCategorySection() {
-  return SizedBox(
-    height: 70,
+
+
+ Widget _buildCategorySection() {
+  return Padding(
+    padding: const EdgeInsets.only(top: 10, bottom: 10),
     child: FutureBuilder<List<dynamic>>(
-      future: fetchMostSearchedCategories(), // Fetch categories
+      future: fetchMostSearchedCategories(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          // While waiting for data, show a loading indicator
           return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          // If there was an error, show an error message
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          // If no data is available, show a message
           return const Center(child: Text('No categories available.'));
         }
 
-        // If data is available, build the list of category cards
         final categories = snapshot.data!;
 
-        return ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: categories.length,
-          itemBuilder: (context, index) {
-            final category = categories[index];
-            return CategoryCard(
-              press: () {
-                // Add your onTap functionality here
-                print('Selected: ${category['title']}');
-              },
-              image: category['image'],  // Use image URL from the database
-              title: category['title'],  // Use title from the database
-            );
-          },
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),  // Adjusted shadow transparency
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,  // Enable horizontal scrolling
+            child: Row(
+              children: List.generate(categories.length, (index) {
+                final category = categories[index];
+                return CategoryCard(
+                  press: () {
+                    print('Selected: ${category['title']}');
+                  },
+                  image: category['image'],
+                  title: category['title'],
+                );
+              }),
+            ),
+          ),
         );
       },
     ),
