@@ -41,8 +41,10 @@ class AuthService {
         onSuccess: () {
           showSnackBar(
             context,
-            'Account created! Login with the same credentials',
+            'Account created! Please verify your email.',
           );
+          // Send OTP after account creation
+          sendOtp(email);
         },
       );
     } catch (e) {
@@ -96,44 +98,28 @@ class AuthService {
               builder: (context) => HomeScreen(),
             ),
           );
-          return true; // Return true if login and OTP verification are successful
+          return true;
         } else {
           showSnackBar(context, 'Invalid OTP. Please try again.');
-          return false; // Invalid OTP, do not login
+          return false;
         }
       } else {
-        // If login credentials are invalid
         showSnackBar(context, 'Login failed. Please check your credentials.');
       }
     } catch (e) {
       showSnackBar(context, e.toString());
     }
-    return false; // Return false if login failed or OTP is invalid
+    return false;
   }
 
-  // NEW: SEND OTP
   Future<bool> sendOtp(String email) async {
     try {
       String otp = generateOtp();
       await sendOtpEmail(email, otp);
-      return true; // Return true if OTP sent successfully
+      return true;
     } catch (e) {
       print('Error sending OTP: $e');
-      return false; // Return false if there was an error
-    }
-  }
-
-  Future<void> logout() async {
-    try {
-      // Clear the user data from SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.remove('x-auth-token'); // Remove the token
-      await prefs.remove('name'); // Remove the name if you are storing it
-      await prefs.remove('email'); // Remove the email if you are storing it
-      // Add any other user-specific data you want to clear
-    } catch (e) {
-      print('Logout error: $e');
-      // Handle any errors if necessary
+      return false;
     }
   }
 
@@ -163,7 +149,6 @@ class AuthService {
     }
   }
 
-  // SEND OTP EMAIL
   Future<void> sendOtpEmail(String email, String otp) async {
     try {
       final response = await http.post(
@@ -187,7 +172,6 @@ class AuthService {
     }
   }
 
-  // RESET PASSWORD
   Future<void> resetPassword(String email, String newPassword) async {
     try {
       final response = await http.post(
@@ -209,7 +193,6 @@ class AuthService {
     }
   }
 
-  // GET SESSION DURATION
   Future<Duration> getSessionDuration() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginTimeString = prefs.getString('loginTime');
@@ -223,14 +206,12 @@ class AuthService {
     }
   }
 
-  // UPDATE USER DETAILS LOCALLY AND ON SERVER
   Future<bool> updateUserDetails({
     required String name,
     required String email,
     String? password,
   }) async {
     try {
-      // Retrieve the token from SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('x-auth-token');
 
@@ -238,18 +219,15 @@ class AuthService {
         throw Exception('User not authenticated');
       }
 
-      // Prepare the request body
       final body = {
         'name': name,
         'email': email,
       };
 
-      // Add password if it's not null
       if (password != null && password.isNotEmpty) {
         body['password'] = password;
       }
 
-      // Make the HTTP PUT request to update user details on the server
       http.Response res = await http.put(
         Uri.parse('${Constants.uri}/api/update-user'),
         body: jsonEncode(body),
@@ -259,9 +237,7 @@ class AuthService {
         },
       );
 
-      // Check for successful status code (200 OK)
       if (res.statusCode == 200) {
-        // Success - also update user details locally
         await prefs.setString('name', name);
         await prefs.setString('email', email);
 
@@ -283,6 +259,18 @@ class AuthService {
   }
 
   String generateOtp() {
-    return '123456'; // Dummy OTP for testing
+    return '123456';
+  }
+
+  Future<void> logout() async {
+    try {
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('x-auth-token');
+      await prefs.remove('name');
+      await prefs.remove('email');
+    } catch (e) {
+      print('Logout error: $e');
+    }
   }
 }
