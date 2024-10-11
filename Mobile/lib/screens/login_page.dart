@@ -22,10 +22,10 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isLoading = false;
   bool _isPasswordVisible = false;
-  bool _otpSent = false; // Track if OTP has been sent
-  bool _isCooldownActive = false; // Track cooldown status
-  int _countdown = 60; // Countdown timer in seconds
-  Timer? _timer; // Timer object for countdown
+  bool _otpSent = false;
+  bool _isCooldownActive = false;
+  int _countdown = 60;
+  Timer? _timer;
 
   void sendOtp() async {
     if (_isCooldownActive) {
