@@ -84,13 +84,13 @@ class AuthService {
         bool isOtpValid = await verifyOtp(email, otp); // Verify OTP
 
         if (isOtpValid && token != null) {
-          // If OTP is valid and token exists, proceed to log in
           SharedPreferences prefs = await SharedPreferences.getInstance();
           userProvider.setUser(res.body);
 
-          // Store token and login time in SharedPreferences
+          // Store token, login time, and email in SharedPreferences
           await prefs.setString('x-auth-token', token);
           await prefs.setString('loginTime', DateTime.now().toIso8601String());
+          await prefs.setString('email', email); // Store the email
 
           // Directly navigate to HomeScreen
           navigator.pushReplacement(
@@ -172,7 +172,9 @@ class AuthService {
     }
   }
 
-  Future<void> resetPassword(String email, String newPassword) async {
+  
+
+  Future<bool> resetPassword(String email, String newPassword) async {
     try {
       final response = await http.post(
         Uri.parse('${Constants.uri}/api/reset-password'),
@@ -185,11 +187,14 @@ class AuthService {
         },
       );
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to reset password');
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
       }
     } catch (e) {
       print('Password reset error: $e');
+      return false;
     }
   }
 
@@ -264,7 +269,6 @@ class AuthService {
 
   Future<void> logout() async {
     try {
-
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.remove('x-auth-token');
       await prefs.remove('name');
@@ -272,5 +276,11 @@ class AuthService {
     } catch (e) {
       print('Logout error: $e');
     }
+  }
+
+  // Method to get the current user's email
+  Future<String?> getCurrentUserEmail() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('email');
   }
 }

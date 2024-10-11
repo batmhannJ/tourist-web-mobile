@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_2/services/auth_services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
+import 'change_password_page.dart'; // Import the change password page
 
 class EditAccountPage extends StatefulWidget {
   const EditAccountPage({Key? key}) : super(key: key);
@@ -14,11 +15,8 @@ class _EditAccountPageState extends State<EditAccountPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController nameController;
   late TextEditingController emailController;
-  late TextEditingController passwordController;
-  late TextEditingController confirmPasswordController;
   final AuthService authService = AuthService();
   bool _isLoading = false;
-  bool _showConfirmPassword = false;
 
   @override
   void didChangeDependencies() {
@@ -26,16 +24,12 @@ class _EditAccountPageState extends State<EditAccountPage> {
     final user = Provider.of<UserProvider>(context, listen: false).user;
     nameController = TextEditingController(text: user.name);
     emailController = TextEditingController(text: user.email);
-    passwordController = TextEditingController();
-    confirmPasswordController = TextEditingController();
   }
 
   @override
   void dispose() {
     nameController.dispose();
     emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -48,7 +42,6 @@ class _EditAccountPageState extends State<EditAccountPage> {
       final success = await authService.updateUserDetails(
         name: nameController.text,
         email: emailController.text,
-        password: passwordController.text.isNotEmpty ? passwordController.text : null,
       );
 
       setState(() {
@@ -83,6 +76,13 @@ class _EditAccountPageState extends State<EditAccountPage> {
         );
       }
     }
+  }
+
+  void _navigateToChangePassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+    );
   }
 
   @override
@@ -123,59 +123,36 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           TextFormField(
-                            controller: passwordController,
+                            controller: nameController,
                             decoration: const InputDecoration(
-                              labelText: 'New Password (leave blank to keep current)',
+                              labelText: 'Name',
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(),
                             ),
-                            obscureText: true,
                             validator: (value) {
-                              if (value != null && value.isNotEmpty) {
-                                if (value.length < 6) {
-                                  return 'Password must be at least 6 characters long';
-                                }
-                                if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
-                                  return 'Password must contain at least one uppercase letter';
-                                }
-                                if (!RegExp(r'(?=.*[a-z])').hasMatch(value)) {
-                                  return 'Password must contain at least one lowercase letter';
-                                }
-                                if (!RegExp(r'(?=.*[0-9])').hasMatch(value)) {
-                                  return 'Password must contain at least one number';
-                                }
-                                if (!RegExp(r'(?=.*[!@#$%^&*(),.?":{}|<>])').hasMatch(value)) {
-                                  return 'Password must contain at least one special character';
-                                }
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your name';
                               }
                               return null;
                             },
-                            onChanged: (value) {
-                              setState(() {
-                                _showConfirmPassword = value.isNotEmpty;
-                              });
+                          ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: emailController,
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              return null;
                             },
                           ),
-                          if (_showConfirmPassword) ...[
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: confirmPasswordController,
-                              decoration: const InputDecoration(
-                                labelText: 'Confirm New Password',
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(),
-                              ),
-                              obscureText: true,
-                              validator: (value) {
-                                if (value != passwordController.text) {
-                                  return 'Passwords do not match';
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: _updateAccount,
@@ -186,6 +163,17 @@ class _EditAccountPageState extends State<EditAccountPage> {
                               textStyle: const TextStyle(fontSize: 18),
                             ),
                             child: const Text('Update'),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _navigateToChangePassword,
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blueAccent,
+                              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                              textStyle: const TextStyle(fontSize: 18),
+                            ),
+                            child: const Text('Change Password'),
                           ),
                         ],
                       ),
