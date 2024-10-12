@@ -8,14 +8,25 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_application_2/screens/Home/home_screen.dart';
+import 'package:flutter_application_2/screens/login_page.dart';
 
 class AuthService {
-  void signUpUser({
+    void signUpUser({
     required BuildContext context,
     required String email,
     required String password,
     required String name,
   }) async {
+    final passwordRegex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+
+    if (!passwordRegex.hasMatch(password)) {
+      showSnackBar(
+        context,
+        'Password must be at least 6 characters long, contain at least one uppercase letter, one number, and one special character.',
+      );
+      return;
+    }
+
     try {
       User user = User(
         id: '',
@@ -42,7 +53,12 @@ class AuthService {
             context,
             'Account created! Please verify your email.',
           );
+          // Send OTP after account creation
           sendOtp(email);
+          Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
         },
       );
     } catch (e) {

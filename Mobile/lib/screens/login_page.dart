@@ -37,16 +37,14 @@ class _LoginPageState extends State<LoginPage> {
       _isLoading = true;
     });
 
-    // Send OTP to the user's email
     bool success = await authService.sendOtp(emailController.text);
     setState(() {
       _isLoading = false;
-      _otpSent = success; // Update the state based on success
+      _otpSent = success;
     });
 
     if (success) {
       showSnackBar(context, 'OTP sent to your email.');
-      // Start the cooldown timer
       startCountdown();
     } else {
       showSnackBar(context, 'Failed to send OTP. Please try again.');
@@ -56,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
   void startCountdown() {
     setState(() {
       _isCooldownActive = true;
-      _countdown = 60; // Reset countdown to 60 seconds
+      _countdown = 60;
     });
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -67,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         timer.cancel();
         setState(() {
-          _isCooldownActive = false; // Reset cooldown after countdown ends
+          _isCooldownActive = false;
         });
       }
     });
@@ -79,24 +77,21 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = true;
       });
 
-      // Step 1: Try to log in with email and password
       bool isLoggedIn = await authService.signInUser(
         context: context,
         email: emailController.text,
         password: passwordController.text,
-        otp: otpController.text, // Pass the OTP for verification
+        otp: otpController.text,
       );
 
-      // Stop if login failed (invalid email or password)
       if (!isLoggedIn) {
         setState(() {
           _isLoading = false;
         });
         showSnackBar(context, 'Invalid email, password, or OTP. Please try again.');
-        return; // Exit function if login failed
+        return;
       }
 
-      // Step 3: If login is successful, navigate to home screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -112,8 +107,8 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
-    otpController.dispose(); // Dispose the OTP controller
-    _timer?.cancel(); // Cancel the timer if it's active
+    otpController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
@@ -125,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
         body: Container(
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/backg.png'), // Add your travel-themed background image
+              image: AssetImage('assets/images/backg.png'),
               fit: BoxFit.cover,
             ),
           ),
@@ -134,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.all(32.0),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.8), // Semi-transparent white background
+                  color: Colors.white.withOpacity(0.8),
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: const [
                     BoxShadow(
