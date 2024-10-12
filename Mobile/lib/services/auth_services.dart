@@ -53,7 +53,6 @@ class AuthService {
             context,
             'Account created! Please verify your email.',
           );
-          // Send OTP after account creation
           sendOtp(email);
           Navigator.pushReplacement(
           context,
@@ -131,7 +130,6 @@ class AuthService {
     }
   }
 
-  // VERIFY OTP
   Future<bool> verifyOtp(String email, String otp) async {
     try {
       final response = await http.post(
@@ -217,56 +215,52 @@ class AuthService {
     }
   }
 
-  Future<bool> updateUserDetails({
-    required String name,
-    required String email,
-    String? password,
-  }) async {
-    try {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('x-auth-token');
+Future<bool> updateUserDetails({
+  required String name,
+  required String email,
+  String? password,
+}) async {
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('x-auth-token');
 
-      if (token == null) {
-        throw Exception('User not authenticated');
-      }
-
-      final body = {
-        'name': name,
-        'email': email,
-      };
-
-      if (password != null && password.isNotEmpty) {
-        body['password'] = password;
-      }
-
-      http.Response res = await http.put(
-        Uri.parse('${Constants.uri}/api/update-user'),
-        body: jsonEncode(body),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      if (res.statusCode == 200) {
-        await prefs.setString('name', name);
-        await prefs.setString('email', email);
-
-        if (password != null && password.isNotEmpty) {
-          await prefs.setString('password', password);
-        }
-
-        print('User details updated locally and on server');
-        return true;
-      } else {
-        final responseBody = jsonDecode(res.body);
-        throw Exception('Failed to update user: ${responseBody['message']}');
-      }
-    } catch (e) {
-      print('Failed to update user details: $e');
-      return false;
+    if (token == null) {
+      throw Exception('User not authenticated');
     }
+
+    final body = {
+      'name': name,
+      'email': email,
+    };
+
+    if (password != null && password.isNotEmpty) {
+      body['password'] = password;
+    }
+
+    http.Response res = await http.put(
+      Uri.parse('${Constants.uri}/api/update-user'),
+      body: jsonEncode(body),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (res.statusCode == 200) {
+      await prefs.setString('name', name);
+      await prefs.setString('email', email);
+      print('User details updated locally and on server');
+      return true;
+    } else {
+      final responseBody = jsonDecode(res.body);
+      throw Exception('Failed to update user: ${responseBody['message']}');
+    }
+  } catch (e) {
+    print('Failed to update user details: $e');
+    return false;
   }
+}
+
 
   String generateOtp() {
     return '123456';
