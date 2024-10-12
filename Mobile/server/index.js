@@ -6,15 +6,15 @@ const authRouter = require("./routes/auth");
 const markersRouter = require("./routes/markers");
 const Otp = require('./model/otp');
 const nodemailer = require('nodemailer');
-const User = require('./model/user'); // Adjust the path as necessary
+const User = require('./model/user');
 const bcrypt = require('bcrypt');
-const saltRounds = 10; // para sa bcrypt encryption
+const saltRounds = 10;
 const PORT = process.env.PORT || 3000;
 const app = express();
-const axios = require('axios'); // I-import ang axios dito\
+const axios = require('axios');
 const corsAnywhere = require('cors-anywhere');
 const { prototype } = require("jsonwebtoken/lib/NotBeforeError");
-const port = 8080; // o anumang ibang port na hindi ginagamit
+const port = 8080;
 
 
 app.use(cors());
@@ -32,18 +32,17 @@ mongoose.connect("mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseracco
 
 // Nodemailer transporter setup
 const transporter = nodemailer.createTransport({
-    service: 'gmail', // or another email service provider
+    service: 'gmail',
     auth: {
         user: 'reyeshannahjoy82@gmail.com',
-        pass: 'cnoy eucq dvka vrlt' // Use environment variables for sensitive data
+        pass: 'cnoy eucq dvka vrlt' 
     },
     tls: {
         rejectUnauthorized: false
     }
 });
 corsAnywhere.createServer({
-    // Pinapayagan ang lahat ng origin
-    originWhitelist: [], // ['http://localhost:57191'] kung nais mong limitahan
+    originWhitelist: [],
   }).listen(port, () => {
     console.log(`CORS Anywhere running on port ${port}`);
   });
@@ -59,19 +58,16 @@ corsAnywhere.createServer({
     }
   });
   
-// Route para mag-send ng OTP
 app.post('/send-email', async (req, res) => {
     const { to } = req.body;
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Save OTP sa database
     await Otp.findOneAndUpdate(
         { email: to },
         { otp, createdAt: new Date() },
         { upsert: true }
     );
 
-    // Setup ng email options
     const mailOptions = {
         from: 'reyeshannahjoy82@gmail.com',
         to: to,
@@ -79,7 +75,6 @@ app.post('/send-email', async (req, res) => {
         text: `Your OTP is ${otp}. It is valid for 5 minutes.`
     };
 
-    // Send ng OTP email
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
             return res.status(500).send('Error sending email: ' + error.toString());
@@ -88,7 +83,6 @@ app.post('/send-email', async (req, res) => {
     });
 });
 
-// Route para i-verify ang OTP
 app.post('/api/verify-otp', async (req, res) => {
     const { email, otp } = req.body;
 
@@ -103,7 +97,6 @@ app.post('/api/verify-otp', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Invalid OTP' });
         }
 
-        // Check kung expired na ang OTP
         const now = new Date();
         if (now - otpRecord.createdAt > 5 * 60 * 1000) { // 5 minutes expiration
             return res.status(400).json({ success: false, message: 'OTP expired' });
@@ -116,19 +109,17 @@ app.post('/api/verify-otp', async (req, res) => {
     }
 });
 
-// Route para i-reset ang password
 app.post('/api/reset-password', async (req, res) => {
     const { email, newPassword } = req.body;
 
     try {
-        // Hanapin ang user gamit ang email
         const user = await User.findOne({ email });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // I-encrypt ang bagong password
+
         user.password = await bcrypt.hash(newPassword, saltRounds);
         await user.save();
 
@@ -139,7 +130,6 @@ app.post('/api/reset-password', async (req, res) => {
     }
 });
 
-// In-memory storage for simplicity
 async function fetchThumbnailFromDBpedia(searchTerm) {
     const query = encodeURIComponent(searchTerm);
     const dbpediaUrl = `http://dbpedia.org/sparql?query=SELECT%20?thumbnail%20WHERE%20{?s%20rdfs:label%20"${query}"@en.%20?s%20dbo:thumbnail%20?thumbnail.}`;
@@ -149,36 +139,32 @@ async function fetchThumbnailFromDBpedia(searchTerm) {
         const results = response.data.results.bindings;
 
         if (results.length > 0) {
-            return results[0].thumbnail.value;  // Return the first thumbnail URL found
+            return results[0].thumbnail.value; 
         }
     } catch (error) {
         console.error('Error fetching thumbnail from DBpedia:', error);
     }
 
-    return null;  // Return null if no thumbnail found
+    return null;
 }
 
 app.post('/logSearch', async (req, res) => {
     const { searchTerm } = req.body;
 
     try {
-        // Find the search term in the database
         const thumbnailUrl = await fetchThumbnailFromDBpedia(searchTerm);
         let searchEntry = await Search.findOne({ title: searchTerm });
 
         if (searchEntry) {
-            // If it exists, increment the count
             searchEntry.count += 1;
         } else {
-            // If it doesn't exist, create a new entry
             searchEntry = new Search({
                 title: searchTerm,
-                image: thumbnailUrl || '/images/tagtay.jpg', // Set a default image URL or customize it
+                image: thumbnailUrl || '/images/tagtay.jpg',
                 count: 1
             });
         }
 
-        // Save the updated or new entry
         await searchEntry.save();
 
         res.status(200).json({ message: 'Search term logged successfully.' });
@@ -196,10 +182,9 @@ const searchSchema = new mongoose.Schema({
 
 const Search = mongoose.model('Search', searchSchema);
 
-// Endpoint to fetch most searched categories
 app.get('/mostSearched', async (req, res) => {
     try {
-        const mostSearched = await Search.find().sort({ count: -1 }).limit(10); // Fetch top 10 most searched
+        const mostSearched = await Search.find().sort({ count: -1 }).limit(10);
         res.status(200).json(mostSearched);
     } catch (error) {
         console.error('Error fetching most searched categories:', error);

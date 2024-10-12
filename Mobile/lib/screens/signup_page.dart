@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/services/auth_services.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:intl/intl.dart';
 import 'login_page.dart';
 
 class SignupPage extends StatefulWidget {
@@ -15,15 +15,16 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController birthdateController = TextEditingController(); // Controller for birthdate
+  final TextEditingController birthdateController = TextEditingController(); 
   final AuthService authService = AuthService();
 
   bool isOTPSent = false;
   bool isOTPVerified = false;
   bool isButtonDisabled = false;
   bool isTermsAccepted = false;
-  bool isLegalAge = false; // To check if the user is of legal age
+  bool isLegalAge = false;
   int cooldownTime = 30;
 
   void sendOTP() async {
@@ -86,7 +87,6 @@ class _SignupPageState extends State<SignupPage> {
     }
   }
 
-  // Function to pick the birthdate
   void pickDate(BuildContext context) async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -98,12 +98,11 @@ class _SignupPageState extends State<SignupPage> {
     if (pickedDate != null) {
       setState(() {
         birthdateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
-        isLegalAge = calculateAge(pickedDate) >= 18; // Check if 18 years or older
+        isLegalAge = calculateAge(pickedDate) >= 18;
       });
     }
   }
 
-  // Function to calculate age based on birthdate
   int calculateAge(DateTime birthDate) {
     DateTime today = DateTime.now();
     int age = today.year - birthDate.year;
@@ -115,12 +114,14 @@ class _SignupPageState extends State<SignupPage> {
 
   void signupUser() {
     if (isOTPVerified && isTermsAccepted && isLegalAge) {
-      authService.signUpUser(
-        context: context, 
-        email: emailController.text, 
-        password: passwordController.text, 
-        name: nameController.text
-      );
+      if (_formKey.currentState!.validate()) {
+        authService.signUpUser(
+          context: context, 
+          email: emailController.text, 
+          password: passwordController.text, 
+          name: nameController.text,
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please verify email, accept terms, and be at least 18 years old to sign up.')),
@@ -196,7 +197,6 @@ class _SignupPageState extends State<SignupPage> {
                                 ),
                               ),
                               const SizedBox(width: 10),
-
                               if (!isOTPVerified)
                                 ElevatedButton(
                                   onPressed: isButtonDisabled ? null : sendOTP,
@@ -211,7 +211,6 @@ class _SignupPageState extends State<SignupPage> {
                             ],
                           ),
                           const SizedBox(height: 20),
-
                           if (isOTPSent && !isOTPVerified) ...[
                             Row(
                               children: [
@@ -250,7 +249,6 @@ class _SignupPageState extends State<SignupPage> {
                             if (isButtonDisabled) 
                               Text('Resend OTP in $cooldownTime seconds', style: TextStyle(color: Colors.red)),
                           ],
-
                           if (isOTPVerified) ...[
                             const SizedBox(height: 20),
                             TextFormField(
@@ -266,7 +264,6 @@ class _SignupPageState extends State<SignupPage> {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter your name';
                                 }
-
                                 if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
                                   return 'Name must contain only letters and spaces';
                                 }
@@ -274,7 +271,6 @@ class _SignupPageState extends State<SignupPage> {
                               },
                             ),
                             const SizedBox(height: 20),
-
                             TextFormField(
                               controller: birthdateController,
                               decoration: InputDecoration(
@@ -283,41 +279,22 @@ class _SignupPageState extends State<SignupPage> {
                                 filled: true,
                                 fillColor: Colors.grey[200],
                                 prefixIcon: const Icon(Icons.calendar_today, color: Colors.orange),
-                                helperText: 'You must be 18+ years old to sign up',  // Instruction for 18+ requirement
+                                helperText: 'You must be 18+ years old to sign up',
                               ),
                               keyboardType: TextInputType.datetime,
+                              readOnly: true,
+                              onTap: () => pickDate(context),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Please enter your birthdate';
+                                  return 'Please select your birthdate';
                                 }
-
-                                // Regular expression to validate date format (DD/MM/YYYY)
-                                if (!RegExp(r'^\d{2}/\d{2}/\d{4}$').hasMatch(value)) {
-                                  return 'Please enter a valid date (DD/MM/YYYY)';
-                                }
-
-                                // Calculate age based on input birthdate
-                                DateTime today = DateTime.now();
-                                List<String> dateParts = value.split('/');
-                                int day = int.parse(dateParts[0]);
-                                int month = int.parse(dateParts[1]);
-                                int year = int.parse(dateParts[2]);
-                                DateTime birthDate = DateTime(year, month, day);
-
-                                int age = today.year - birthDate.year;
-                                if (today.month < birthDate.month || (today.month == birthDate.month && today.day < birthDate.day)) {
-                                  age--;
-                                }
-
-                                if (age < 18) {
+                                if (!isLegalAge) {
                                   return 'You must be at least 18 years old to sign up';
                                 }
-                                
                                 return null;
                               },
                             ),
                             const SizedBox(height: 20),
-
                             TextFormField(
                               controller: passwordController,
                               obscureText: true,
@@ -339,7 +316,29 @@ class _SignupPageState extends State<SignupPage> {
                               },
                             ),
                             const SizedBox(height: 20),
-                            
+
+                            TextFormField(
+                              controller: confirmPasswordController,
+                              obscureText: true,
+                              decoration: InputDecoration(
+                                labelText: 'Confirm Password',
+                                border: const OutlineInputBorder(),
+                                filled: true,
+                                fillColor: Colors.grey[200],
+                                prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please confirm your password';
+                                }
+                                if (value != passwordController.text) {
+                                  return 'Passwords do not match';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+
                             CheckboxListTile(
                               title: const Text("I agree to the Terms of Use and Privacy Policy"),
                               value: isTermsAccepted,

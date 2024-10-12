@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_application_2/screens/Home/home_screen.dart';
 
 class AuthService {
-  // SIGN UP USER
   void signUpUser({
     required BuildContext context,
     required String email,
@@ -43,7 +42,6 @@ class AuthService {
             context,
             'Account created! Please verify your email.',
           );
-          // Send OTP after account creation
           sendOtp(email);
         },
       );
@@ -52,18 +50,16 @@ class AuthService {
     }
   }
 
-  // SIGN IN USER
   Future<bool> signInUser({
     required BuildContext context,
     required String email,
     required String password,
-    required String otp, // Added otp parameter for verification
+    required String otp,
   }) async {
     try {
       var userProvider = Provider.of<UserProvider>(context, listen: false);
       final navigator = Navigator.of(context);
 
-      // Attempt to login the user with email and password
       http.Response res = await http.post(
         Uri.parse('${Constants.uri}/api/login'),
         body: jsonEncode({
@@ -76,23 +72,19 @@ class AuthService {
       );
 
       if (res.statusCode == 200) {
-        // Parse the response body to get the token and OTP status
         final responseBody = jsonDecode(res.body);
         final token = responseBody['token'];
 
-        // If login is successful, verify OTP
-        bool isOtpValid = await verifyOtp(email, otp); // Verify OTP
+        bool isOtpValid = await verifyOtp(email, otp);
 
         if (isOtpValid && token != null) {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           userProvider.setUser(res.body);
 
-          // Store token, login time, and email in SharedPreferences
           await prefs.setString('x-auth-token', token);
           await prefs.setString('loginTime', DateTime.now().toIso8601String());
-          await prefs.setString('email', email); // Store the email
+          await prefs.setString('email', email);
 
-          // Directly navigate to HomeScreen
           navigator.pushReplacement(
             MaterialPageRoute(
               builder: (context) => HomeScreen(),
@@ -172,8 +164,6 @@ class AuthService {
     }
   }
 
-  
-
   Future<bool> resetPassword(String email, String newPassword) async {
     try {
       final response = await http.post(
@@ -246,7 +236,6 @@ class AuthService {
         await prefs.setString('name', name);
         await prefs.setString('email', email);
 
-        // Update password locally if provided
         if (password != null && password.isNotEmpty) {
           await prefs.setString('password', password);
         }
@@ -278,7 +267,6 @@ class AuthService {
     }
   }
 
-  // Method to get the current user's email
   Future<String?> getCurrentUserEmail() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('email');
