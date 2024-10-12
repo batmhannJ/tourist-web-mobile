@@ -214,40 +214,47 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                           const SizedBox(height: 20),
-                          TextFormField(
-                            controller: otpController, // OTP Input Field
-                            decoration: InputDecoration(
-                              labelText: 'OTP',
-                              border: const OutlineInputBorder(),
-                              filled: true,
-                              fillColor: Colors.grey[200],
-                              prefixIcon: const Icon(Icons.lock, color: Colors.orange),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter the OTP';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          // Send OTP Button
-                          ElevatedButton(
-                            onPressed: _isCooldownActive || _isLoading ? null : sendOtp, // Disable if cooldown is active or loading
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.orange,
-                              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                              textStyle: const TextStyle(fontSize: 18),
-                            ),
-                            child: _isLoading
-                                ? const CircularProgressIndicator(color: Colors.white)
-                                : Text(
-                                    _isCooldownActive
-                                        ? 'Resend OTP ($_countdown)' // Show countdown
-                                        : 'Send OTP',
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextFormField(
+                                    controller: otpController, // OTP Input Field
+                                    decoration: InputDecoration(
+                                      labelText: 'OTP',
+                                      border: const OutlineInputBorder(),
+                                      filled: true,
+                                      fillColor: Colors.grey[200],
+                                      prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Please enter the OTP';
+                                      }
+                                      return null;
+                                    },
                                   ),
-                          ),
+                                ),
+                                const SizedBox(width: 10),
+                                // Send OTP Button
+                                ElevatedButton(
+                                  onPressed: _isCooldownActive || _isLoading ? null : sendOtp, // Disable if cooldown is active or loading
+                                  style: ElevatedButton.styleFrom(
+                                    foregroundColor: Colors.white,
+                                    backgroundColor: Colors.orange,
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                    textStyle: const TextStyle(fontSize: 14),
+                                  ),
+                                  child: _isLoading
+                                      ? const CircularProgressIndicator(color: Colors.white)
+                                      : Text(
+                                          _isCooldownActive
+                                              ? 'Resend OTP ($_countdown)' // Show countdown
+                                              : 'Send OTP',
+                                        ),
+                                ),
+                              ],
+                            ),
+
                           const SizedBox(height: 20),
                           TextButton(
                             onPressed: () {
