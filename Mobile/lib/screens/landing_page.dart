@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class LandingPage extends StatelessWidget {
-  const LandingPage({super.key});
+  final List<String> mostSearchedDestinations;
+
+  const LandingPage({super.key, required this.mostSearchedDestinations}); // Accepting the list as a parameter
 
   @override
   Widget build(BuildContext context) {
@@ -16,11 +18,22 @@ class LandingPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                'Welcome to the Data Analytics Section',
+                'Most Searched Destination',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
+              // Display the most searched destinations
+              Expanded(
+                child: ListView.builder(
+                  itemCount: mostSearchedDestinations.length,
+                  itemBuilder: (context, index) {
+                    return ListTile(
+                      title: Text(mostSearchedDestinations[index]),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),

@@ -123,7 +123,7 @@ Widget _buildTravelCard(int index) {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
             color: Colors.black12,
             blurRadius: 8,
@@ -182,9 +182,9 @@ Widget _buildTravelCard(int index) {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Staying Period:',
-                style: const TextStyle(fontSize: 16, color: Colors.black54),
+                style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
               Text(
                 itinerary['stayingPeriod'],
@@ -196,9 +196,9 @@ Widget _buildTravelCard(int index) {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Budget:',
-                style: const TextStyle(fontSize: 16, color: Colors.black54),
+                style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
               Text(
                 '₱${itinerary['budget']}',
@@ -368,28 +368,28 @@ void _addTravelItinerary() async {
                   const SizedBox(height: 20),
                   TextField(
                     onChanged: (value) => destination = value,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Destination',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.location_on),
+                      prefixIcon: Icon(Icons.location_on),
                     ),
                   ),
                   const SizedBox(height: 15),
                   TextField(
                     onChanged: (value) => stayingPeriod = value,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Staying Period',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.calendar_today),
+                      prefixIcon: Icon(Icons.calendar_today),
                     ),
                   ),
                   const SizedBox(height: 15),
                   TextField(
                     onChanged: (value) => budget = value,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Budget',
                       border: OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.money),
+                      prefixIcon: Icon(Icons.money),
                     ),
                   ),
                   const SizedBox(height: 20),

@@ -1,28 +1,30 @@
-const nodemailer = require("nodemailer");
+const nodemailer = require('nodemailer');
 
-module.exports = async (email, subject, text) => {
-	try {
-		const transporter = nodemailer.createTransport({
-			host: process.env.HOST,
-			service: process.env.SERVICE,
-			port: Number(process.env.EMAIL_PORT),
-			secure: Boolean(process.env.SECURE),
-			auth: {
-				user: process.env.USER,
-				pass: process.env.PASS,
-			},
-		});
+// Create a transporter using Gmail service
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'olshco.electionupdates@gmail.com', 
+        pass: 'nxgb fqoh qkxk svjs', 
+    },
+});
 
-		await transporter.sendMail({
-			from: process.env.USER,
-			to: email,
-			subject: subject,
-			text: text,
-		});
-		console.log("email sent successfully");
-	} catch (error) {
-		console.log("email not sent!");
-		console.log(error);
-		return error;
-	}
+
+const sendVerificationEmail = (email, token) => {
+    const mailOptions = {
+        from: 'olshco.electionupdates@gmail.com', 
+        to: email,
+        subject: 'Password Reset Verification Token',
+        text: `Your password reset token is: ${token}`,
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.error('Error sending email: ', error.message); 
+        } else {
+            console.log('Email sent: ' + info.response);
+        }
+    });
 };
+
+module.exports = sendVerificationEmail;

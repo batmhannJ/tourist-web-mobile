@@ -2,21 +2,31 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/model/user.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
-import 'package:flutter_application_2/screens/Home/home_screen.dart';
 import 'package:flutter_application_2/utilities/constants.dart';
 import 'package:flutter_application_2/utilities/utils.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_application_2/screens/Home/home_screen.dart';
+import 'package:flutter_application_2/screens/login_page.dart';
 
 class AuthService {
-  // SIGN UP USER
-  void signUpUser({
+    void signUpUser({
     required BuildContext context,
     required String email,
     required String password,
     required String name,
   }) async {
+    final passwordRegex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+
+    if (!passwordRegex.hasMatch(password)) {
+      showSnackBar(
+        context,
+        'Password must be at least 6 characters long, contain at least one uppercase letter, one number, and one special character.',
+      );
+      return;
+    }
+
     try {
       User user = User(
         id: '',
@@ -41,8 +51,13 @@ class AuthService {
         onSuccess: () {
           showSnackBar(
             context,
-            'Account created! Login with the same credentials',
+            'Account created! Please verify your email.',
           );
+          sendOtp(email);
+          Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
         },
       );
     } catch (e) {
@@ -50,11 +65,11 @@ class AuthService {
     }
   }
 
-  // SIGN IN USER
-  Future<void> signInUser({
+  Future<bool> signInUser({
     required BuildContext context,
     required String email,
     required String password,
+    required String otp,
   }) async {
     try {
       var userProvider = Provider.of<UserProvider>(context, listen: false);
@@ -71,47 +86,50 @@ class AuthService {
         },
       );
 
-      httpErrorHandle(
-        response: res,
-        context: context,
-        onSuccess: () async {
+      if (res.statusCode == 200) {
+        final responseBody = jsonDecode(res.body);
+        final token = responseBody['token'];
+
+        bool isOtpValid = await verifyOtp(email, otp);
+
+        if (isOtpValid && token != null) {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           userProvider.setUser(res.body);
 
-          // Store token and login time in SharedPreferences
-          await prefs.setString('x-auth-token', jsonDecode(res.body)['token']);
+          await prefs.setString('x-auth-token', token);
           await prefs.setString('loginTime', DateTime.now().toIso8601String());
+          await prefs.setString('email', email);
 
-          navigator.pushAndRemoveUntil(
+          navigator.pushReplacement(
             MaterialPageRoute(
-              builder: (context) => const HomeScreen(),
+              builder: (context) => HomeScreen(),
             ),
-            (route) => false,
           );
-        },
-      );
+          return true;
+        } else {
+          showSnackBar(context, 'Invalid OTP. Please try again.');
+          return false;
+        }
+      } else {
+        showSnackBar(context, 'Login failed. Please check your credentials.');
+      }
     } catch (e) {
       showSnackBar(context, e.toString());
     }
+    return false;
   }
 
-Future<void> logout() async {
-  try {
-    // Clear the user data from SharedPreferences
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('x-auth-token'); // Remove the token
-    await prefs.remove('name'); // Remove the name if you are storing it
-    await prefs.remove('email'); // Remove the email if you are storing it
-    // Add any other user-specific data you want to clear
-  } catch (e) {
-    print('Logout error: $e');
-    // Handle any errors if necessary
+  Future<bool> sendOtp(String email) async {
+    try {
+      String otp = generateOtp();
+      await sendOtpEmail(email, otp);
+      return true;
+    } catch (e) {
+      print('Error sending OTP: $e');
+      return false;
+    }
   }
-}
 
-
-//Future<void> resetPassword(String email, String newPassword) async {
-  // VERIFY OTP
   Future<bool> verifyOtp(String email, String otp) async {
     try {
       final response = await http.post(
@@ -137,7 +155,6 @@ Future<void> logout() async {
     }
   }
 
-  // SEND OTP EMAIL
   Future<void> sendOtpEmail(String email, String otp) async {
     try {
       final response = await http.post(
@@ -161,8 +178,7 @@ Future<void> logout() async {
     }
   }
 
-  // RESET PASSWORD
-  Future<void> resetPassword(String email, String newPassword) async {
+  Future<bool> resetPassword(String email, String newPassword) async {
     try {
       final response = await http.post(
         Uri.parse('${Constants.uri}/api/reset-password'),
@@ -175,15 +191,17 @@ Future<void> logout() async {
         },
       );
 
-      if (response.statusCode != 200) {
-        throw Exception('Failed to reset password');
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
       }
     } catch (e) {
       print('Password reset error: $e');
+      return false;
     }
   }
 
-  // GET SESSION DURATION
   Future<Duration> getSessionDuration() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? loginTimeString = prefs.getString('loginTime');
@@ -197,62 +215,70 @@ Future<void> logout() async {
     }
   }
 
-  // UPDATE USER DETAILS LOCALLY AND ON SERVER
-  Future<bool> updateUserDetails({
-    required String name,
-    required String email,
-    String? password,
-  }) async {
-    try {
-      // Retrieve the token from SharedPreferences
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? token = prefs.getString('x-auth-token');
+Future<bool> updateUserDetails({
+  required String name,
+  required String email,
+  String? password,
+}) async {
+  try {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('x-auth-token');
 
-      if (token == null) {
-        throw Exception('User not authenticated');
-      }
-
-      // Prepare the request body
-      final body = {
-        'name': name,
-        'email': email,
-      };
-
-      // Add password if it's not null
-      if (password != null && password.isNotEmpty) {
-        body['password'] = password;
-      }
-
-      // Make the HTTP PUT request to update user details on the server
-      http.Response res = await http.put(
-        Uri.parse('${Constants.uri}/api/update-user'),
-        body: jsonEncode(body),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-          'Authorization': 'Bearer $token',
-        },
-      );
-
-      // Check for successful status code (200 OK)
-      if (res.statusCode == 200) {
-        // Success - also update user details locally
-        await prefs.setString('name', name);
-        await prefs.setString('email', email);
-
-        // Update password locally if provided
-        if (password != null && password.isNotEmpty) {
-          await prefs.setString('password', password);
-        }
-
-        print('User details updated locally and on server');
-        return true;
-      } else {
-        final responseBody = jsonDecode(res.body);
-        throw Exception('Failed to update user: ${responseBody['message']}');
-      }
-    } catch (e) {
-      print('Failed to update user details: $e');
-      return false;
+    if (token == null) {
+      throw Exception('User not authenticated');
     }
+
+    final body = {
+      'name': name,
+      'email': email,
+    };
+
+    if (password != null && password.isNotEmpty) {
+      body['password'] = password;
+    }
+
+    http.Response res = await http.put(
+      Uri.parse('${Constants.uri}/api/update-user'),
+      body: jsonEncode(body),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (res.statusCode == 200) {
+      await prefs.setString('name', name);
+      await prefs.setString('email', email);
+      print('User details updated locally and on server');
+      return true;
+    } else {
+      final responseBody = jsonDecode(res.body);
+      throw Exception('Failed to update user: ${responseBody['message']}');
+    }
+  } catch (e) {
+    print('Failed to update user details: $e');
+    return false;
+  }
+}
+
+
+  String generateOtp() {
+    return '123456';
+  }
+
+  Future<void> logout() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('x-auth-token');
+      await prefs.remove('name');
+      await prefs.remove('email');
+    } catch (e) {
+      print('Logout error: $e');
+    }
+  }
+
+  Future<String?> getCurrentUserEmail() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('email');
   }
 }

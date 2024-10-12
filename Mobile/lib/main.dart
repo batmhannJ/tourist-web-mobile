@@ -29,12 +29,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login_page': (context) => const LoginPage(),
         '/profile_account': (context) => const ProfileAccountPage(),
-        // Add other routes here as needed
       },
-      // Optionally define onUnknownRoute if you want to handle unknown routes
-      // onUnknownRoute: (settings) {
-      //   return MaterialPageRoute(builder: (context) => const UnknownPage());
-      // },
     );
   }
 }

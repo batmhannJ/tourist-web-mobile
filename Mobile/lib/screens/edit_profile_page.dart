@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application_2/services/auth_services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
+import 'change_password_page.dart'; 
+import 'dart:async';
 
 class EditAccountPage extends StatefulWidget {
   const EditAccountPage({Key? key}) : super(key: key);
@@ -14,11 +16,14 @@ class _EditAccountPageState extends State<EditAccountPage> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController nameController;
   late TextEditingController emailController;
-  late TextEditingController passwordController;
-  late TextEditingController confirmPasswordController;
+  late TextEditingController otpController; 
   final AuthService authService = AuthService();
   bool _isLoading = false;
-  bool _showConfirmPassword = false;
+  String userEmail = ''; 
+  bool otpSent = false; 
+  bool isButtonEnabled = true;
+  int secondsRemaining = 0;
+  Timer? _timer;
 
   @override
   void didChangeDependencies() {
@@ -26,63 +31,151 @@ class _EditAccountPageState extends State<EditAccountPage> {
     final user = Provider.of<UserProvider>(context, listen: false).user;
     nameController = TextEditingController(text: user.name);
     emailController = TextEditingController(text: user.email);
-    passwordController = TextEditingController();
-    confirmPasswordController = TextEditingController();
+    otpController = TextEditingController();
+    userEmail = user.email;
   }
 
   @override
   void dispose() {
     nameController.dispose();
     emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
+    otpController.dispose();
+    _timer?.cancel();
     super.dispose();
   }
 
-  void _updateAccount() async {
-    if (_formKey.currentState?.validate() ?? false) {
-      setState(() {
-        _isLoading = true;
-      });
+  void _sendOtp() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-      final success = await authService.updateUserDetails(
-        name: nameController.text,
-        email: emailController.text,
-        password: passwordController.text.isNotEmpty ? passwordController.text : null,
+    bool otpSentSuccess = await authService.sendOtp(userEmail);
+    setState(() {
+      _isLoading = false;
+      otpSent = otpSentSuccess;
+    });
+
+    if (otpSentSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('OTP sent to your email.')),
       );
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (success) {
-        final userProvider = Provider.of<UserProvider>(context, listen: false);
-        userProvider.updateUserDetails(nameController.text, emailController.text);
-
-        showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Success'),
-              content: const Text('Account updated successfully!'),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
-                  child: const Text('OK'),
-                ),
-              ],
-            );
-          },
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update account')),
-        );
-      }
+      _startCooldown();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to send OTP. Please try again.')),
+      );
     }
+  }
+
+  void _startCooldown() {
+    setState(() {
+      isButtonEnabled = false;
+      secondsRemaining = 60;
+    });
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      setState(() {
+        if (secondsRemaining > 0) {
+          secondsRemaining--;
+        } else {
+          isButtonEnabled = true;
+          _timer?.cancel();
+        }
+      });
+    });
+  }
+
+  void _updateAccount() async {
+    bool? confirm = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Update'),
+          content: const Text('Are you sure you want to update your account details?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+              child: const Text('Confirm'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirm == true) {
+      if (_formKey.currentState?.validate() ?? false) {
+        setState(() {
+          _isLoading = true;
+        });
+
+        bool otpValid = await authService.verifyOtp(userEmail, otpController.text);
+
+        if (otpValid) {
+          final success = await authService.updateUserDetails(
+            name: nameController.text,
+            email: emailController.text,
+          );
+
+          setState(() {
+            _isLoading = false;
+          });
+
+          if (success) {
+            final userProvider = Provider.of<UserProvider>(context, listen: false);
+            userProvider.updateUserDetails(nameController.text, emailController.text);
+
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Success'),
+                  content: const Text('Account updated successfully!'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Failed to update account')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Invalid OTP. Please try again.')),
+          );
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account update cancelled')),
+      );
+    }
+  }
+
+  void _navigateToChangePassword() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ChangePasswordPage()),
+    );
   }
 
   @override
@@ -123,69 +216,95 @@ class _EditAccountPageState extends State<EditAccountPage> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           TextFormField(
-                            controller: passwordController,
+                            controller: nameController,
                             decoration: const InputDecoration(
-                              labelText: 'New Password (leave blank to keep current)',
+                              labelText: 'Name',
                               filled: true,
                               fillColor: Colors.white,
                               border: OutlineInputBorder(),
                             ),
-                            obscureText: true,
                             validator: (value) {
-                              if (value != null && value.isNotEmpty) {
-                                if (value.length < 6) {
-                                  return 'Password must be at least 6 characters long';
-                                }
-                                if (!RegExp(r'(?=.*[A-Z])').hasMatch(value)) {
-                                  return 'Password must contain at least one uppercase letter';
-                                }
-                                if (!RegExp(r'(?=.*[a-z])').hasMatch(value)) {
-                                  return 'Password must contain at least one lowercase letter';
-                                }
-                                if (!RegExp(r'(?=.*[0-9])').hasMatch(value)) {
-                                  return 'Password must contain at least one number';
-                                }
-                                if (!RegExp(r'(?=.*[!@#$%^&*(),.?":{}|<>])').hasMatch(value)) {
-                                  return 'Password must contain at least one special character';
-                                }
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your name';
                               }
                               return null;
                             },
-                            onChanged: (value) {
-                              setState(() {
-                                _showConfirmPassword = value.isNotEmpty;
-                              });
+                          ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: emailController,
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              return null;
                             },
                           ),
-                          if (_showConfirmPassword) ...[
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: confirmPasswordController,
-                              decoration: const InputDecoration(
-                                labelText: 'Confirm New Password',
-                                filled: true,
-                                fillColor: Colors.white,
-                                border: OutlineInputBorder(),
+                          const SizedBox(height: 20),
+
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  controller: otpController,
+                                  decoration: const InputDecoration(
+                                    prefixIcon: Icon(Icons.lock),
+                                    labelText: 'OTP',
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Please enter the OTP sent to your email';
+                                    }
+                                    return null;
+                                  },
+                                ),
                               ),
-                              obscureText: true,
-                              validator: (value) {
-                                if (value != passwordController.text) {
-                                  return 'Passwords do not match';
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
+                              const SizedBox(width: 10),
+                              ElevatedButton(
+                                onPressed: isButtonEnabled ? _sendOtp : null,
+                                style: ElevatedButton.styleFrom(
+                                  foregroundColor: Colors.white,
+                                  backgroundColor: Colors.orange,
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                                  textStyle: const TextStyle(fontSize: 16),
+                                ),
+                                child: Text(isButtonEnabled
+                                    ? 'Send OTP'
+                                    : 'Resend OTP in $secondsRemaining sec'),
+                              ),
+                            ],
+                          ),
+
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: _updateAccount,
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
-                              backgroundColor: Colors.orange,
+                              backgroundColor: Colors.green,
                               padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                               textStyle: const TextStyle(fontSize: 18),
                             ),
-                            child: const Text('Update'),
+                            child: const Text('Update Account'),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: _navigateToChangePassword,
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.blueAccent,
+                              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                              textStyle: const TextStyle(fontSize: 18),
+                            ),
+                            child: const Text('Change Password'),
                           ),
                         ],
                       ),

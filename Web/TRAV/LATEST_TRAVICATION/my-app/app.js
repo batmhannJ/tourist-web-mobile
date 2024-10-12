@@ -5,6 +5,7 @@ const jwtSecret = 'pC4l7f9H2a7Y1dC9Uk1ZjX6D8ErO23Dk5FxR7e0vF0O=';
 const session = require('express-session')
 const MongoStore = require('connect-mongo')
 const { collection, collection2 } = require("./mongo");
+const nodemailer = require('nodemailer');
 
 const cors = require("cors")
 const app = express()
@@ -34,112 +35,83 @@ app.get('/check-session', (req, res) => {
     res.status(401).json({ message: 'Not authenticated' });
 });
 
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'olshco.electionupdates@gmail.com', 
+        pass: 'nxgb fqoh qkxk svjs', 
+    },
+});
+
+const sendVerificationEmail = (email, token) => {
+    const mailOptions = {
+        from: 'olshco.electionupdates@gmail.com',
+        to: email,
+        subject: 'Password Reset Verification Token',
+        text: `Your password reset token is: ${token}`,
+    };
+
+    return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email: ', error.message);
+                reject(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+                resolve(info);
+            }
+        });
+    });
+};
+
+const generateToken = () => {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+};
+
+app.post('/forgotpassword', async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await collection.findOne({ email: email });
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const token = generateToken(); 
+        await sendVerificationEmail(email, token); 
+
+        res.status(200).send('Reset token sent successfully');
+    } catch (error) {
+        console.error('Error sending reset token:', error);
+        res.status(500).send('Error sending reset token.');
+    }
+});
+
+app.patch("/forgotpassword", async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const updatedPassword = await collection.findOneAndUpdate(
+            { email: email },
+            { password: hashedPassword },
+            { new: true }
+        );
+
+        if (!updatedPassword) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        res.status(200).json(updatedPassword);
+    } catch (e) {
+        console.error("Password update error:", e);
+        res.status(500).json({ error: "Password update error" });
+    }
+});
 
 app.get("/login", cors(), (req, res)=>{
 
 })
-
-// app.post("/login", async (req, res) => {
-//     const { email, password } = req.body;
-//     console.log("Received login request:", { email, password });
-
-//     try {
-//         if (!email || !password) {
-//             console.log("Missing email or password");
-//             return res.status(400).json({ error: 'Email and password are required' });
-//         }
-
-//         let role;
-//         if (email.includes('admin')) {
-//             role = 'admin';
-//         } /*else if (email.includes('manager')) {
-//             role = 'manager';
-//         } */else {
-//             role = 'manager';
-//         }
-
-//         let user = await collection.findOne({ email: email, role: role });
-
-//         if (!user) {
-//             console.log("User not found");
-//             return res.status(400).json({ error: 'User does not exist' });
-//         }
-
-//         if (role === 'admin') {
-//             const isMatch = await bcrypt.compare(password, user.password);
-//                 if (!isMatch) {
-//                     return res.status(400).json({ error: 'Invalid Admin username or password' });
-//                 }
-//             req.session.userId = user._id;
-//             req.session.role = user.role;
-//             req.session.user = user;
-//             return res.json("admin exist");
-//         } else {
-//             if (user.status === 'decline') {
-//                 return res.status(403).json({ error: 'User login declined' });
-//             }
-
-//             if (user.status === 'approved') {
-//                 const isMatch = await bcrypt.compare(password, user.password);
-//                 if (!isMatch) {
-//                     return res.status(400).json({ error: 'Invalid username or password' });
-//                 }
-
-//                 req.session.userId = user._id;
-//                 req.session.role = user.role;
-//                 req.session.user = user;
-//                 return res.json("exist");
-//             }
-//         }
-//     } catch (e) {
-//         console.error("Login error:", e);
-//         res.status(500).json({ error: "Internal server error" });
-//     }
-// });
-
-
-// app.post("/login", async (req, res) => {
-//     const { email, password, role } = req.body;
-
-//     try {
-//         let user = await collection.findOne({ email: email });
-
-//         if (!user) {
-//             return res.status(400).json({ error: 'User not exist' });
-//         }
-
-//         if (role === 'admin') {
-//             const isMatch = await bcrypt.compare(password, user.password);
-//             if (!isMatch) {
-//                 return res.status(400).json({ error: 'Invalid username or password' });
-//             }
-//             req.session.userId = user._id;
-//             req.session.role = user.role;
-//             req.session.user = user;
-//             return res.json("admin exist");
-            
-//         } else {
-//             if (user.status === 'decline') {
-//                 return res.status(403).json({ error: 'User login declined' });
-//             }
-
-//             if (user.status === 'approved') {
-//                 const isMatch = await bcrypt.compare(password, user.password);
-//                 if (!isMatch) {
-//                     return res.status(400).json({ error: 'Invalid username or password' });
-//                 }
-
-//                 req.session.userId = user._id;
-//                 req.session.role = user.role;
-//                 req.session.user = user;
-//                 return res.json("exist");
-//             }
-//         }
-//     } catch (e) {
-//         console.error("Login error:", e);
-//         res.status(500).json({ error: "Please wait for status" });
-//     }
-// });
 
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
@@ -319,32 +291,6 @@ app.patch("/declinemanager/:id",  async (req, res) => {
         res.status(500).json({ error: "Manager approval error" });
     }
 }); 
-
-app.patch("/forgotpassword", async (req, res) => {
-    const { email, password } = req.body;
-
-    try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Find the user by email and update the password
-        const updatedPassword = await collection.findOneAndUpdate(
-            { email: email }, // Query object to find the user by email
-            { password: hashedPassword }, // Update object with the new hashed password
-            { new: true } // Options object to return the updated document
-        );
-
-        if (!updatedPassword) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        // Send the updated user data in the response
-        res.status(200).json(updatedPassword);
-    } catch (e) {
-        console.error("Password update error:", e);
-        res.status(500).json({ error: "Password update error" });
-    }
-});
-
 
 app.post("/addlocation", async(req, res)=>{
 

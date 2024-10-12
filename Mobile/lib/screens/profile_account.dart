@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart'; // Import Provider package
 import 'edit_profile_page.dart';
 import 'package:flutter_application_2/services/auth_services.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
 import 'package:flutter_application_2/screens/landing_page.dart'; // Adjust the path according to your project structure
- // Adjust the path according to your project structure
 
 class ProfileAccountPage extends StatelessWidget {
   const ProfileAccountPage({Key? key}) : super(key: key);
@@ -93,7 +91,7 @@ class ProfileAccountPage extends StatelessWidget {
             const SizedBox(height: 10),
 
             // View Data Analytics Card
-            Card(
+            /*Card(
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
@@ -102,14 +100,11 @@ class ProfileAccountPage extends StatelessWidget {
                 leading: const Icon(Icons.bar_chart, color: Colors.orange),
                 title: const Text('View Data Analytics'),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => LandingPage()),
-                  );
+                  _navigateToLandingPage(context); // Call the method here
                 },
                 trailing: const Icon(Icons.arrow_forward_ios, color: Colors.orange),
               ),
-            ),
+            ),*/
 
 
             const SizedBox(height: 10),
@@ -132,6 +127,17 @@ class ProfileAccountPage extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _navigateToLandingPage(BuildContext context) {
+    List<String> searchedDestinations = ['Tagaytay', 'Boracay', 'Palawan'];
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LandingPage(mostSearchedDestinations: searchedDestinations),
       ),
     );
   }

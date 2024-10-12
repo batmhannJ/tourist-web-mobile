@@ -52,6 +52,5 @@ List<PlaceInfo> places =[
     bestMonths: [11, 12, 1, 2, 3, 4], // June to August
     desc: "A UNESCO World Heritage site, Vigan Heritage Village is famous for its well-preserved Spanish colonial and Asian architecture. Cobblestone streets, historical houses, and horse-drawn carriages give visitors a glimpse into the Philippines' colonial past."
   ),
-  
 
 ];
