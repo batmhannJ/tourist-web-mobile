@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import user_icon from '../assets/person.png';
+import logo from '../assets/logo.png';
 import email_icon from '../assets/email.png';
 import password_icon from '../assets/password.png';
 import "./SignUpData.css"; // Import the CSS file
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Carousel from './Carousel';
 
 function ForgotPassword() {
     const [email, setEmail] = useState('');
@@ -33,12 +35,15 @@ function ForgotPassword() {
    
 
     return (
-        <div>
-            <style>{`
-                body {
-                    background: linear-gradient(to right, #5B247A, #1BCEDF);
-                }
-            `}</style>
+        <div className="forgot-page">
+        <Carousel />
+        <div className="header-container">
+        <img src={logo} alt="Logo" className="logo" />
+        <div className="header-text">
+            <div className="main-title">First Choice</div>
+            <div className="sub-title">Travel Hub INC</div>
+        </div>
+        </div>
             <div className="login-container">
                 <div className="header">
                     <div className="text">Forgot Password</div>
@@ -50,7 +55,7 @@ function ForgotPassword() {
                
                     <div className="input">
                         
-                        <img src={email_icon} alt="Email icon" />
+                    <img src={email_icon} alt="Email icon" className="email-icon" />
                         <input
                             type="email"
                             onChange={(e) => setEmail(e.target.value)}
@@ -60,7 +65,7 @@ function ForgotPassword() {
                     </div>
                     <br />
                     <div className="input">
-                        <img src={password_icon} alt="Password icon" />
+                    <img src={password_icon} alt="Email icon" className="email-icon" />
                         <input
                             type="password"
                             onChange={(e) => setPassword(e.target.value)}
@@ -74,7 +79,7 @@ function ForgotPassword() {
 
                 <br />
                 <p>Back to</p>
-                <br />
+             
 
                 <Link to="/login">Login Page</Link>
                 

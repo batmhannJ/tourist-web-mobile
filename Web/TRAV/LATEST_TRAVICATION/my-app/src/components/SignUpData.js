@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import logo from '../assets/logo.png';
 import user_icon from '../assets/person.png';
 import email_icon from '../assets/email.png';
 import password_icon from '../assets/password.png';
 import "./SignUpData.css"; // Import the CSS file
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Carousel from './Carousel';
 
 function SignUpData() {
     const [action, setAction] = useState("Signup");
@@ -41,24 +43,26 @@ function SignUpData() {
    
 
     return (
-        <div>
-            <style>{`
-                body {
-                 background: linear-gradient(to right, #5B247A, #1BCEDF); 
-                }
-            `}</style>
-            <div className="login-container">
+        <div className="sign-page">
+        <Carousel />
+        <div className="header-container">
+        <img src={logo} alt="Logo" className="logo" />
+        <div className="header-text">
+            <div className="main-title">First Choice</div>
+            <div className="sub-title">Travel Hub INC</div>
+        </div>
+        </div>
+            <div className="    login-container">
                 <div className="header">
                     <div className="text">{action}</div>
                     <div className="underline"></div>
                 </div>
                 
-
                 <form onSubmit={submit}>
 
                 <div className="input">
                         
-                        <img src={email_icon} alt="Email icon" />
+                <img src={user_icon} alt="Email icon" className="email-icon" />
                         <input
                             type="text"
                             onChange={(e) => setName(e.target.value)}
@@ -69,7 +73,7 @@ function SignUpData() {
                     <br />
                     <div className="input">
                         
-                        <img src={email_icon} alt="Email icon" />
+                    <img src={email_icon} alt="Email icon" className="email-icon" />
                         <input
                             type="email"
                             onChange={(e) => setEmail(e.target.value)}
@@ -79,7 +83,8 @@ function SignUpData() {
                     </div>
                     <br />
                     <div className="input">
-                        <img src={password_icon} alt="Password icon" />
+                    <img src={password_icon} alt="Email icon" className="email-icon" />
+
                         <input
                             type="password"
                             onChange={(e) => setPassword(e.target.value)}
@@ -92,13 +97,13 @@ function SignUpData() {
                 </form>
 
                 <br />
-                <p>OR</p>
-                <br />
+                <p>Already have an account?</p>
 
                 <Link to="/login">Login Page</Link>
                 
             </div>
         </div>
+
     );
 }
 

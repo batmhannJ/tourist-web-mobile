@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import logo from '../assets/logo.png';
 import email_icon from '../assets/email.png';
 import password_icon from '../assets/password.png';
-import "./SignUpData.css";
 import { Link, useNavigate } from "react-router-dom";
+import "./SignUpData.css"; // Import the CSS file
 import axios from "axios";
 import Carousel from './Carousel';
 
@@ -80,7 +80,7 @@ function LoginData() {
                 <form onSubmit={submit}>
                     <br />
                     <div className="input">
-                        <img src={email_icon} alt="Email icon" />
+                    <img src={email_icon} alt="Email icon" className="email-icon" />
                         <input
                             type="email"
                             onChange={(e) => { setEmail(e.target.value) }}
@@ -90,7 +90,7 @@ function LoginData() {
                     </div>
                     <br />
                     <div className="input">
-                        <img src={password_icon} alt="Password icon" />
+                    <img src={password_icon} alt="Email icon" className="email-icon" />
                         <input
                             type="password"
                             onChange={(e) => { setPassword(e.target.value) }}
@@ -105,59 +105,11 @@ function LoginData() {
                     <input className="submit" type="submit" value="Login" />
                 </form>
                 <br />
-                <p>OR</p>
-                <br />
+                <p>Don't have an account?</p>
                 <Link to="/signup">Signup Page</Link>
             </div>
-            <style>{`
-                body {
-                    background: #FFF;
-                    font-family: 'Roboto', sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    height: 100vh;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-direction: column;
-                }
-                .header-container {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-top: 5px;
-                    position: absolute;
-                    top: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                }
-                .logo {
-                    height: 50px; /* Adjust the height of the logo */
-                    margin-right: 10px; /* Space between the logo and the text */
-                    width: auto; /* Maintain aspect ratio */
-                }
-                .main-title {
-                    font-size: 36px; /* Increase the font size */
-                    font-weight: bold;
-                    color: darkred;
-                }
-                .sub-title {
-                    font-size: 24px; /* Set the font size */
-                    font-weight: bold;
-                    color: black;
-                }
-                .header .text {
-                    font-weight: normal; /* Ensure the "Login" text is not bold */
-                }
-                .login-container {
-                    position: relative;
-                    z-index: 1;
-                    background: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
-                    padding: 20px;
-                    border-radius: 10px;
-                    margin-top: 100px; /* Adjusted margin to move the login form lower */
-                }
-            `}</style>
+            
+
         </div>
     );
 }
