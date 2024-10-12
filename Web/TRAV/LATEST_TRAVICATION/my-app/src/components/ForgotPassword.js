@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import user_icon from '../assets/person.png';
 import logo from '../assets/logo.png';
 import email_icon from '../assets/email.png';
@@ -10,24 +10,23 @@ import Carousel from './Carousel';
 
 function ForgotPassword() {
     const [email, setEmail] = useState('');
-    const [verificationCode, setVerificationCode] = useState(''); // Verification code for email
+    const [verificationCode, setVerificationCode] = useState(''); // Verification code
     const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState(''); // Confirmation password
-    const [isCodeSent, setIsCodeSent] = useState(false); // Track if verification code was sent
-    const [passwordError, setPasswordError] = useState(''); // For password validation error
-    const [otpSentTime, setOtpSentTime] = useState(null); // Track when the OTP was sent
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [showInputs, setShowInputs] = useState(false); // Manage the visibility of additional inputs
+    const [passwordError, setPasswordError] = useState('');
+    const [otpSentTime, setOtpSentTime] = useState(null);
 
     const navigate = useNavigate();
 
-    // Function to request a reset verification code
     async function requestResetVerificationCode(e) {
         e.preventDefault();
         try {
             const response = await axios.post("http://localhost:4000/forgotpassword", { email });
             if (response.status === 200) {
                 alert("A verification code has been sent to your email.");
-                setIsCodeSent(true); 
-                setOtpSentTime(Date.now()); // Store the time when OTP was sent
+                setShowInputs(true); // Show the additional inputs
+                setOtpSentTime(Date.now());
             } else {
                 alert("Error sending verification code.");
             }
@@ -56,7 +55,7 @@ function ForgotPassword() {
     const isOtpExpired = () => {
         if (!otpSentTime) return false;
         const currentTime = Date.now();
-        const expiryTime = 2 * 60 * 1000;
+        const expiryTime = 2 * 60 * 1000; // 2 minutes
         return currentTime - otpSentTime > expiryTime;
     };
 
@@ -101,49 +100,73 @@ function ForgotPassword() {
 
     return (
         <div className="forgot-page">
-        <Carousel />
-        <div className="header-container">
-        <img src={logo} alt="Logo" className="logo" />
-        <div className="header-text">
-            <div className="main-title">First Choice</div>
-            <div className="sub-title">Travel Hub INC</div>
-        </div>
-        </div>
+            <Carousel />
+            <div className="header-container">
+                <img src={logo} alt="Logo" className="logo" />
+                <div className="header-text">
+                    <div className="main-title">First Choice</div>
+                    <div className="sub-title">Travel Hub INC</div>
+                </div>
+            </div>
             <div className="login-container">
                 <div className="header">
                     <div className="text">Forgot Password</div>
                     <div className="underline"></div>
                 </div>
 
-                <form onSubmit={isCodeSent ? submitNewPassword : requestResetVerificationCode}>
+                <form onSubmit={showInputs ? submitNewPassword : requestResetVerificationCode}>
                     <div className="input">
-                        
-                        <img src={email_icon} alt="Email icon" />
+                        <img src={email_icon} alt="Email icon" className="email-icon" />
                         <input
-                            type="email"
+                            type="text" // Email input
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="Email"
                             required
                         />
                     </div>
                     <br />
-                    <div className="input">
-                        <img src={password_icon} alt="Password icon" />
-                        <input
-                            type="password"
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Password"
-                            required
-                        />
-                    </div>
+                    {showInputs && (
+                        <>
+                            <div className="input">
+                                <input
+                                    type="text"
+                                    onChange={(e) => setVerificationCode(e.target.value)}
+                                    placeholder="Verification Code"
+                                    required
+                                />
+                            </div>
+                            <br />
+                            <div className="input">
+                                <img src={password_icon} alt="New Password icon" className="email-icon" />
+                                <input
+                                    type="password"
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="New Password"
+                                    required
+                                />
+                            </div>
+                            <br />
+                            <div className="input">
+                                <img src={password_icon} alt="Confirm Password icon" className="email-icon" />
+                                <input
+                                    type="password"
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="Confirm Password"
+                                    required
+                                />
+                            </div>
+                        </>
+                    )}
                     <br />
-                    <input className = {"submit"} type="submit" value="Change Password" onClick={submit}/>
+                    <input 
+                        className="submit" 
+                        type="submit" 
+                        value={showInputs ? "Change Password" : "Request Verification Code"} 
+                    />
                 </form>
 
                 <br />
                 <p>Back to</p>
-                <br />
-
                 <Link to="/login">Login Page</Link>
             </div>
         </div>

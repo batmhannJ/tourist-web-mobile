@@ -129,53 +129,172 @@ function LoginData() {
                 <Link to="/signup">Signup Page</Link>
             </div>
             <style>{`
-                body {
-                    background: #FFF;
-                    font-family: 'Roboto', sans-serif;
-                    margin: 0;
-                    padding: 0;
-                    height: 100vh;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-direction: column;
-                }
-                .header-container {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin-top: 5px;
-                    position: absolute;
-                    top: 20px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                }
-                .logo {
-                    height: 50px; /* Adjust the height of the logo */
-                    margin-right: 10px; /* Space between the logo and the text */
-                    width: auto; /* Maintain aspect ratio */
-                }
-                .main-title {
-                    font-size: 36px; /* Increase the font size */
-                    font-weight: bold;
-                    color: darkred;
-                }
-                .sub-title {
-                    font-size: 24px; /* Set the font size */
-                    font-weight: bold;
-                    color: black;
-                }
-                .header .text {
-                    font-weight: normal; /* Ensure the "Login" text is not bold */
-                }
-                .login-container {
-                    position: relative;
-                    z-index: 1;
-                    background: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
-                    padding: 20px;
-                    border-radius: 10px;
-                    margin-top: 100px; /* Adjusted margin to move the login form lower */
-                }
+                
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.logo {
+    height: 60px; /* Logo size */
+    margin-right: 10px; /* Reduced space between logo and text */
+    width: auto;
+}
+
+.main-title {
+    font-size: 40px; /* Large title */
+    font-weight: bold;
+    color: #1f4b99; /* Dark blue title */
+}
+
+.sub-title {
+    font-size: 22px;
+    font-weight: 500;
+    color: #3f7cfb; /* Lighter blue subtitle */
+}
+
+.text {
+    font-size: 30px; /* Adjust font size as needed */
+    font-weight: bold; /* Make the text bold */
+    color: #1f4b99; /* Text color */
+    text-align: center; /* Center the text */
+    margin-top: 5px;
+}
+
+.underline {
+    width: 100%; /* Full width */
+    height: 1px; /* Height of the underline */
+    background-color: #3f7cfb; /* Underline color */
+    margin: 0 auto; /* Center the underline */
+    max-width: 300px; /* Max width to limit size */
+}
+
+.login-text {
+    font-size: 12px; /* Adjust this value to make text smaller */
+    font-weight: normal;
+    color: #555; /* Gray login text */
+    margin: 0; /* Ensure no extra margin */
+    text-align: center; /* Center the text */
+}
+
+.email-icon {
+    height: 24px; /* Set the desired height of the icon */
+    width: auto; /* Maintain aspect ratio */
+    margin-right: 10px; /* Space between icon and adjacent text/input */
+    transition: transform 0.2s ease; /* Smooth transition for hover effect */
+}
+
+/* Optional: Hover effect */
+.email-icon:hover {
+    transform: scale(1.1); /* Slightly enlarge the icon on hover */
+}
+
+.login-container {
+    position: relative;
+    z-index: 1;
+    background: #fff; /* White background */
+    padding: 20px;
+    border-radius: 15px;
+    margin-left:480px;
+    margin-top: 170px; /* Adjusted margin for upward movement */
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1); /* Shadow for depth */
+    width: 100%; /* Adjusted width */
+    max-width: 500px; /* Maximum width */
+    box-sizing: border-box; /* Include padding and border in element's total width and height */
+}
+
+/* Input Fields */
+.input {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5; /* Space between input fields */
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 5px 10px; /* Increased padding for better touch */
+    box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.1); /* Inner shadow */
+    border: 1px solid #ddd;
+    transition: border 0.3s ease;
+    width: 100%;
+    height: 50px;
+    box-sizing: border-box; /* Ensure padding is part of width */
+}
+
+.input img {
+    height: 24px; /* Icon size */
+    margin-right: 10px; /* Space between icon and input */
+}
+
+.input input {
+    width: 100%; /* Full width for input */
+    padding: 8px; /* Padding inside input */
+    font-size: 16px;
+    border: none;
+    background: transparent;
+    outline: none;
+    color: #333;
+}
+
+.input:focus-within {
+    border-color: #3f7cfb; /* Blue border on focus */
+}
+
+.forgot-password {
+    margin-top:10px;
+    margin-left: auto; /* Aligns to the right */
+    font-size: 14px;
+}
+
+.forgot-password a {
+    color: #1f4b99;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.forgot-password a:hover {
+    text-decoration: underline;
+}
+
+.submit {
+    width: 100%;
+    background-color: #3f7cfb;
+    color: white;
+    padding: 10px; /* Padding for button */
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-sizing: border-box;
+    margin-top: 10px; /* Space above the button */
+}
+
+.submit:hover {
+    background-color: #1f4b99; /* Darker shade on hover */
+}
+
+.signup-link {
+    display: inline-block; /* Makes the link behave like a button */
+    padding: 10px 20px; /* Padding for spacing */
+    background-color: #3f7cfb; /* Background color */
+    color: white; /* Text color */
+    border-radius: 8px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    text-decoration: none; /* Removes underline */
+    text-align: center; /* Center the text */
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
+    margin-top: 10px; /* Margin on top */
+}
+
+.signup-link:hover {
+    background-color: #1f4b99; /* Darker shade on hover */
+}
             `}</style>
         </div>
     );
