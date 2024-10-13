@@ -4,6 +4,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const authRouter = require("./routes/auth");
 const markersRouter = require("./routes/markers");
+const placesRouter = require("./routes/places"); // Import the places router
 const Otp = require('./model/otp');
 const nodemailer = require('nodemailer');
 const User = require('./model/user');
@@ -15,6 +16,8 @@ const axios = require('axios');
 const corsAnywhere = require('cors-anywhere');
 const { prototype } = require("jsonwebtoken/lib/NotBeforeError");
 const port = 8080;
+const path = require('path');
+
 
 
 app.use(cors());
@@ -25,6 +28,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(authRouter);
 app.use("/api", markersRouter);
+app.use("/api", placesRouter);
 
 mongoose.connect("mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test")
     .then(() => console.log("MongoDB connected"))
@@ -191,6 +195,8 @@ app.get('/mostSearched', async (req, res) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 });
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

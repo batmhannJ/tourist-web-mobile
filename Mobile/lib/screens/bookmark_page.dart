@@ -31,11 +31,12 @@ class _Bookmark extends State<Bookmark> {
   static const Duration _sessionTimeoutLimit = Duration(minutes: 2);
   DateTime _lastActivityTime = DateTime.now();
   List<dynamic> mostSearchedCategories = []; // To store most searched categories
-  final List<dynamic> _touristSpots = [];
+  List<dynamic> _touristSpots = [];
   final List<String> _imageUrls = [];
   String? _selectedMonth;
   final Map<String, List<dynamic>> _cachedResults = {};
   Timer? _debounce;
+List<PlaceInfo> _places = []; // State variable to hold the fetched places
 
   List<String> months = [
     "January", "February", "March", "April", "May", "June", "July", "August",
@@ -83,7 +84,7 @@ class _Bookmark extends State<Bookmark> {
     }
 
     int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;
-    List<PlaceInfo> filteredPlaces = places.where((place) {
+    List<PlaceInfo> filteredPlaces = _places.where((place) {
       return place.bestMonths.contains(selectedMonthIndex);
     }).toList();
 

@@ -1,18 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import axios from 'axios';
 import "./ContactFormStyles.css";
-import axios from "axios";
 
 function ManageLocations() {
     const [locations, setLocations] = useState([]);
     const [editingLocation, setEditingLocation] = useState(null);
-    const [newLocation, setNewLocation] = useState({ destinationName: '', latitude: '', longitude: '', description: '' });
+    const [newLocation, setNewLocation] = useState({ city: '', destinationName: '', latitude: '', longitude: '', description: '' });
+    const [selectedCity, setSelectedCity] = useState('');
+    const [selectedImage, setSelectedImage] = useState(null); // State for storing the selected image
+    
+    // Predefined city data with latitude and longitude ranges
+    const cityData = {
+        Baguio: { latitude: [16.41639, 16.41639], longitude: [120.59306, 120.59306] },
+        Bohol: { latitude: [9.84999, 9.84999], longitude: [124.14354, 124.14354] },
+        Davao: { latitude: [7.207573, 7.207573], longitude: [125.395874, 125.395874] },
+        Boracay: { latitude: [11.968603, 11.968603], longitude: [121.918381, 121.918381] },
+        Batanes: { latitude: [20.45798, 20.45798], longitude: [121.9941, 121.9941] }
+    };
 
     useEffect(() => {
         axios.get('http://localhost:4000/getlocation')
             .then(response => {
-                // Ensure the data is an array before setting state
                 if (Array.isArray(response.data)) {
                     setLocations(response.data);
                 } else {
@@ -20,90 +28,124 @@ function ManageLocations() {
                 }
             })
             .catch(error => {
-                console.error('Error fetching managers:', error);
+                console.error('Error fetching locations:', error);
             });
-    }, []); 
+    }, []);
 
-     const handleAddLocation = async (e) => {
-        if (!newLocation.destinationName || !newLocation.latitude || !newLocation.longitude || !newLocation.description) {
-            alert("Fill all fields");
-            return; 
+    const handleImageChange = (e) => {
+        setSelectedImage(e.target.files[0]); // Store selected image
+    };
+
+    const handleCityChange = (e) => {
+        const selectedCity = e.target.value;
+        setSelectedCity(selectedCity);
+
+        // Set latitude and longitude based on the selected city
+        if (selectedCity && cityData[selectedCity]) {
+            const { latitude, longitude } = cityData[selectedCity];
+            setNewLocation({
+                ...newLocation,
+                city: selectedCity, // This is what you were missing
+                latitude: latitude[0],
+                longitude: longitude[0]
+            });
+        } else {
+            setNewLocation({ ...newLocation, city: '', latitude: '', longitude: '' });
         }
+    };
+
     
+    const handleAddLocation = async () => {
+        if (!newLocation.city || !newLocation.destinationName || !newLocation.latitude || !newLocation.longitude || !newLocation.description || !selectedImage) {
+            alert("Please fill all fields and select an image");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("city", newLocation.city);
+        formData.append("destinationName", newLocation.destinationName);
+        formData.append("latitude", newLocation.latitude);
+        formData.append("longitude", newLocation.longitude);
+        formData.append("description", newLocation.description);
+        formData.append("image", selectedImage); // Append image to form data
+
         try {
-              // Otherwise, we are in add mode, so call the add function
-              axios.post("http://localhost:4000/addlocation", {
-                  destinationName: newLocation.destinationName,
-                  latitude: newLocation.latitude,
-                  longitude: newLocation.longitude,
-                  description: newLocation.description
-              });
-              alert("location added successfully.");
-              window.location.reload();
-      } catch(e) {
-          alert("location Add error");
-      }
-   }
-    
-   const handleDeleteManager = async (id, index) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this?");
-    if(confirmDelete){
-        try {
-            await axios.delete(`http://localhost:4000/deletelocation/${id}`); // Correct endpoint
-            const updatedLocations = [...locations];
-            updatedLocations.splice(index, 1);
-            setLocations(updatedLocations);
-            alert("Location deleted successfully.");
+            await axios.post("http://localhost:4000/addlocation", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            alert("Location added successfully.");
+            window.location.reload();
         } catch (e) {
-            alert("Location delete error");
-            console.error(e);
+            alert("Location add error");
         }
-    }
-};
+    };
 
+    const handleEditLocation = (index) => {
+        setEditingLocation(index);
+        setNewLocation({ ...locations[index] });
+    };
 
-const handleEditLocation = (index) => {
-    setEditingLocation(index);
-    setNewLocation({ ...locations[index] });
-};
+    const handleUpdateLocation = async (e) => {
+        e.preventDefault();
+        if (!newLocation.city || !newLocation.destinationName || !newLocation.latitude || !newLocation.longitude || !newLocation.description) {
+            alert("Fill all fields");
+            return;
+        }
 
-const handleUpdateLocation = async (e) => { // Update parameter to event and add async
-    e.preventDefault(); // Prevent default form submission
-    if (!newLocation.destinationName || !newLocation.latitude || !newLocation.longitude || !newLocation.description) {
-        alert("Fill all fields");
-        return;
-    }
+        const id = locations[editingLocation]._id;
+        const formData = new FormData();
+        formData.append("city", newLocation.city);
+        formData.append("destinationName", newLocation.destinationName);
+        formData.append("latitude", newLocation.latitude);
+        formData.append("longitude", newLocation.longitude);
+        formData.append("description", newLocation.description);
+        if (selectedImage) formData.append("image", selectedImage); // Only append image if selected
 
-    const id = locations[editingLocation]._id; // Get the id of the location being edited
+        try {
+            await axios.patch(`http://localhost:4000/editlocation/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
 
-    try {
-        const response = await axios.patch(`http://localhost:4000/editlocation/${id}`, {
-            destinationName: newLocation.destinationName,
-            latitude: newLocation.latitude,
-            longitude: newLocation.longitude,
-            description: newLocation.description
-        });
+            alert("Location updated successfully.");
+            window.location.reload();
+        } catch (error) {
+            alert("Location update error.");
+        }
+    };
 
-        const updatedLocations = locations.map((location, idx) =>
-            idx === editingLocation ? response.data : location
-        );
-
-        setLocations(updatedLocations);
-        setEditingLocation(null);
-        setNewLocation({ destinationName: '', latitude: '', longitude: '', description: '' });
-        alert("Location updated successfully.");
-        window.location.reload();
-    } catch (error) {
-        alert("Location update error.");
-        console.error(error);
-    }
-};
-
+    const handleDeleteManager = async (id, index) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this?");
+        if(confirmDelete){
+            try {
+                await axios.delete(`http://localhost:4000/deletelocation/${id}`); // Correct endpoint
+                const updatedLocations = [...locations];
+                updatedLocations.splice(index, 1);
+                setLocations(updatedLocations);
+                alert("Location deleted successfully.");
+            } catch (e) {
+                alert("Location delete error");
+                console.error(e);
+            }
+        }
+    };
 
     return (
         <div className="form-container">
             <h1>Manage Locations</h1>
             <div className="location-fields">
+                <div className="field-group">
+                    <label htmlFor="city">City:</label>
+                    <select id="city" value={selectedCity} onChange={handleCityChange}>
+                        <option value="">Select City</option>
+                        {Object.keys(cityData).map((city) => (
+                            <option key={city} value={city}>{city}</option>
+                        ))}
+                    </select>
+                </div>
                 <div className="field-group">
                     <label htmlFor="destinationName">Destination Name:</label>
                     <input
@@ -120,6 +162,7 @@ const handleUpdateLocation = async (e) => { // Update parameter to event and add
                         type="text"
                         value={newLocation.latitude}
                         onChange={(e) => setNewLocation({ ...newLocation, latitude: e.target.value })}
+                        disabled={!!selectedCity}
                     />
                 </div>
                 <div className="field-group">
@@ -129,6 +172,7 @@ const handleUpdateLocation = async (e) => { // Update parameter to event and add
                         type="text"
                         value={newLocation.longitude}
                         onChange={(e) => setNewLocation({ ...newLocation, longitude: e.target.value })}
+                        disabled={!!selectedCity}
                     />
                 </div>
             </div>
@@ -140,9 +184,13 @@ const handleUpdateLocation = async (e) => { // Update parameter to event and add
                     onChange={(e) => setNewLocation({ ...newLocation, description: e.target.value })}
                 />
             </div>
+            <div className="field-group">
+                <label htmlFor="image">Image:</label>
+                <input id="image" type="file" onChange={handleImageChange} />
+            </div>
             <div className="button-group">
                 {editingLocation !== null ? (
-                    <button type="submit"  onClick={handleUpdateLocation}>Update Location</button>
+                    <button type="submit" onClick={handleUpdateLocation}>Update Location</button>
                 ) : (
                     <button type="submit" onClick={handleAddLocation}>Add Location</button>
                 )}
@@ -150,24 +198,37 @@ const handleUpdateLocation = async (e) => { // Update parameter to event and add
             <table>
                 <thead>
                     <tr>
+                        <th>City</th>
                         <th>Destination Name</th>
                         <th>Latitude</th>
                         <th>Longitude</th>
                         <th>Description</th>
+                        <th>Image</th> {/* New column for the image */}
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {locations.map((location, index) => (
                         <tr key={location._id}>
+                            <td>{location.city}</td>
                             <td>{location.destinationName}</td>
                             <td>{location.latitude}</td>
                             <td>{location.longitude}</td>
                             <td>{location.description}</td>
                             <td>
+                            {location.image && (
+                                <img 
+                                    src={`http://localhost:4000/${location.image.replace(/\\/g, '/')}`} 
+                                    alt={location.destinationName} 
+                                    width="300" 
+                                    height="300"
+                                />
+                            )}
+                            </td>
+                            <td>
                                 <div className="action-buttons">
-                                <button onClick={() => handleEditLocation(index)}>Edit</button> {/* Pass index to handler */}
-                                <button onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
+                                    <button onClick={() => handleEditLocation(index)}>Edit</button>
+                                    <button onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
                                 </div>
                             </td>
                         </tr>

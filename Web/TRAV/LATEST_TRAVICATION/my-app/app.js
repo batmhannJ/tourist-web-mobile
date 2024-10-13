@@ -6,6 +6,9 @@ const session = require('express-session')
 const MongoStore = require('connect-mongo')
 const { collection, collection2 } = require("./mongo");
 const nodemailer = require('nodemailer');
+const multer = require('multer'); // Import multer
+const path = require('path');
+
 
 const cors = require("cors")
 const app = express()
@@ -292,27 +295,78 @@ app.patch("/declinemanager/:id",  async (req, res) => {
     }
 }); 
 
-app.post("/addlocation", async(req, res)=>{
-
-   
-    const{destinationName, latitude, longitude, description, destionationType} = req.body
-
-    const data = {
-        destinationName: destinationName,
-        latitude: latitude,
-        longitude: longitude,
-        description: description,
-        destionationType: destionationType
-    };
-    try{ 
-        await collection2.insertMany([data])
-        
-
-    }
-    catch(e){
-        res.json("location insert error")
+const storage = multer.diskStorage({
+    destination: './uploads/', // Folder where uploaded files will be saved
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
     }
 });
+
+// Create the upload instance with the storage configuration
+const upload = multer({
+    storage: storage,
+    limits: { fileSize: 1000000 }, // Limit file size to 1MB
+    fileFilter: (req, file, cb) => {
+        const filetypes = /jpeg|jpg|png|gif/; // Allowed file types
+        const mimetype = filetypes.test(file.mimetype);
+        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb('Error: Images only!'); // Callback with error if file type is invalid
+        }
+    }
+});
+// Route to handle image upload and save location data
+app.post('/locations', (req, res) => {
+    upload(req, res, (err) => {
+        if (err) {
+            res.status(400).send(err);
+        } else {
+            const { city, destinationName, latitude, longitude, description, destinationType } = req.body;
+            const newLocation = new collection2({
+                city,
+                destinationName,
+                latitude,
+                longitude,
+                description,
+                destinationType,
+                image: req.file ? `/uploads/${req.file.filename}` : ''  // Store the image file path
+            });
+
+            newLocation.save()
+                .then(() => res.status(200).json({ message: 'Location added successfully', newLocation }))
+                .catch(error => res.status(400).json({ error }));
+        }
+    });
+});
+
+// Serve uploaded images
+app.use('/uploads', express.static('uploads'));
+
+// Add location route with image upload
+app.post('/addlocation', upload.single('image'), (req, res) => {
+    const { city, destinationName, latitude, longitude, description } = req.body;
+    const image = req.file; // Access the uploaded image
+
+    // Save the location and image path to the database
+    // Example: save to MongoDB with mongoose
+    const newLocation = new collection2({
+        city,
+        destinationName,
+        latitude,
+        longitude,
+        description,
+        image: image.path // Store image path
+    });
+
+    newLocation.save()
+        .then(() => res.json({ message: 'Location added successfully' }))
+        .catch(err => res.status(500).json({ error: 'Error adding location' }));
+});
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get("/getlocation", async(req, res) => {
     try {
@@ -339,11 +393,12 @@ app.delete("/deletelocation/:id", async (req, res) => { // Correct route
 
 app.patch("/editlocation/:id", async(req, res) => {
     const {id} = req.params;
-    const { destinationName, latitude, longitude, description } = req.body;
+    const { city, destinationName, latitude, longitude, description } = req.body;
 
     try {
         // Create the data object with updated fields
         const data = { 
+            city: city,
             destinationName: destinationName,  
             latitude: latitude,
             longitude: longitude,

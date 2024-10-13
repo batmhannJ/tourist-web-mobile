@@ -20,7 +20,7 @@ class RecommendedCard extends StatelessWidget {
       child: Column(
         children: [
           // Example for displaying place info
-          Text(placeInfo.name),
+          Text(placeInfo.destinationName),
           if (navigationButton != null) // Only show if it's provided
             ElevatedButton(
               onPressed: navigationButton,

@@ -14,6 +14,7 @@ import 'package:flutter_application_2/providers/user_provider.dart';
 import 'package:flutter_application_2/services/dbpedia_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; 
+import 'package:flutter_application_2/model/place_model.dart'; // Import your model here
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -48,24 +49,77 @@ class _HomeScreenState extends State<HomeScreen> {
     "September", "October", "November", "December"
   ];
   List<dynamic> touristSpots = [];
+List<PlaceInfo> _places = []; // State variable to hold the fetched places
+String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     _startSessionTimer();
-    fetchTouristSpots();
     fetchMostSearchedCategories(); 
-    fetchDestinations();
+    fetchDestinations(); 
   }
 
-  void fetchTouristSpots() async {
-    DBpediaService dbpediaService = DBpediaService();
-    List<dynamic> spots = await dbpediaService.fetchTouristSpots('Philippines');
-    setState(() {
-      touristSpots = spots;
-    });
-  }
+Future<List<PlaceInfo>> fetchDestinations() async {
+  try {
+    final response = await http.get(Uri.parse('http://localhost:3000/api/places'));
 
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      List<PlaceInfo> places = [];
+
+      for (var item in data) {
+        // Extract values safely
+        String city = item['city'] ?? 'Unknown City';  // Default value if null
+        String destinationName = item['destinationName'] ?? 'Unknown Destination'; // Default value if null
+        double latitude = item['latitude']?.toDouble() ?? 0.0;  // Default value if null
+        double longitude = item['longitude']?.toDouble() ?? 0.0;  // Default value if null
+        String description = item['description'] ?? 'No Description';  // Default value if null
+        String? destination = item['destination'];  // This can be null
+
+         // Construct the image URL
+                // Construct the image URL correctly
+        String imagePath = item['image'] ?? 'assets/tagtay.jpg';
+        String imageUrl = imagePath.contains('http') 
+            ? imagePath // If it already contains a URL
+            : 'http://localhost:3000/$imagePath'.replaceAll("\\", "/");
+                    // Debug output to see constructed URLs
+        print('Image URL: $imageUrl'); 
+        places.add(PlaceInfo(
+          city: city,
+          destinationName: destinationName,
+          latitude: latitude,
+          longitude: longitude,
+          description: description,
+          destinationType: item['destinationType'] ?? 'local', // Default if not provided
+          image: imageUrl,
+          bestMonths: bestMonthsForPlace(destinationName), // Assuming this function exists
+          destination: destination ?? 'Unknown Destination' // Provide a default if null
+        ));
+      }
+      return places; // Return the list of places
+    } else {
+      throw Exception('Failed to load places');
+    }
+  } catch (error) {
+    print('Error fetching destinations: $error');
+    return []; // Return an empty list on error
+  }
+}
+
+ List<int> bestMonthsForPlace(String destinationName) {
+    // Your logic to determine the best months for the given destination
+    // Example implementation:
+    switch (destinationName.toLowerCase()) {
+      case 'Baguio':
+        return [5, 6, 7, 8]; // Example months for Paris
+      case 'Bohol':
+        return [3, 4, 5, 10, 11]; // Example months for Tokyo
+      // Add more cases as needed
+      default:
+        return []; // Return empty if no specific months are defined
+    }
+  }
 
   @override
   void dispose() {
@@ -97,11 +151,6 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
   
- Future<List<PlaceInfo>> fetchDestinations() async {
-  await Future.delayed(const Duration(seconds: 1)); // Optional: simulate network delay
-  // Return the hardcoded list of places
-  return places;
-}
 
  final Map<String, String?> imageCache = {};
 
@@ -253,27 +302,33 @@ Widget _buildMainContent(BuildContext context) {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                          child: Image.asset(
-                            place.image, 
-                            fit: BoxFit.cover, 
-                            width: double.infinity,
-                          ),
-                        ),
+                     Expanded(
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                        child: place.image != null
+                          ? Image.network(
+                              place.image!,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            )
+                          : Image.network(
+                              'assets/images/tagtay.jpg', // Provide a default image path
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
                       ),
+                    ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              place.name, 
+                              place.destinationName, 
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                             const SizedBox(height: 4),
-                            Text(place.location, style: const TextStyle(color: Colors.grey)),
+                            Text(place.city, style: const TextStyle(color: Colors.grey)),
                           ],
                         ),
                       ),
