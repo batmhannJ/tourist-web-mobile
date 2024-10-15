@@ -134,6 +134,20 @@ app.post('/api/reset-password', async (req, res) => {
     }
 });
 
+const API_KEY = 'AIzaSyBEcu_p865o6zGHCcA9oDlKl04xeFCBaIs';
+app.get('/directions', async (req, res) => {
+    const { origin, destination } = req.query;
+    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=driving&key=${API_KEY}`;
+
+    try {
+        const response = await axios.get(url);
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching directions');
+    }
+});
+
 async function fetchThumbnailFromDBpedia(searchTerm) {
     const query = encodeURIComponent(searchTerm);
     const dbpediaUrl = `http://dbpedia.org/sparql?query=SELECT%20?thumbnail%20WHERE%20{?s%20rdfs:label%20"${query}"@en.%20?s%20dbo:thumbnail%20?thumbnail.}`;

@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/screens/map_page.dart'; // Import the MapPage
+import 'package:flutter_application_2/model/place_model.dart'; // Import PlaceInfo model
 
 class DetailScreen extends StatelessWidget {
-  final dynamic spot;
+  final PlaceInfo spot;  // Ensure you are using the PlaceInfo type
 
   const DetailScreen({super.key, required this.spot});
 
   @override
   Widget build(BuildContext context) {
+    // Debug print statement to inspect the data being passed
+    print(spot);
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(spot['name']),
+        title: Text(spot.destinationName),  // Access properties using dot notation
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -33,7 +37,7 @@ class DetailScreen extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
                   child: Image.network(
-                    spot['imageUrl'],
+                    spot.image ?? 'assets/tagtay.jpg',  // Use dot notation here
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: 250,
@@ -44,7 +48,7 @@ class DetailScreen extends StatelessWidget {
 
               // Name of the tourist spot
               Text(
-                spot['name'],
+                spot.destinationName,  // Use dot notation here
                 style: const TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -55,7 +59,7 @@ class DetailScreen extends StatelessWidget {
 
               // Description
               Text(
-                spot['description'],
+                spot.description,  // Use dot notation here
                 style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black54,
@@ -70,7 +74,7 @@ class DetailScreen extends StatelessWidget {
                   const Icon(Icons.location_on, color: Colors.redAccent),
                   const SizedBox(width: 6),
                   Text(
-                    'Latitude: ${spot['lat']}',
+                    'Latitude: ${spot.latitude}',  // Use dot notation here
                     style: const TextStyle(fontSize: 16, color: Colors.black87),
                   ),
                 ],
@@ -81,7 +85,7 @@ class DetailScreen extends StatelessWidget {
                   const Icon(Icons.location_on, color: Colors.redAccent),
                   const SizedBox(width: 6),
                   Text(
-                    'Longitude: ${spot['long']}',
+                    'Longitude: ${spot.longitude}',  // Use dot notation here
                     style: const TextStyle(fontSize: 16, color: Colors.black87),
                   ),
                 ],
@@ -91,9 +95,9 @@ class DetailScreen extends StatelessWidget {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                        // Convert latitude and longitude from String to double
-                    double destinationLat = double.parse(spot['lat'].toString());
-                    double destinationLong = double.parse(spot['long'].toString());
+                    // Convert latitude and longitude from String to double
+                    double destinationLat = spot.latitude;
+                    double destinationLong = spot.longitude;
                     Navigator.push(
                       context,
                       MaterialPageRoute(

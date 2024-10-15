@@ -13,7 +13,7 @@ function ManageLocations() {
     const cityData = {
         Baguio: { latitude: [16.41639, 16.41639], longitude: [120.59306, 120.59306] },
         Bohol: { latitude: [9.84999, 9.84999], longitude: [124.14354, 124.14354] },
-        Davao: { latitude: [7.207573, 7.207573], longitude: [125.395874, 125.395874] },
+        Cebu: { latitude: [10.31672, 10.31672], longitude: [123.89071, 123.89071] },
         Boracay: { latitude: [11.968603, 11.968603], longitude: [121.918381, 121.918381] },
         Batanes: { latitude: [20.45798, 20.45798], longitude: [121.9941, 121.9941] }
     };
