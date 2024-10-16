@@ -1,21 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/model/place_model.dart';
-import 'package:flutter_application_2/screens/Home/home_screen.dart';
-import 'package:flutter_application_2/screens/Home/widgets/recommended_card.dart';
 import 'package:flutter_application_2/screens/detailscreen/detail_screen.dart';
-import 'package:flutter_application_2/screens/bookmark_page.dart';
-import 'package:flutter_application_2/screens/map_page.dart';
-import 'package:flutter_application_2/screens/itinerary_planner_page.dart';
-import 'package:flutter_application_2/screens/profile_account.dart';
-import 'package:flutter_application_2/utilities/colors.dart';
-import 'package:flutter_application_2/services/auth_services.dart';
 import 'dart:async'; 
-//import 'widgets/category_card.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_application_2/providers/user_provider.dart';
-import 'package:flutter_application_2/services/dbpedia_service.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert'; 
 
 class Bookmark extends StatefulWidget {
   const Bookmark({Key? key}) : super(key: key);
@@ -24,215 +10,124 @@ class Bookmark extends StatefulWidget {
   State<Bookmark> createState() => _Bookmark();
 }
 
-
 class _Bookmark extends State<Bookmark> {
-  final AuthService authService = AuthService();
-  Timer? _sessionTimer;
-  static const Duration _sessionTimeoutLimit = Duration(minutes: 2);
-  DateTime _lastActivityTime = DateTime.now();
-  List<dynamic> mostSearchedCategories = []; // To store most searched categories
-  List<dynamic> _touristSpots = [];
-  final List<String> _imageUrls = [];
+  List<PlaceInfo> places = [];  // Store PlaceInfo objects
   String? _selectedMonth;
-  final Map<String, List<dynamic>> _cachedResults = {};
-  Timer? _debounce;
-List<PlaceInfo> _places = []; // State variable to hold the fetched places
 
   List<String> months = [
     "January", "February", "March", "April", "May", "June", "July", "August",
     "September", "October", "November", "December"
   ];
-  List<dynamic> touristSpots = [];
 
   @override
   void initState() {
     super.initState();
-    _startSessionTimer();
+    _fetchPlaces();  // Fetch places when the widget is initialized
   }
-    @override
-  void dispose() {
-    _sessionTimer?.cancel();
-    _debounce?.cancel();
-    super.dispose();
-  }
-    void _startSessionTimer() {
-    _sessionTimer = Timer.periodic(const Duration(minutes: 10), (timer) {
-      if (DateTime.now().difference(_lastActivityTime) >= _sessionTimeoutLimit) {
-        _handleSessionExpired();
+
+  // Function to fetch places and update the state
+  Future<void> _fetchPlaces() async {
+    try {
+      List<PlaceInfo> fetchedPlaces = await fetchDestinations();  // Fetch from API
+
+      // Debugging: Print fetched places
+      print("Fetched places: ${fetchedPlaces.length}");
+      for (var place in fetchedPlaces) {
+        print("Place: ${place.city}, Best Months: ${place.bestMonths}");
       }
-    });
-  }
-    void _handleSessionExpired() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Navigator.pushReplacementNamed(context, '/login_page');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Session expired. Please log in again.')),
-      );
-    });
-  }
 
-  void _updateActivityTime() {
-    setState(() {
-      _lastActivityTime = DateTime.now();
-    });
-  }
-
-   // Function to build tourist spots filtered by month
-  Widget _buildTouristSpotsByMonth() {
-    if (_selectedMonth == null) {
-      return const SizedBox();
+      setState(() {
+        places = fetchedPlaces;  // Update the state with fetched places
+      });
+    } catch (error) {
+      print('Error fetching places: $error');
     }
+  }
 
-    int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;
-    List<PlaceInfo> filteredPlaces = _places.where((place) {
-      return place.bestMonths.contains(selectedMonthIndex);
-    }).toList();
+  // Function to filter tourist spots based on selected month
+ // Function to filter tourist spots based on selected month
+Widget _buildTouristSpotsByMonth() {
+  if (_selectedMonth == null) {
+    return const SizedBox();
+  }
 
-    if (filteredPlaces.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text("No tourist spots found for this month."),
-      );
-    }
+  // Get the numeric month for filtering
+  int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;
+  print("Selected month index: $selectedMonthIndex");  // Debug log
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: filteredPlaces.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 5, right: 15),
-          child: RecommendedCard(
-            placeInfo: filteredPlaces[index],
-            press: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailScreen(
-                    spot: filteredPlaces[index],
-                  ),
-                ),
-              );
-            },
-          ),
-        );
-      },
+  // Filter logic to show all destinations with the city 'Baguio' when January is selected
+  List<PlaceInfo> filteredPlaces = places.where((place) {
+    // Check if the place's bestMonths list contains the selected month
+    return place.bestMonths.contains(selectedMonthIndex);
+  }).toList();
+
+  if (filteredPlaces.isEmpty) {
+    return const Padding(
+      padding: EdgeInsets.all(16.0),
+      child: Text("No tourist spots found for this month."),
     );
   }
 
-  Widget _buildMonthGrid() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-    child: GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,  // 3 months per row
-        childAspectRatio: 1.5,  // Adjust for more calendar-like appearance
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-      ),
-      itemCount: months.length,
-      itemBuilder: (context, index) {
-        bool isSelected = _selectedMonth == months[index];
-        return GestureDetector(
+  // Display the filtered places
+  return ListView.builder(
+    shrinkWrap: true,
+    physics: const NeverScrollableScrollPhysics(),
+    itemCount: filteredPlaces.length,
+    itemBuilder: (context, index) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 5, right: 15),
+        child: ListTile(
+          title: Text(filteredPlaces[index].destinationName),
+          subtitle: Text(filteredPlaces[index].city),
           onTap: () {
-            setState(() {
-              _selectedMonth = months[index];
-            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DetailScreen(
+                  spot: filteredPlaces[index],
+                ),
+              ),
+            );
           },
-          child: Container(
-            decoration: BoxDecoration(
-              color: isSelected ? Colors.blueAccent : Colors.grey[200],
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: isSelected
-                  ? [BoxShadow(color: Colors.blueAccent.withOpacity(0.5), blurRadius: 10, offset: const Offset(0, 4))]
-                  : [BoxShadow(color: Colors.grey.withOpacity(0.5), blurRadius: 5, offset: const Offset(0, 4))],
-              border: Border.all(
-                color: isSelected ? Colors.blueAccent : Colors.grey[400]!,
-                width: 2,
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              months[index],
-              style: TextStyle(
-                fontSize: 18,
-                color: isSelected ? Colors.white : Colors.black87,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
-          ),
-        );
-      },
-    ),
+        ),
+      );
+    },
   );
 }
 
-  @override
-  Widget build(BuildContext context) {
-    // Retrieve user name from UserProvider
-    final userName = Provider.of<UserProvider>(context).user.name;
 
-    return GestureDetector(
-      onPanUpdate: (_) => _updateActivityTime(),
-      onTap: () => _updateActivityTime(),
-      onPanEnd: (_) => _updateActivityTime(),
-      child: Scaffold(
-        backgroundColor: kWhiteClr,
-        bottomNavigationBar: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildNavIcon(Icons.home, "Home", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-                }),
-                _buildNavIcon(Icons.bookmark, "Bookmarks", () {}),
-              _buildNavIcon(Icons.map, "Map", () {
-                  // Define default latitude and longitude values
-                  double defaultLat = 14.5995;  // Example latitude (Manila)
-                  double defaultLong = 120.9842; // Example longitude (Manila)
-
-                  // Navigate to MapPage and pass the latitude and longitude
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MapPage(
-                        destinationLat: defaultLat,
-                        destinationLong: defaultLong,
-                      ),
-                    ),
-                  );
-                }),
-
-                _buildNavIcon(Icons.event_note, "Planner", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ItineraryPlannerPage()));
-                }),
-                _buildNavIcon(Icons.account_circle, "Account", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfileAccountPage()));
-                }),
-              ],
-            ),
-          ),
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildMainContent(context),  // Call the renamed function here
-              ],
-            ),
-          ),
-        ),
+  // Build the grid for selecting months
+  Widget _buildMonthGrid() {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4,
+        childAspectRatio: 2,
       ),
+      itemCount: months.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              _selectedMonth = months[index];  // Update the selected month
+            });
+          },
+          child: Card(
+            child: Center(child: Text(months[index])),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildMainContent(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Tourist Spots by Month'),
+      ),
+      body: Column(
         children: [
           const SizedBox(height: 10),
           const Text("Select a Month", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
@@ -240,44 +135,6 @@ List<PlaceInfo> _places = []; // State variable to hold the fetched places
           _buildMonthGrid(),
           const SizedBox(height: 20),
           if (_selectedMonth != null) _buildTouristSpotsByMonth(),
-          const SizedBox(height: 20),
-          _buildSearchResults(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchResults() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _imageUrls.length,
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: const EdgeInsets.only(left: 5, right: 15),
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 8),
-            child: Image.network(
-              _imageUrls[index],
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) {
-                return const Center(child: Text('Image could not be loaded'));
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-    // Helper method to build navigation icons
-  GestureDetector _buildNavIcon(IconData icon, String label, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 40, color: kPrimaryClr),
-          Text(label),
         ],
       ),
     );

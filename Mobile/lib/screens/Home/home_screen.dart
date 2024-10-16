@@ -49,7 +49,6 @@ class _HomeScreenState extends State<HomeScreen> {
     "September", "October", "November", "December"
   ];
   List<dynamic> touristSpots = [];
-List<PlaceInfo> _places = []; // State variable to hold the fetched places
 String? _errorMessage;
 
   @override
@@ -282,75 +281,61 @@ Widget _buildMainContent(BuildContext context) {
 
             List<PlaceInfo> destinations = snapshot.data!;
             return GridView.builder(
-  shrinkWrap: true,
-  physics: const NeverScrollableScrollPhysics(),
-  padding: const EdgeInsets.symmetric(horizontal: 16),
-  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-    crossAxisCount: 2,
-    childAspectRatio: 3 / 2,
-    crossAxisSpacing: 16,
-    mainAxisSpacing: 16,
-  ),
-  itemCount: destinations.length,
-  itemBuilder: (context, index) {
-    PlaceInfo place = destinations[index];
-    
-    return GestureDetector(
-      onTap: () {
-        // Navigate to DetailScreen with the `place` object
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetailScreen(
-              spot: place,  // Pass the `place` (or spot) as the argument
-            ),
-          ),
-        );
-      },
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: place.image != null
-                  ? Image.network(
-                      place.image!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    )
-                  : Image.asset(
-                      'assets/images/tagtay.jpg', // Provide a default image path
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    ),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 3 / 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    place.destinationName, 
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              itemCount: destinations.length,
+              itemBuilder: (context, index) {
+                PlaceInfo place = destinations[index];
+                return Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(height: 4),
-                  Text(place.city, style: const TextStyle(color: Colors.grey)),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  },
-);
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                     Expanded(
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                        child: place.image != null
+                          ? Image.network(
+                              place.image!,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            )
+                          : Image.network(
+                              'assets/images/tagtay.jpg', // Provide a default image path
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
+                      ),
+                    ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              place.destinationName, 
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(place.city, style: const TextStyle(color: Colors.grey)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
           },
         ),
       ],
