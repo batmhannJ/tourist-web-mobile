@@ -37,6 +37,10 @@ const newSchema = new mongoose.Schema({
 const collection = mongoose.model("accounts", newSchema)
 
 const locationSchema = new mongoose.Schema({
+    city: {
+        type: String, 
+        required: true
+    },
     destinationName: {
         type: String, 
         required: true
@@ -57,6 +61,10 @@ const locationSchema = new mongoose.Schema({
         type: String,
         required: true,
         default: 'local'
+    },
+    image: {
+        type: String,  // Stores the file path or URL of the image
+        required: false
     }
 });
 

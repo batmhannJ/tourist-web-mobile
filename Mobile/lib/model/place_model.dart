@@ -1,56 +1,83 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
 class PlaceInfo {
-  final String name;
-  final String location;
-  final String image; // Image path or URL
-  final String desc;
-  final List<int> bestMonths; // Adjust as necessary
+  final String city;
+  final String destinationName;
+  final double latitude;
+  final double longitude;
+  final String description;
+  final String destinationType;
+  final String? image;
+  final List<int> bestMonths;  // New field to store best months
+  final String? destination;
 
   PlaceInfo({
-    required this.name,
-    required this.location,
-    required this.image,
-    required this.desc,
-    required this.bestMonths, // Ensure this is part of the constructor
+    required this.city,
+    required this.destinationName,
+    required this.latitude,
+    required this.longitude,
+    required this.description,
+    this.destinationType = 'local',
+    this.image,
+    required this.bestMonths,  // Include this in constructor
+    required this.destination,
   });
+
+  // Factory method to create PlaceInfo from JSON and hard-code bestMonths
+  factory PlaceInfo.fromJson(Map<String, dynamic> json) {
+  // Assign bestMonths based on city name
+  List<int> bestMonths = [];
+
+  String city = json['city'] ?? 'Unknown City'; // Provide a default value if city is null
+  switch (city.toLowerCase()) {
+    case 'baguio':
+      bestMonths = [3, 4, 5, 10, 11, 12];
+      break;
+    case 'bohol':
+      bestMonths = [12, 1, 2, 3, 4, 5];  // February
+      break;
+    case 'batanes':
+      bestMonths = [3, 4, 5, 6, 7];  // February
+      break;
+    case 'boracay':
+      bestMonths = [2, 3, 4, 5, 8, 9];  // February
+      break;
+    case 'cebu':
+      bestMonths = [4, 5, 6, 7, 8, 9];  // February
+      break;
+    // Add other city cases as needed
+    default:
+      bestMonths = [];  // No best months
+  }
+
+  return PlaceInfo(
+    city: city,
+    destinationName: json['destinationName'],
+    latitude: json['latitude'].toDouble(),
+    longitude: json['longitude'].toDouble(),
+    description: json['description'],
+    destinationType: json['destinationType'] ?? 'local',
+    image: json['image'] ?? 'assets/default_image.jpg',  // Provide a default image path if null
+    bestMonths: bestMonths,
+    destination: json['destination'] ?? 'Unknown Destination',
+  );
 }
 
+}
 
-List<PlaceInfo> places =[
-  PlaceInfo(
-    image: 'assets/images/tagtay.jpg',
-    location: "Tagaytay",
-    name: 'Taal View',
-    desc: "Taal Volcano, one of the Philippines' most active volcanoes, is situated in the middle of Taal Lake. Visitors can enjoy breathtaking views from Tagaytay Ridge or take a boat ride across the lake to hike up the volcano itself. The scenic landscapes and the unique geological features make it a must-visit spot.",
-    bestMonths: [11, 12, 1, 2], // November to February
-  ),
-  PlaceInfo(
-    image: 'assets/images/siargao1-img.jpg',
-    location: "Siargao",
-    name: 'Cloud 9', 
-    bestMonths: [6, 7, 8], // June to August
-    desc: "Famous worldwide for its powerful surf break, Cloud 9 is a top destination for surfers. It hosts international surfing competitions and offers a picturesque wooden boardwalk and viewing deck where visitors can watch the waves and surfers in action."
+// Function to fetch places from the API
+Future<List<PlaceInfo>> fetchDestinations() async {
+  final response = await http.get(Uri.parse('http://localhost:3000/api/places'));
+print("API Response: ${response.body}");  // Add this line to see the raw response
 
-  ),
-  PlaceInfo(
-    image: 'assets/images/baguio.jpg',
-    location: "Baguio",
-    name: 'Burnham Park',
-    bestMonths: [3, 4, 5], // March to May
-    desc: "Named after the city's planner, Daniel Burnham, this park is the heart of Baguio City. It features a large man-made lake where visitors can enjoy boat rides, beautiful gardens, and wide open spaces for picnicking and various recreational activities."
-  ),
-  PlaceInfo(
-    image: 'assets/images/antipolo1.jpg',
-    location: "Antipolo, Rizal",
-    name: 'Hinulugang Taktak',
-    bestMonths: [12, 1, 2, 3, 4, 5], // June to August
-    desc: "This historical waterfall is a prominent natural landmark in Antipolo. It's surrounded by a protected area and features picnic spots, a swimming pool, and walking paths. The falls are part of the Hinulugang Taktak Protected Landscape."
-  ),
-  PlaceInfo(
-    image: 'assets/images/ilocos2-1.jpg',
-    location: "Ilocos Sur",
-    name: 'Vigan Heritage Village',
-    bestMonths: [11, 12, 1, 2, 3, 4], // June to August
-    desc: "A UNESCO World Heritage site, Vigan Heritage Village is famous for its well-preserved Spanish colonial and Asian architecture. Cobblestone streets, historical houses, and horse-drawn carriages give visitors a glimpse into the Philippines' colonial past."
-  ),
-
-];
+  // Check if the response is successful
+  if (response.statusCode == 200) {
+    List<dynamic> jsonResponse = json.decode(response.body);
+    // Map the JSON response to List<PlaceInfo>
+    return jsonResponse.map((place) => PlaceInfo.fromJson(place)).toList();
+  } else {
+    // Handle errors if the response is not successful
+    throw Exception('Failed to load destinations');
+  }
+}

@@ -36,13 +36,13 @@ class RecommendedCard extends StatelessWidget {
                       image: DecorationImage(
                         fit: BoxFit.cover,
                         image: AssetImage(
-                          placeInfo.image))),
+                          placeInfo.image ?? 'assets/images/default_image.jpg'))),
                   ),
                   const SizedBox(
                     height: 20,
                   ),
                   Text(
-                    placeInfo.name, 
+                    placeInfo.destinationName, 
                     style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                      const SizedBox(
@@ -55,7 +55,7 @@ class RecommendedCard extends StatelessWidget {
                       color: kPrimaryClr,
                       ),
                       Text(
-                        placeInfo.location, 
+                        placeInfo.city, 
                         style: const TextStyle(
                           color: Colors.grey, 
                           fontSize: 15
