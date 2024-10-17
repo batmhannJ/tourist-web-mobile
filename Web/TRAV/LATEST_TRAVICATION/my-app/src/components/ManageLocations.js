@@ -137,64 +137,86 @@ function ManageLocations() {
         <div className="form-container">
             <h1>Manage Locations</h1>
             <div className="location-fields">
-                <div className="field-group">
-                    <label htmlFor="city">City:</label>
-                    <select id="city" value={selectedCity} onChange={handleCityChange}>
-                        <option value="">Select City</option>
-                        {Object.keys(cityData).map((city) => (
-                            <option key={city} value={city}>{city}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className="field-group">
-                    <label htmlFor="destinationName">Destination Name:</label>
-                    <input
-                        id="destinationName"
-                        type="text"
-                        value={newLocation.destinationName}
-                        onChange={(e) => setNewLocation({ ...newLocation, destinationName: e.target.value })}
-                    />
-                </div>
-                <div className="field-group">
-                    <label htmlFor="latitude">Latitude:</label>
-                    <input
-                        id="latitude"
-                        type="text"
-                        value={newLocation.latitude}
-                        onChange={(e) => setNewLocation({ ...newLocation, latitude: e.target.value })}
-                        disabled={!!selectedCity}
-                    />
-                </div>
-                <div className="field-group">
-                    <label htmlFor="longitude">Longitude:</label>
-                    <input
-                        id="longitude"
-                        type="text"
-                        value={newLocation.longitude}
-                        onChange={(e) => setNewLocation({ ...newLocation, longitude: e.target.value })}
-                        disabled={!!selectedCity}
-                    />
-                </div>
+            <div className="form-container">
+    <form>
+        {/* City Selection */}
+        <div className="field-group">
+            <label htmlFor="city">City:</label>
+            <select id="city" value={selectedCity} onChange={handleCityChange}>
+                <option value="">Select City</option>
+                {Object.keys(cityData).map((city) => (
+                    <option key={city} value={city}>
+                        {city}
+                    </option>
+                ))}
+            </select>
+        </div>
+
+        {/* Destination Name */}
+        <div className="field-group">
+            <label htmlFor="destinationName">Destination Name:</label>
+            <input
+                id="destinationName"
+                type="text"
+                value={newLocation.destinationName}
+                onChange={(e) => setNewLocation({ ...newLocation, destinationName: e.target.value })}
+            />
+        </div>
+
+        {/* Latitude */}
+        <div className="field-group">
+            <label htmlFor="latitude">Latitude:</label>
+            <input
+                id="latitude"
+                type="text"
+                value={newLocation.latitude}
+                onChange={(e) => setNewLocation({ ...newLocation, latitude: e.target.value })}
+                disabled={!selectedCity}
+            />
+        </div>
+
+        {/* Longitude */}
+        <div className="field-group">
+            <label htmlFor="longitude">Longitude:</label>
+            <input
+                id="longitude"
+                type="text"
+                value={newLocation.longitude}
+                onChange={(e) => setNewLocation({ ...newLocation, longitude: e.target.value })}
+                disabled={!selectedCity}
+            />
+        </div>
+
+        {/* Description */}
+        <div className="description-field">
+            <label htmlFor="description">Description:</label>
+            <div className="description">
+                This is where you can describe the location.
             </div>
-            <div className="description-field">
-                <label htmlFor="description">Description:</label>
-                <textarea
-                    id="description"
-                    value={newLocation.description}
-                    onChange={(e) => setNewLocation({ ...newLocation, description: e.target.value })}
-                />
-            </div>
-            <div className="field-group">
-                <label htmlFor="image">Image:</label>
-                <input id="image" type="file" onChange={handleImageChange} />
-            </div>
-            <div className="button-group">
-                {editingLocation !== null ? (
-                    <button type="submit" onClick={handleUpdateLocation}>Update Location</button>
-                ) : (
-                    <button type="submit" onClick={handleAddLocation}>Add Location</button>
-                )}
-            </div>
+            <textarea
+                id="description"
+                value={newLocation.description}
+                onChange={(e) => setNewLocation({ ...newLocation, description: e.target.value })}
+            />
+        </div>
+
+        {/* Image Upload */}
+        <div className="field-group">
+            <label htmlFor="image">Image:</label>
+            <input id="image" type="file" onChange={handleImageChange} />
+        </div>
+
+        {/* Submit Buttons */}
+        <div className="button-group">
+            {editingLocation !== null ? (
+                <button type="submit" onClick={handleUpdateLocation}>Update Location</button>
+            ) : (
+                <button type="submit" onClick={handleAddLocation}>Add Location</button>
+            )}
+        </div>
+    </form>
+</div>
+</div>
             <table>
                 <thead>
                     <tr>
@@ -226,10 +248,10 @@ function ManageLocations() {
                             )}
                             </td>
                             <td>
-                                <div className="action-buttons">
-                                    <button onClick={() => handleEditLocation(index)}>Edit</button>
-                                    <button onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
-                                </div>
+                            <div className="action-buttons">
+                                <button className="edit-button" onClick={() => handleEditLocation(index)}>Edit</button>
+                                <button className="delete-button" onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
+                            </div>
                             </td>
                         </tr>
                     ))}

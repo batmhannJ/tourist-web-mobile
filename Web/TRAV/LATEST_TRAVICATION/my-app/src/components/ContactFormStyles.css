@@ -1,211 +1,171 @@
-
+/* Form Container */
 .form-container {
-    width: 80%;
-    margin: 20px auto;
+    width: 90%;
+    max-width: 1000px; /* Max width */
+    margin: 40px auto; /* Center the form container */
+    padding: 30px; /* Padding for spacing */
+    border-radius: 15px; /* Rounded corners */
+    background: #ffffff; /* White background */
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15); /* Soft shadow */
 }
 
+/* Header Styles */
 h1 {
-    text-align: center;
-    margin-bottom: 20px;
+    text-align: center; /* Center the header */
+    margin-bottom: 25px; /* Margin below the header */
+    font-family: 'Raleway', sans-serif; /* Modern font */
+    font-size: 34px; /* Header font size */
+    color: #2c3e50; /* Dark navy color */
+    font-weight: 700; /* Bold */
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
-table th {
-    background-color: #f2f2f2;
-}
-
+/* Form Styles */
 form {
-    margin-top: 20px;
+    margin-top: 15px; /* Margin above the form */
 }
 
-form input {
-    width: calc(50% - 20px);
-    margin: 5px 0;
-    padding: 10px;
-    border: 1px solid #ddd;
+/* Field Group Styles */
+.field-group {
+    display: flex; /* Flexbox layout */
+    align-items: center; /* Center vertically */
+    margin-bottom: 20px; /* Margin between fields */
 }
 
+.field-group label {
+    flex: 0 0 150px; /* Fixed width for labels */
+    margin-right: 20px; /* Space between label and input */
+    color: #34495e; /* Soft gray color */
+    font-weight: 600; /* Semi-bold */
+}
+
+/* Input, Select, and Textarea Styles */
+form input,
+form select,
+form textarea {
+    width: 100%; /* Full width inputs */
+    margin: 10px 0; /* Margin for inputs */
+    padding: 12px; /* Padding inside inputs */
+    border: 1px solid #bdc3c7; /* Light border */
+    border-radius: 8px; /* Rounded corners */
+    font-size: 16px; /* Font size */
+    font-family: 'Raleway', sans-serif; /* Consistent font */
+    background-color: #ecf0f1; /* Light gray background */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+    border-color: #2980b9; /* Blue border on focus */
+    outline: none; /* Remove outline */
+    box-shadow: 0 0 8px rgba(41, 128, 185, 0.4); /* Glow effect */
+}
+
+/* Textarea */
+textarea {
+    resize: vertical; /* Allow vertical resizing */
+    min-height: 160px; /* Minimum height */
+}
+
+/* Button Styles */
 form button {
-    background-color: darkblue;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
+    background-color: #2980b9; /* Blue background */
+    color: white; /* White text */
+    padding: 12px 20px; /* Button padding */
+    border: none; /* No border */
+    border-radius: 25px; /* Rounded button */
+    font-size: 16px; /* Font size */
+    font-family: 'Raleway', sans-serif; /* Consistent font */
+    cursor: pointer; /* Pointer cursor */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Effects */
 }
 
 form button:hover {
-    background-color: blue;
-}
-.form-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
+    background-color: #1a5276; /* Darker blue on hover */
+    transform: translateY(-2px); /* Raise effect */
 }
 
-.location-fields {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+/* Description Field Styles */
+.description-field {
+    margin-bottom: 20px; /* Space below description field */
 }
 
-.field-group {
-    flex: 0 0 calc(33.33% - 10px);
-}
-
-.field-group label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.description-field label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.description-field textarea {
-    width: 100%;
-    height: 100px;
-    resize: vertical;
-    padding: 5px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-bottom: 20px;
-}
-
-.button-group button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-}
-
-.button-group button:hover {
-    background-color: #0056b3;
-}
-
+/* Table Styles */
 table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+    width: 100%; /* Full width for the table */
+    border-collapse: collapse; /* Collapse borders for a cleaner look */
+    margin-top: 20px; /* Space above the table */
+    font-family: 'Raleway', sans-serif; /* Consistent font */
 }
 
-table th, table td {
-    border: 1px solid #ccc;
-    padding: 8px;
-    text-align: left;
-}
-
-.action-buttons {
-    display: flex;
-    justify-content: space-between;
-}
-.green-icon {
-    color: green;
-}
-
-.red-icon {
-    color: red;
-}
-/* ContactFormStyles.css */
-
-.table-container {
-    width: 100%;
-    overflow-x: auto;
-}
-
-.table-container table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table-container th,
-.table-container td {
-    padding: 12px 15px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-}
-
-.table-container th {
-    background-color: #f2f2f2;
-}
-
-.table-container tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
-
-.table-container tbody tr:hover {
-    background-color: #f2f2f2;
-}
-.field-group {
-    margin-bottom: 20px;
-}
-
-.field-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.field-group input,
-.field-group textarea {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.field-group textarea {
-    resize: vertical; /* Allow vertical resizing */
-}
-
-.button-group {
-    margin-top: 20px;
-}
-
-.button-group button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.button-group button:hover {
-    background-color: #0056b3;
-}
-
-.table-container {
-    margin-top: 20px;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
-
+/* Table Header Styles */
 th {
-    background-color: #f2f2f2;
+    background-color: #3498db; /* Lighter blue background for header */
+    color: rgb(0, 0, 0); /* White text color for contrast */
+    padding: 12px; /* Padding for header cells */
+    font-size: 18px; /* Increased font size for header */
+    text-align: left; /* Align text to the left */
+    border-bottom: 3px solid #2980b9; /* Darker bottom border for emphasis */
+}
+
+/* Table Cell Styles */
+td {
+    border: 1px solid #bdc3c7; /* Light border for table cells */
+    padding: 15px; /* Increased padding inside table cells */
+    color: #2c3e50; /* Darker text color for cells */
+    background-color: #ecf0f1; /* Light gray background for cells */
+    transition: background-color 0.3s ease; /* Smooth transition for hover */
+}
+
+/* Table Row Hover Effect */
+tr:hover td {
+    background-color: #d1f2eb; /* Light green on row hover */
+}
+/* Action Buttons Container */
+.action-buttons {
+    display: flex; /* Use flexbox for horizontal alignment */
+    justify-content: flex-start; /* Align buttons to the start */
+    gap: 10px; /* Space between buttons */
+}
+
+/* Edit and Delete Button Styles */
+.edit-button {
+    background-color: #16a085; /* Teal background for edit button */
+    color: white;
+    padding: 10px 20px; /* Increased padding */
+    border: none;
+    border-radius: 5px; /* Rounded corners for buttons */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+.delete-button {
+    background-color: #c0392b; /* Red background for delete button */
+    color: white;
+    padding: 5px 20px; /* Increased padding */
+    border: none;
+    border-radius: 5px; /* Rounded corners for buttons */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+/* Button Hover Effects */
+.edit-button:hover {
+    background-color: #1abc9c; /* Darker teal on hover */
+}
+
+.delete-button:hover {
+    background-color: #922b27; /* Darker red on hover */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    table {
+        font-size: 14px; /* Adjusted font size for smaller screens */
+    }
+
+    th,
+    td {
+        padding: 10px; /* Reduced padding for smaller screens */
+    }
 }
