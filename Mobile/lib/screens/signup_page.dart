@@ -41,7 +41,7 @@ class _SignupPageState extends State<SignupPage> {
         );
 
         for (int i = cooldownTime; i > 0; i--) {
-          await Future.delayed(Duration(seconds: 1));
+          await Future.delayed(const Duration(seconds: 1));
           setState(() {
             cooldownTime = i;
           });
@@ -53,12 +53,12 @@ class _SignupPageState extends State<SignupPage> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to send OTP')),
+          const SnackBar(content: Text('Failed to send OTP')),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter your email')),
+        const SnackBar(content: Text('Please enter your email')),
       );
     }
   }
@@ -73,16 +73,16 @@ class _SignupPageState extends State<SignupPage> {
           isOTPVerified = true;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Email verified! You can now sign up.')),
+          const SnackBar(content: Text('Email verified! You can now sign up.')),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid OTP, please try again.')),
+          const SnackBar(content: Text('Invalid OTP, please try again.')),
         );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please enter the OTP')),
+        const SnackBar(content: Text('Please enter the OTP')),
       );
     }
   }
@@ -124,7 +124,7 @@ class _SignupPageState extends State<SignupPage> {
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please verify email, accept terms, and be at least 18 years old to sign up.')),
+        const SnackBar(content: Text('Please verify email, accept terms, and be at least 18 years old to sign up.')),
       );
     }
   }
@@ -247,7 +247,7 @@ class _SignupPageState extends State<SignupPage> {
                             ),
                             const SizedBox(height: 20),
                             if (isButtonDisabled) 
-                              Text('Resend OTP in $cooldownTime seconds', style: TextStyle(color: Colors.red)),
+                              Text('Resend OTP in $cooldownTime seconds', style: const TextStyle(color: Colors.red)),
                           ],
                           if (isOTPVerified) ...[
                             const SizedBox(height: 20),

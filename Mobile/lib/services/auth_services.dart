@@ -102,7 +102,7 @@ class AuthService {
 
           navigator.pushReplacement(
             MaterialPageRoute(
-              builder: (context) => HomeScreen(),
+              builder: (context) => const HomeScreen(),
             ),
           );
           return true;

@@ -292,8 +292,8 @@ Widget _buildMainContent(BuildContext context) {
 
 Widget _buildTouristSpotsList() {
   if (_touristSpots.isEmpty) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return const Padding(
+      padding: EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -302,8 +302,8 @@ Widget _buildTouristSpotsList() {
             size: 80,
             color: Colors.grey,
           ),
-          const SizedBox(height: 20),
-          const Text(
+          SizedBox(height: 20),
+          Text(
             "No tourist spots found.",
             style: TextStyle(
               fontSize: 18,
@@ -311,8 +311,8 @@ Widget _buildTouristSpotsList() {
               color: Colors.black54,
             ),
           ),
-          const SizedBox(height: 10),
-          const Text(
+          SizedBox(height: 10),
+          Text(
             "Search for any place you'd like to explore, and we'll load the tourist spots for that location.",
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -447,7 +447,7 @@ Widget build(BuildContext context) {
                 BoxShadow(
                   color: Colors.black.withOpacity(0.15),
                   blurRadius: 12,
-                  offset: Offset(0, -4),
+                  offset: const Offset(0, -4),
                 ),
               ],
             ),
@@ -523,12 +523,12 @@ Widget _buildAppBar(String userName) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
     decoration: BoxDecoration(
-      gradient: LinearGradient(
-        colors: [Colors.orange, const Color.fromARGB(255, 255, 230, 0)],
+      gradient: const LinearGradient(
+        colors: [Colors.orange, Color.fromARGB(255, 255, 230, 0)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       ),
-      borderRadius: BorderRadius.only(
+      borderRadius: const BorderRadius.only(
         bottomLeft: Radius.circular(30),
         bottomRight: Radius.circular(30),
       ),
@@ -548,7 +548,7 @@ Widget _buildAppBar(String userName) {
           decoration: BoxDecoration(
             color: Colors.white,
             shape: BoxShape.circle,
-            image: DecorationImage(
+            image: const DecorationImage(
               image: AssetImage("assets/images/welcome.jpeg"),
               fit: BoxFit.cover,
             ),
@@ -587,7 +587,7 @@ Widget _buildAppBar(String userName) {
           ],
         ),
         const Spacer(),
-        Icon(
+        const Icon(
           Icons.notifications,
           color: Colors.white,
           size: 28,

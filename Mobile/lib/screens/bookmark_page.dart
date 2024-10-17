@@ -3,7 +3,6 @@ import 'package:flutter_application_2/model/place_model.dart';
 import 'package:flutter_application_2/screens/Home/home_screen.dart';
 import 'package:flutter_application_2/screens/Home/widgets/recommended_card.dart';
 import 'package:flutter_application_2/screens/detailscreen/detail_screen.dart';
-import 'package:flutter_application_2/screens/bookmark_page.dart';
 import 'package:flutter_application_2/screens/map_page.dart';
 import 'package:flutter_application_2/screens/itinerary_planner_page.dart';
 import 'package:flutter_application_2/screens/profile_account.dart';
@@ -13,9 +12,6 @@ import 'dart:async';
 //import 'widgets/category_card.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_application_2/providers/user_provider.dart';
-import 'package:flutter_application_2/services/dbpedia_service.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert'; 
 
 class Bookmark extends StatefulWidget {
   const Bookmark({Key? key}) : super(key: key);
