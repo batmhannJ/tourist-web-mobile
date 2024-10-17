@@ -18,6 +18,7 @@ function ManageLocations() {
         Batanes: { latitude: [20.45798, 20.45798], longitude: [121.9941, 121.9941] }
     };
 
+
     useEffect(() => {
         axios.get('http://localhost:4000/getlocation')
             .then(response => {
@@ -89,33 +90,54 @@ function ManageLocations() {
 
     const handleUpdateLocation = async (e) => {
         e.preventDefault();
+    
+        // Validate all required fields
         if (!newLocation.city || !newLocation.destinationName || !newLocation.latitude || !newLocation.longitude || !newLocation.description) {
-            alert("Fill all fields");
+            alert("Please fill in all fields.");
             return;
         }
-
-        const id = locations[editingLocation]._id;
+    
+        // Ensure editingLocation is set and is within the bounds of locations array
+        if (editingLocation === null || editingLocation < 0 || editingLocation >= locations.length) {
+            alert("Invalid location selected for editing.");
+            return;
+        }
+    
+        const id = locations[editingLocation]._id; // Get the ID of the location to be updated
+    
         const formData = new FormData();
         formData.append("city", newLocation.city);
         formData.append("destinationName", newLocation.destinationName);
         formData.append("latitude", newLocation.latitude);
         formData.append("longitude", newLocation.longitude);
         formData.append("description", newLocation.description);
-        if (selectedImage) formData.append("image", selectedImage); // Only append image if selected
-
+    
+        // Only append the image if a new one has been selected
+        if (selectedImage) {
+            formData.append("image", selectedImage);
+        }
+    
         try {
-            await axios.patch(`http://localhost:4000/editlocation/${id}`, formData, {
+            // Make the API request to update the location
+            const response = await axios.patch(`http://localhost:4000/editlocation/${id}`, formData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+                    'Content-Type': 'multipart/form-data',
+                },
             });
-
+    
+            console.log('Update Response:', response.data); // Log response for debugging
+    
+            // Notify user and refresh the page
             alert("Location updated successfully.");
             window.location.reload();
         } catch (error) {
-            alert("Location update error.");
+            console.error("Error updating location:", error);
+            alert("Error updating location. Please try again.");
         }
     };
+    
+    
+    
 
     const handleDeleteManager = async (id, index) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this?");

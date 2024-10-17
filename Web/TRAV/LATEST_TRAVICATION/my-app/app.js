@@ -390,29 +390,26 @@ app.delete("/deletelocation/:id", async (req, res) => { // Correct route
     }
 });
 
-
-app.patch("/editlocation/:id", async(req, res) => {
-    const {id} = req.params;
+app.patch("/editlocation/:id", upload.single('image'), async (req, res) => {
+    const { id } = req.params;
     const { city, destinationName, latitude, longitude, description } = req.body;
 
+    // Create the data object with updated fields
+    const data = { 
+        city,
+        destinationName,
+        latitude,
+        longitude,
+        description,
+        image: req.file ? req.file.path : undefined // Only include image if it's uploaded
+    };
+
     try {
-        // Create the data object with updated fields
-        const data = { 
-            city: city,
-            destinationName: destinationName,  
-            latitude: latitude,
-            longitude: longitude,
-            description: description
-        };
-
-        // Find the manager by ID and update it with the new data
-        const updatedLocation = await collection2.findByIdAndUpdate(id, data);
-
-        // Send the updated manager data in the response
+        // Find the location by ID and update it with the new data
+        const updatedLocation = await collection2.findByIdAndUpdate(id, data, { new: true });
         res.status(200).json(updatedLocation);
-    }
-    
-    catch (e) {
+    } catch (e) {
+        console.error("Error updating location:", e);
         res.status(500).json({ error: "Manager edit error" });
     }
 });
