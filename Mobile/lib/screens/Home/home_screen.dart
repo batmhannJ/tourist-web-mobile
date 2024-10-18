@@ -83,7 +83,7 @@ Future<List<PlaceInfo>> fetchDestinations() async {
         String imagePath = item['image']?.replaceAll('\\', '/'); // Clean the image path
 
         // Construct the full image URL
-        String imageUrl = item['image'] != null ? 'http://localhost:3000/${item['image']}' : 'assets/tagtay.jpg';
+        String imageUrl = item['image'] != null ? 'http://localhost:3000/uploads/${item['image']}' : 'assets/tagtay.jpg';
 
 
         // Print to debug
@@ -308,29 +308,28 @@ Widget _buildMainContent(BuildContext context) {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                      Expanded(
-  child: ClipRRect(
-    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-    child: place.image != null && place.image!.isNotEmpty
-      ? Image.network(
-          place.image!, // Make sure this URL points to the correct image
-          fit: BoxFit.cover,
-          width: double.infinity,
-          /*errorBuilder: (context, error, stackTrace) {
-            // Provide a fallback image if the network image fails to load
-            return Image.asset(
-              'assets/images/tagtay.jpg', // Fallback asset image if there's an error
-              fit: BoxFit.cover,
-              width: double.infinity,
-            );
-          },*/
-        )
-      : Image.asset(
-          'assets/images/tagtay.jpg', // Fallback asset if no image URL is provided
-          fit: BoxFit.cover,
-          width: double.infinity,
-        ),
-  ),
-),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                        child: place.image != null && place.image!.isNotEmpty
+                          ? Image.network(
+                              place.image!, // Make sure this URL points to the correct image
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/images/tagtay.jpg', // Fallback asset image
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                );
+                              },
+                            )
+                          : Image.asset(
+                              'assets/images/tagtay.jpg', // Fallback asset if no image URL is provided
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                            ),
+                      ),
+                    ),
 
                       Padding(
                         padding: const EdgeInsets.all(8.0),
