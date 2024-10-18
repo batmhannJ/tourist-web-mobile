@@ -76,14 +76,19 @@ Future<List<PlaceInfo>> fetchDestinations() async {
         String description = item['description'] ?? 'No Description';  // Default value if null
         String? destination = item['destination'];  // This can be null
 
-         // Construct the image URL
-                // Construct the image URL correctly
-        String imagePath = item['image'] ?? 'assets/tagtay.jpg';
-        String imageUrl = imagePath.contains('http') 
-            ? imagePath // If it already contains a URL
-            : 'http://localhost:3000/$imagePath'.replaceAll("\\", "/");
-                    // Debug output to see constructed URLs
-        print('Image URL: $imageUrl'); 
+        // Ensure base URL has only one 'uploads' path segment
+        String baseUrl = 'http://localhost:3000/'; // Base URL for images
+
+        // Get the image path from the database
+        String imagePath = item['image']?.replaceAll('\\', '/'); // Clean the image path
+
+        // Construct the full image URL
+        String imageUrl = item['image'] != null ? 'http://localhost:3000/${item['image']}' : 'assets/tagtay.jpg';
+
+
+        // Print to debug
+        print('Image URL: $imageUrl');
+
         places.add(PlaceInfo(
           city: city,
           destinationName: destinationName,
@@ -91,7 +96,7 @@ Future<List<PlaceInfo>> fetchDestinations() async {
           longitude: longitude,
           description: description,
           destinationType: item['destinationType'] ?? 'local', // Default if not provided
-          image: imageUrl,
+          image: imageUrl, // Use the constructed image URL
           bestMonths: bestMonthsForPlace(destinationName), // Assuming this function exists
           destination: destination ?? 'Unknown Destination' // Provide a default if null
         ));
@@ -105,6 +110,7 @@ Future<List<PlaceInfo>> fetchDestinations() async {
     return []; // Return an empty list on error
   }
 }
+
 
  List<int> bestMonthsForPlace(String destinationName) {
     // Your logic to determine the best months for the given destination
@@ -302,21 +308,30 @@ Widget _buildMainContent(BuildContext context) {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                      Expanded(
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                        child: place.image != null
-                          ? Image.network(
-                              place.image!,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            )
-                          : Image.network(
-                              'assets/images/tagtay.jpg', // Provide a default image path
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            ),
-                      ),
-                    ),
+  child: ClipRRect(
+    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+    child: place.image != null && place.image!.isNotEmpty
+      ? Image.network(
+          place.image!, // Make sure this URL points to the correct image
+          fit: BoxFit.cover,
+          width: double.infinity,
+          /*errorBuilder: (context, error, stackTrace) {
+            // Provide a fallback image if the network image fails to load
+            return Image.asset(
+              'assets/images/tagtay.jpg', // Fallback asset image if there's an error
+              fit: BoxFit.cover,
+              width: double.infinity,
+            );
+          },*/
+        )
+      : Image.asset(
+          'assets/images/tagtay.jpg', // Fallback asset if no image URL is provided
+          fit: BoxFit.cover,
+          width: double.infinity,
+        ),
+  ),
+),
+
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
@@ -411,26 +426,36 @@ Widget _buildTouristSpotsList() {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15),
                     child: Image.network(
-                      imageUrl,
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes ?? 1)
-                                : null,
-                          ),
-                        );
-                      },
-                      errorBuilder: (context, error, stackTrace) {
-                        return Image.network(
-                          'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/480px-No_image_available.svg.png',
-                          fit: BoxFit.cover,
-                        );
-                      },
-                    ),
-                  ),
+  imageUrl,
+  fit: BoxFit.cover,
+  loadingBuilder: (context, child, loadingProgress) {
+    if (loadingProgress == null) return child; // Image fully loaded
+    return Center(
+      child: CircularProgressIndicator(
+        value: loadingProgress.expectedTotalBytes != null
+            ? loadingProgress.cumulativeBytesLoaded /
+                loadingProgress.expectedTotalBytes!
+            : null,
+      ),
+    );
+  },
+  errorBuilder: (context, error, stackTrace) {
+    print('Error loading image: $error');
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.broken_image, size: 50, color: Colors.red),
+          SizedBox(height: 8),
+          Text('Failed to load image', style: TextStyle(color: Colors.red)),
+        ],
+      ),
+    );
+  },
+)
+
+                  )
+
                 ),
                 const SizedBox(width: 16),
                 Expanded(
