@@ -7,17 +7,16 @@ function ManageLocations() {
     const [editingLocation, setEditingLocation] = useState(null);
     const [newLocation, setNewLocation] = useState({ city: '', destinationName: '', latitude: '', longitude: '', description: '' });
     const [selectedCity, setSelectedCity] = useState('');
-    const [selectedImage, setSelectedImage] = useState(null); // State for storing the selected image
-    
-    // Predefined city data with latitude and longitude ranges
-    const cityData = {
-        Baguio: { latitude: [16.41639, 16.41639], longitude: [120.59306, 120.59306] },
-        Bohol: { latitude: [9.84999, 9.84999], longitude: [124.14354, 124.14354] },
-        Cebu: { latitude: [10.31672, 10.31672], longitude: [123.89071, 123.89071] },
-        Boracay: { latitude: [11.968603, 11.968603], longitude: [121.918381, 121.918381] },
-        Batanes: { latitude: [20.45798, 20.45798], longitude: [121.9941, 121.9941] }
-    };
+    const [selectedImage, setSelectedImage] = useState(null);
 
+    // Predefined city data with latitude and longitude boundaries
+    const cityData = {
+        Baguio: { latitude: { min: 16.3918, max: 16.4561 }, longitude: { min: 120.5651, max: 120.6215 } },
+        Bohol: { latitude: { min: 9.5553, max: 10.2117 }, longitude: { min: 123.7585, max: 124.5614 } },
+        Cebu: { latitude: { min: 9.4884, max: 11.2570 }, longitude: { min: 123.2464, max: 124.0578 } },
+        Boracay: { latitude: { min: 11.9381, max: 11.9867 }, longitude: { min: 121.9187, max: 121.9591 } },
+        Batanes: { latitude: { min: 20.2500, max: 20.8500 }, longitude: { min: 121.7100, max: 122.0400 } },
+    };
 
     useEffect(() => {
         axios.get('http://localhost:4000/getlocation')
@@ -34,31 +33,44 @@ function ManageLocations() {
     }, []);
 
     const handleImageChange = (e) => {
-        setSelectedImage(e.target.files[0]); // Store selected image
+        setSelectedImage(e.target.files[0]);
     };
 
     const handleCityChange = (e) => {
         const selectedCity = e.target.value;
         setSelectedCity(selectedCity);
 
-        // Set latitude and longitude based on the selected city
         if (selectedCity && cityData[selectedCity]) {
-            const { latitude, longitude } = cityData[selectedCity];
             setNewLocation({
                 ...newLocation,
-                city: selectedCity, // This is what you were missing
-                latitude: latitude[0],
-                longitude: longitude[0]
+                city: selectedCity,
+                latitude: '',
+                longitude: ''
             });
         } else {
             setNewLocation({ ...newLocation, city: '', latitude: '', longitude: '' });
         }
     };
 
-    
+    const isWithinBoundary = (lat, lon) => {
+        const { min: latMin, max: latMax } = cityData[selectedCity].latitude;
+        const { min: lonMin, max: lonMax } = cityData[selectedCity].longitude;
+
+        return lat >= latMin && lat <= latMax && lon >= lonMin && lon <= lonMax;
+    };
+
     const handleAddLocation = async () => {
+        const lat = parseFloat(newLocation.latitude);
+        const lon = parseFloat(newLocation.longitude);
+
         if (!newLocation.city || !newLocation.destinationName || !newLocation.latitude || !newLocation.longitude || !newLocation.description || !selectedImage) {
             alert("Please fill all fields and select an image");
+            return;
+        }
+
+        // Validate latitude and longitude
+        if (!isWithinBoundary(lat, lon)) {
+            alert(`Latitude must be between ${cityData[selectedCity].latitude.min} and ${cityData[selectedCity].latitude.max}, and Longitude must be between ${cityData[selectedCity].longitude.min} and ${cityData[selectedCity].longitude.max}.`);
             return;
         }
 
@@ -68,7 +80,7 @@ function ManageLocations() {
         formData.append("latitude", newLocation.latitude);
         formData.append("longitude", newLocation.longitude);
         formData.append("description", newLocation.description);
-        formData.append("image", selectedImage); // Append image to form data
+        formData.append("image", selectedImage);
 
         try {
             await axios.post("http://localhost:4000/addlocation", formData, {
@@ -90,44 +102,47 @@ function ManageLocations() {
 
     const handleUpdateLocation = async (e) => {
         e.preventDefault();
-    
-        // Validate all required fields
+
+        const lat = parseFloat(newLocation.latitude);
+        const lon = parseFloat(newLocation.longitude);
+
         if (!newLocation.city || !newLocation.destinationName || !newLocation.latitude || !newLocation.longitude || !newLocation.description) {
             alert("Please fill in all fields.");
             return;
         }
-    
-        // Ensure editingLocation is set and is within the bounds of locations array
+
         if (editingLocation === null || editingLocation < 0 || editingLocation >= locations.length) {
             alert("Invalid location selected for editing.");
             return;
         }
-    
-        const id = locations[editingLocation]._id; // Get the ID of the location to be updated
-    
+
+        // Validate latitude and longitude
+        if (!isWithinBoundary(lat, lon)) {
+            alert(`Latitude must be between ${cityData[selectedCity].latitude.min} and ${cityData[selectedCity].latitude.max}, and Longitude must be between ${cityData[selectedCity].longitude.min} and ${cityData[selectedCity].longitude.max}.`);
+            return;
+        }
+
+        const id = locations[editingLocation]._id;
+
         const formData = new FormData();
         formData.append("city", newLocation.city);
         formData.append("destinationName", newLocation.destinationName);
         formData.append("latitude", newLocation.latitude);
         formData.append("longitude", newLocation.longitude);
         formData.append("description", newLocation.description);
-    
-        // Only append the image if a new one has been selected
+
         if (selectedImage) {
             formData.append("image", selectedImage);
         }
-    
+
         try {
-            // Make the API request to update the location
             const response = await axios.patch(`http://localhost:4000/editlocation/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
-    
-            console.log('Update Response:', response.data); // Log response for debugging
-    
-            // Notify user and refresh the page
+
+            console.log('Update Response:', response.data);
             alert("Location updated successfully.");
             window.location.reload();
         } catch (error) {
@@ -135,15 +150,12 @@ function ManageLocations() {
             alert("Error updating location. Please try again.");
         }
     };
-    
-    
-    
 
     const handleDeleteManager = async (id, index) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this?");
         if(confirmDelete){
             try {
-                await axios.delete(`http://localhost:4000/deletelocation/${id}`); // Correct endpoint
+                await axios.delete(`http://localhost:4000/deletelocation/${id}`);
                 const updatedLocations = [...locations];
                 updatedLocations.splice(index, 1);
                 setLocations(updatedLocations);
@@ -260,24 +272,24 @@ function ManageLocations() {
                             <td>{location.longitude}</td>
                             <td>{location.description}</td>
                             <td>
-    {location.image ? (
-        <>
-            {console.log('Fetching image from URL:', `http://localhost:4000/${location.image.replace(/\\/g, '/')}`)}
-            <img 
-                src={`http://localhost:4000/${location.image.replace(/\\/g, '/')}`} 
-                alt={location.destinationName} 
-                width="300" 
-                height="300"
-                onError={(e) => {
-                    console.error('Error loading image:', e.target.src);
-                    e.target.src = '/fallback-image.jpg'; // Optional fallback image
-                }}
-            />
-        </>
-    ) : (
-        <p>No image available</p>
-    )}
-</td>
+                                {location.image ? (
+                                    <>
+                                        {console.log('Fetching image from URL:', `http://localhost:4000/${location.image.replace(/\\/g, '/')}`)}
+                                        <img 
+                                            src={`http://localhost:4000/${location.image.replace(/\\/g, '/')}`} 
+                                            alt={location.destinationName} 
+                                            width="300" 
+                                            height="300"
+                                            onError={(e) => {
+                                                console.error('Error loading image:', e.target.src);
+                                                e.target.src = '/fallback-image.jpg'; // Optional fallback image
+                                            }}
+                                        />
+                                    </>
+                                ) : (
+                                    <p>No image available</p>
+                                )}
+                            </td>
 
                             <td>
                             <div className="action-buttons">

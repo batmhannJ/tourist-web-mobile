@@ -25,7 +25,8 @@ app.use(cors({
         } else {
             callback(new Error('Not allowed by CORS'));
         }
-    }
+    },
+    credentials: true // Allow credentials to be included in the request
 }));
 
 app.use(session({
