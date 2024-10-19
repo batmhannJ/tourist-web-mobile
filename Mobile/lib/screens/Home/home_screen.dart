@@ -43,14 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isSearching = query.isNotEmpty; // Set isSearching to true if there's a query
     });
   }
-
-  List<String> months = [
-    "January", "February", "March", "April", "May", "June", "July", "August",
-    "September", "October", "November", "December"
-  ];
-  List<dynamic> touristSpots = [];
-String? _errorMessage;
-
+  
   @override
   void initState() {
     super.initState();
@@ -266,7 +259,6 @@ Widget _buildMainContent(BuildContext context) {
           ),
         ),
         const SizedBox(height: 16),
-        _buildTouristSpotsList(), // Preserved function
 
         const SizedBox(height: 24),
 
@@ -283,80 +275,108 @@ Widget _buildMainContent(BuildContext context) {
             }
 
             List<PlaceInfo> destinations = snapshot.data!;
-            return GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 3 / 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-              ),
-              itemCount: destinations.length,
-              itemBuilder: (context, index) {
-                PlaceInfo place = destinations[index];
-                return GestureDetector( // Wrap the Card in GestureDetector
-                  onTap: () {
-                    // Navigate to the DetailScreen and pass the selected PlaceInfo
-                        Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailScreen(spot: place), // Pass the PlaceInfo object
-                        ),
-                      );
-                  },
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+
+            // Group destinations by city
+            Map<String, List<PlaceInfo>> destinationsByCity = {};
+            for (var place in destinations) {
+              destinationsByCity.putIfAbsent(place.city, () => []).add(place);
+            }
+
+            return Column(
+              children: destinationsByCity.entries.map((entry) {
+                String city = entry.key;
+                List<PlaceInfo> cityDestinations = entry.value;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        city,  // City name
+                        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                            child: place.image != null && place.image!.isNotEmpty
-                                ? Image.network(
-                                    place.image!,
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      print('Error loading image: $error'); // Log the error
-                                      return Image.asset(
-                                        'assets/images/tagtay.jpg', // Fallback asset image
-                                        fit: BoxFit.cover,
-                                        width: double.infinity,
-                                      );
-                                    },
-                                  )
-                                : Image.asset(
-                                    'assets/images/tagtay.jpg', // Fallback asset if no image URL is provided
-                                    fit: BoxFit.cover,
-                                    width: double.infinity,
-                                  ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                place.destinationName, 
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    const SizedBox(height: 8),
+                    // Display the destinations for the city
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 3 / 2,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 16,
+                      ),
+                      itemCount: cityDestinations.length,
+                      itemBuilder: (context, index) {
+                        PlaceInfo place = cityDestinations[index];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailScreen(spot: place),
                               ),
-                              const SizedBox(height: 4),
-                              Text(place.city, style: const TextStyle(color: Colors.grey)),
-                            ],
+                            );
+                          },
+                          child: Card(
+                            elevation: 4,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: ClipRRect(
+                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                                    child: place.image != null && place.image!.isNotEmpty
+                                        ? Image.network(
+                                            place.image!,
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                            errorBuilder: (context, error, stackTrace) {
+                                              print('Error loading image: $error');
+                                              return Image.asset(
+                                                'assets/images/tagtay.jpg',
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                              );
+                                            },
+                                          )
+                                        : Image.asset(
+                                            'assets/images/tagtay.jpg',
+                                            fit: BoxFit.cover,
+                                            width: double.infinity,
+                                          ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        place.destinationName,
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(place.city, style: const TextStyle(color: Colors.grey)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
-                  ),
+                    const Divider(height: 40),  // Divider between cities
+                  ],
                 );
-              },
+              }).toList(),
             );
           },
         ),
@@ -365,150 +385,6 @@ Widget _buildMainContent(BuildContext context) {
   );
 }
 
-
-Widget _buildTouristSpotsList() {
-  if (_touristSpots.isEmpty) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.search_rounded, // Search icon to encourage user action
-            size: 80,
-            color: Colors.grey,
-          ),
-          SizedBox(height: 20),
-          Text(
-            "No tourist spots found.",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black54,
-            ),
-          ),
-          SizedBox(height: 10),
-          Text(
-            "Search for any place you'd like to explore, and we'll load the tourist spots for that location.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-
-  return ListView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: _touristSpots.length,
-    itemBuilder: (context, index) {
-      final spot = _touristSpots[index];
-      final imageUrl = spot['imageUrl'] ?? 
-        'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/480px-No_image_available.svg.png'; // Default if no image
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-        child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 120,
-                  height: 120,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.grey[300],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
-                    child: Image.network(
-  imageUrl,
-  fit: BoxFit.cover,
-  loadingBuilder: (context, child, loadingProgress) {
-    if (loadingProgress == null) return child; // Image fully loaded
-    return Center(
-      child: CircularProgressIndicator(
-        value: loadingProgress.expectedTotalBytes != null
-            ? loadingProgress.cumulativeBytesLoaded /
-                loadingProgress.expectedTotalBytes!
-            : null,
-      ),
-    );
-  },
-  errorBuilder: (context, error, stackTrace) {
-    print('Error loading image: $error');
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.broken_image, size: 50, color: Colors.red),
-          SizedBox(height: 8),
-          Text('Failed to load image', style: TextStyle(color: Colors.red)),
-        ],
-      ),
-    );
-  },
-)
-
-                  )
-
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        spot['name'],
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black87),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        spot['description'],
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 14, color: Colors.black54),
-                      ),
-                      const SizedBox(height: 8),
-                      TextButton(
-                          onPressed: () {
-                            // Action when 'View More' is pressed
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailScreen(
-                                  spot: spot,
-                                ),
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "View More",
-                            style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    },
-  );
-}
 
   @override
 Widget build(BuildContext context) {
@@ -588,9 +464,6 @@ Widget build(BuildContext context) {
   );
 }
 
-
-
-  // Helper method to build navigation icons
   GestureDetector _buildNavIcon(IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
@@ -683,9 +556,6 @@ Widget _buildAppBar(String userName) {
   );
 }
 
-
-
-
  Widget _buildSearchSection() {
   return Container(
     decoration: BoxDecoration(
@@ -744,7 +614,6 @@ Widget _buildAppBar(String userName) {
     ),
   );
 }
-
 
 
  Widget _buildCategorySection() {
