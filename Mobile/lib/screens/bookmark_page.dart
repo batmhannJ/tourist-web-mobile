@@ -115,15 +115,19 @@ String imageUrl = (dbImagePath != null && dbImagePath.isNotEmpty)
           title: Text(filteredPlaces[index].destinationName),
           subtitle: Text(filteredPlaces[index].city),
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => DetailScreen(
-                  spot: filteredPlaces[index],
+              // Update the image property of the spot
+              PlaceInfo selectedSpot = filteredPlaces[index];
+              selectedSpot.image = imageUrl; // Assigning imageUrl to the spot's image property
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DetailScreen(
+                    spot: selectedSpot,  // Pass the updated PlaceInfo object
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
         ),
       );
     },
@@ -161,16 +165,19 @@ String imageUrl = (dbImagePath != null && dbImagePath.isNotEmpty)
       appBar: AppBar(
         title: const Text('Tourist Spots by Month'),
       ),
-      body: Column(
-        children: [
-          const SizedBox(height: 10),
-          const Text("Select a Month", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 10),
-          _buildMonthGrid(),
-          const SizedBox(height: 20),
-          if (_selectedMonth != null) _buildTouristSpotsByMonth(),
-        ],
+      body: SingleChildScrollView( // Wrap Column with SingleChildScrollView
+        child: Column(
+          children: [
+            const SizedBox(height: 10),
+            const Text("Select a Month", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            _buildMonthGrid(),
+            const SizedBox(height: 20),
+            if (_selectedMonth != null) _buildTouristSpotsByMonth(),
+          ],
+        ),
       ),
     );
   }
+
 }

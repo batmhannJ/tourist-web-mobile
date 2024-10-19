@@ -8,7 +8,7 @@ class PlaceInfo {
   final double longitude;
   final String description;
   final String destinationType;
-  final String? image;
+  String? image;
   final List<int> bestMonths;  // New field to store best months
   final String? destination;
 
