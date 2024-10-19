@@ -29,7 +29,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(authRouter);
 app.use("/api", markersRouter);
 app.use("/api", placesRouter);
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', (req, res, next) => {
+    console.log(`Requesting: ${req.path}`);
+    next();
+  }, express.static(path.join(__dirname, 'uploads')));
+  
+  app.use(express.static('uploads')); 
 
 mongoose.connect("mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test")
     .then(() => console.log("MongoDB connected"))
@@ -211,7 +216,7 @@ app.get('/mostSearched', async (req, res) => {
     }
 });
 
-app.use('/uploads', express.static('uploads'));
+//app.use('/uploads', express.static('uploads'));
 
 app.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}`);

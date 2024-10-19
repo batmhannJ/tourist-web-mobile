@@ -14,7 +14,7 @@ import 'package:flutter_application_2/providers/user_provider.dart';
 import 'package:flutter_application_2/services/dbpedia_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert'; 
-import 'package:flutter_application_2/model/place_model.dart'; // Import your model here
+import 'package:flutter_application_2/model/place_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -35,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Timer? _debounce;
    bool isSearching = false;
   String searchQuery = '';
-
+  String? imagePath;
   // Function to handle search
   void _search(String query) {
     setState(() {
@@ -68,25 +68,20 @@ Future<List<PlaceInfo>> fetchDestinations() async {
       List<PlaceInfo> places = [];
 
       for (var item in data) {
-        // Extract values safely
-        String city = item['city'] ?? 'Unknown City';  // Default value if null
-        String destinationName = item['destinationName'] ?? 'Unknown Destination'; // Default value if null
-        double latitude = item['latitude']?.toDouble() ?? 0.0;  // Default value if null
-        double longitude = item['longitude']?.toDouble() ?? 0.0;  // Default value if null
-        String description = item['description'] ?? 'No Description';  // Default value if null
-        String? destination = item['destination'];  // This can be null
+        String city = item['city'] ?? 'Unknown City';
+        String destinationName = item['destinationName'] ?? 'Unknown Destination';
+        double latitude = item['latitude']?.toDouble() ?? 0.0;
+        double longitude = item['longitude']?.toDouble() ?? 0.0;
+        String description = item['description'] ?? 'No Description';
+        String? destination = item['destination'];
 
-        // Ensure base URL has only one 'uploads' path segment
-        String baseUrl = 'http://localhost:3000/'; // Base URL for images
+        // Correctly format the image URL
+String dbImagePath = item['image']; // From the database
+//String imageUrl = 'http://localhost:3000/${dbImagePath.replaceAll('\\', '/')}';  // Replace Windows-style backslashes
 
-        // Get the image path from the database
-        String imagePath = item['image']?.replaceAll('\\', '/'); // Clean the image path
-
-        // Construct the full image URL
-        String imageUrl = item['image'] != null ? 'http://localhost:3000/uploads/${item['image']}' : 'assets/tagtay.jpg';
-
-
-        // Print to debug
+      if (dbImagePath != null && dbImagePath.isNotEmpty) {
+      // Construct the correct image URL
+      String imageUrl = 'http://localhost:4000/' + dbImagePath.replaceAll('\\', '/');
         print('Image URL: $imageUrl');
 
         places.add(PlaceInfo(
@@ -95,21 +90,23 @@ Future<List<PlaceInfo>> fetchDestinations() async {
           latitude: latitude,
           longitude: longitude,
           description: description,
-          destinationType: item['destinationType'] ?? 'local', // Default if not provided
-          image: imageUrl, // Use the constructed image URL
-          bestMonths: bestMonthsForPlace(destinationName), // Assuming this function exists
-          destination: destination ?? 'Unknown Destination' // Provide a default if null
+          destinationType: item['destinationType'] ?? 'local',
+          image: imageUrl,
+          bestMonths: bestMonthsForPlace(destinationName),
+          destination: destination ?? 'Unknown Destination'
         ));
       }
-      return places; // Return the list of places
+      }
+      return places;
     } else {
       throw Exception('Failed to load places');
     }
   } catch (error) {
     print('Error fetching destinations: $error');
-    return []; // Return an empty list on error
+    return [];
   }
 }
+
 
 
  List<int> bestMonthsForPlace(String destinationName) {
@@ -310,20 +307,21 @@ Widget _buildMainContent(BuildContext context) {
                      Expanded(
                       child: ClipRRect(
                         borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                        child: place.image != null && place.image!.isNotEmpty
-                          ? Image.network(
-                              place.image!, // Make sure this URL points to the correct image
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  'assets/images/tagtay.jpg', // Fallback asset image
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                );
-                              },
-                            )
-                          : Image.asset(
+                            child: place.image != null && place.image!.isNotEmpty
+                            ? Image.network(
+                                place.image!, // Use the actual image URL from the place object
+                                fit: BoxFit.cover,
+                                width: double.infinity,
+                                errorBuilder: (context, error, stackTrace) {
+                                  print('Error loading image: $error'); // Log the error
+                                  return Image.asset(
+                                    place.image!, // Fallback asset image
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  );
+                                },
+                              )
+                            : Image.asset(
                               'assets/images/tagtay.jpg', // Fallback asset if no image URL is provided
                               fit: BoxFit.cover,
                               width: double.infinity,

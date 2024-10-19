@@ -11,14 +11,21 @@ const path = require('path');
 
 
 const cors = require("cors")
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264']; // Add all allowed origins
+
 const app = express()
 const PORT = process.env.PORT || 4000
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cors({
-    origin: 'http://localhost:3000', // React app's origin
-    credentials: true
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    }
 }));
 
 app.use(session({

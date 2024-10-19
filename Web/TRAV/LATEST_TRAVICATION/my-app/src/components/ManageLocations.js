@@ -260,15 +260,25 @@ function ManageLocations() {
                             <td>{location.longitude}</td>
                             <td>{location.description}</td>
                             <td>
-                            {location.image && (
-                                <img 
-                                    src={`http://localhost:4000/${location.image.replace(/\\/g, '/')}`} 
-                                    alt={location.destinationName} 
-                                    width="300" 
-                                    height="300"
-                                />
-                            )}
-                            </td>
+    {location.image ? (
+        <>
+            {console.log('Fetching image from URL:', `http://localhost:4000/${location.image.replace(/\\/g, '/')}`)}
+            <img 
+                src={`http://localhost:4000/${location.image.replace(/\\/g, '/')}`} 
+                alt={location.destinationName} 
+                width="300" 
+                height="300"
+                onError={(e) => {
+                    console.error('Error loading image:', e.target.src);
+                    e.target.src = '/fallback-image.jpg'; // Optional fallback image
+                }}
+            />
+        </>
+    ) : (
+        <p>No image available</p>
+    )}
+</td>
+
                             <td>
                             <div className="action-buttons">
                                 <button className="edit-button" onClick={() => handleEditLocation(index)}>Edit</button>
