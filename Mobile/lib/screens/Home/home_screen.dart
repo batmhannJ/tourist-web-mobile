@@ -296,54 +296,64 @@ Widget _buildMainContent(BuildContext context) {
               itemCount: destinations.length,
               itemBuilder: (context, index) {
                 PlaceInfo place = destinations[index];
-                return Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                     Expanded(
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                return GestureDetector( // Wrap the Card in GestureDetector
+                  onTap: () {
+                    // Navigate to the DetailScreen and pass the selected PlaceInfo
+                        Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailScreen(spot: place), // Pass the PlaceInfo object
+                        ),
+                      );
+                  },
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                             child: place.image != null && place.image!.isNotEmpty
-                            ? Image.network(
-                                place.image!, // Use the actual image URL from the place object
-                                fit: BoxFit.cover,
-                                width: double.infinity,
-                                errorBuilder: (context, error, stackTrace) {
-                                  print('Error loading image: $error'); // Log the error
-                                  return Image.asset(
-                                    place.image!, // Fallback asset image
+                                ? Image.network(
+                                    place.image!,
                                     fit: BoxFit.cover,
                                     width: double.infinity,
-                                  );
-                                },
-                              )
-                            : Image.asset(
-                              'assets/images/tagtay.jpg', // Fallback asset if no image URL is provided
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                            ),
-                      ),
-                    ),
-
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              place.destinationName, 
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(place.city, style: const TextStyle(color: Colors.grey)),
-                          ],
+                                    errorBuilder: (context, error, stackTrace) {
+                                      print('Error loading image: $error'); // Log the error
+                                      return Image.asset(
+                                        'assets/images/tagtay.jpg', // Fallback asset image
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                      );
+                                    },
+                                  )
+                                : Image.asset(
+                                    'assets/images/tagtay.jpg', // Fallback asset if no image URL is provided
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                  ),
+                          ),
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                place.destinationName, 
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(place.city, style: const TextStyle(color: Colors.grey)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
