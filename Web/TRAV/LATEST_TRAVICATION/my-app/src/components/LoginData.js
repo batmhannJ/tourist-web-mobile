@@ -46,6 +46,7 @@ function LoginData() {
             const responseData = response.data;
 
             if (responseData === "admin exist") {
+                localStorage.setItem("userType", "admin");
                 navigate("/home");
             } else if (responseData === "exist") {
                 navigate("/managerhome");
