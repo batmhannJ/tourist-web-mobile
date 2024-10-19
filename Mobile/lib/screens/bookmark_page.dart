@@ -56,7 +56,6 @@ class _Bookmark extends State<Bookmark> {
     }
   }
 
-  // Function to filter tourist spots based on selected month
  // Function to filter tourist spots based on selected month
 Widget _buildTouristSpotsByMonth() {
   if (_selectedMonth == null) {
@@ -65,11 +64,9 @@ Widget _buildTouristSpotsByMonth() {
 
   // Get the numeric month for filtering
   int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;
-  print("Selected month index: $selectedMonthIndex");  // Debug log
 
-  // Filter logic to show all destinations with the city 'Baguio' when January is selected
+  // Filter logic to show all destinations based on the selected month
   List<PlaceInfo> filteredPlaces = places.where((place) {
-    // Check if the place's bestMonths list contains the selected month
     return place.bestMonths.contains(selectedMonthIndex);
   }).toList();
 
@@ -80,15 +77,41 @@ Widget _buildTouristSpotsByMonth() {
     );
   }
 
-  // Display the filtered places
+  // Display the filtered places with images
   return ListView.builder(
     shrinkWrap: true,
     physics: const NeverScrollableScrollPhysics(),
     itemCount: filteredPlaces.length,
     itemBuilder: (context, index) {
+// Construct the image URL based on the provided logic
+String? dbImagePath = filteredPlaces[index].image; // This is now nullable
+String imageUrl = (dbImagePath != null && dbImagePath.isNotEmpty) 
+    ? 'http://localhost:4000/' + dbImagePath.replaceAll('\\', '/') 
+    : 'assets/images/tagtay.jpg'; // Provide a default image URL
+
+
       return Padding(
         padding: const EdgeInsets.only(left: 5, right: 15),
         child: ListTile(
+          contentPadding: const EdgeInsets.all(8.0),
+          leading: ClipRRect(
+            borderRadius: BorderRadius.circular(8.0),
+            child: Image.network(
+              imageUrl,
+              fit: BoxFit.cover,
+              width: 80,
+              height: 80,
+              errorBuilder: (context, error, stackTrace) {
+                print('Error loading image: $error');
+                return Image.asset(
+                  'assets/images/default_image.png', // Update to your default image path
+                  fit: BoxFit.cover,
+                  width: 80,
+                  height: 80,
+                );
+              },
+            ),
+          ),
           title: Text(filteredPlaces[index].destinationName),
           subtitle: Text(filteredPlaces[index].city),
           onTap: () {
@@ -106,7 +129,6 @@ Widget _buildTouristSpotsByMonth() {
     },
   );
 }
-
 
   // Build the grid for selecting months
   Widget _buildMonthGrid() {
