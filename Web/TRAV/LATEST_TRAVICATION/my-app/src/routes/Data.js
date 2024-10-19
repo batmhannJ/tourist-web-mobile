@@ -2,7 +2,7 @@ import Hero from "../components/Hero";
 import Navbar from "../components/ManagerNavbar";
 import AboutImg from "../assets/about-img.jpg";
 import Footer from "../components/Footer";
-import AboutUs from "../components/AboutUs";
+import DataAnalytics from "../components/DataAnalytics";
 
 function Data () {
     return(
@@ -11,11 +11,11 @@ function Data () {
         <Hero 
         cName="hero-mid"
         heroImg={AboutImg}
-        title="About"
+        title="Data Analytics"
         
         btnClass="hide"
         />
-        <AboutUs/>
+        <DataAnalytics/>
 
         <Footer/>
           
