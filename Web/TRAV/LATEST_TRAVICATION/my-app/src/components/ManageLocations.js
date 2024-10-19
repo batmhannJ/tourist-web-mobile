@@ -11,10 +11,10 @@ function ManageLocations() {
 
     // Predefined city data with latitude and longitude boundaries
     const cityData = {
-        Baguio: { latitude: { min: 16.3918, max: 16.4561 }, longitude: { min: 120.5651, max: 120.6215 } },
-        Bohol: { latitude: { min: 9.5553, max: 10.2117 }, longitude: { min: 123.7585, max: 124.5614 } },
-        Cebu: { latitude: { min: 9.4884, max: 11.2570 }, longitude: { min: 123.2464, max: 124.0578 } },
-        Boracay: { latitude: { min: 11.9381, max: 11.9867 }, longitude: { min: 121.9187, max: 121.9591 } },
+        Baguio: { latitude: { min: 16.3910, max: 16.4570 }, longitude: { min: 120.5650, max: 120.6220 } },
+        Bohol: { latitude: { min: 9.5540, max: 10.2130 }, longitude: { min: 123.7570, max: 124.5630 } },
+        Cebu: { latitude: { min: 9.4870, max: 11.2590 }, longitude: { min: 123.2450, max: 124.0590 } },
+        Boracay: { latitude: { min: 11.9370, max: 11.9880 }, longitude: { min: 121.9170, max: 121.9600 } },
         Batanes: { latitude: { min: 20.2500, max: 20.8500 }, longitude: { min: 121.7100, max: 122.0400 } },
     };
 
