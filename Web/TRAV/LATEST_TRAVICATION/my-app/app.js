@@ -11,7 +11,7 @@ const path = require('path');
 
 
 const cors = require("cors")
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264','https://travication.vercel.app', 'https://travication-lwgjwyq9h-hannahs-projects-c42d0242.vercel.app'
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264','https://travication.vercel.app', 'https://travication-lwgjwyq9h-hannahs-projects-c42d0242.vercel.app', 'https://travications-k8pqch23b-hannahs-projects-c42d0242.vercel.app'
 ]; // Add all allowed origins
 require('dotenv').config();
 
