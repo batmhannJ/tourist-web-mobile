@@ -12,6 +12,7 @@ const path = require('path');
 
 const cors = require("cors")
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264']; // Add all allowed origins
+require('dotenv').config();
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -34,7 +35,7 @@ app.use(session({
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-        mongoUrl: 'mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test'
+        mongoUrl: process.env.MONGODB_URI // Use environment variable for MongoDB URI
     }),
     cookie: { maxAge: 180 * 60 * 1000 } // 3 hours
 }));
