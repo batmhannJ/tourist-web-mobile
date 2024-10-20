@@ -46,6 +46,7 @@ app.use(session({
 }));
 
 
+
 app.get('/check-session', (req, res) => {
     if (req.session.user) {
         return res.json({ user: req.session.user });
