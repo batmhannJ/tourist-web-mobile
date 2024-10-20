@@ -2,12 +2,12 @@
     "version": 2,
     "builds": [
       {
-        "src": "LATEST_TRAVICATION/my-app/app.js",
+        "src": "app.js",
         "use": "@vercel/node"
       }
     ],
     "routes": [
-      { "src": "/(.*)", "dest": "LATEST_TRAVICATION/my-app/app.js" }
+      { "src": "/(.*)", "dest": "app.js" }
     ]
   }
   
