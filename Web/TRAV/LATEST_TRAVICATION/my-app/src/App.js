@@ -25,29 +25,18 @@ function App() {
           <Route path="/home" element={<Home />}>
           </Route>
 
-          <Route element={<ProtectedRoute />}>
             <Route path="/managerhome" element={<ManagerHome />} />
-          </Route>
 
-          <Route element={<ProtectedRoute />}>
             <Route path="/about" element={<About />} />
-          </Route>
 
-          <Route element={<ProtectedRoute />}>
             <Route path="/data" element={<Data />} />
-          </Route>
 
-          <Route element={<ProtectedRoute />}>
             <Route path="/service" element={<Service />} />
-          </Route>
 
-          <Route element={<ProtectedRoute />}>
             <Route path="/maps" element={<Contact />} />
-          </Route>
 
-          <Route element={<ProtectedRoute />}>
             <Route path="/managerRegister" element={<ManagerRegister />} />
-          </Route>
+
 
           <Route path="/forgotPassword" element={<ForgotPassword />} />
 

@@ -50,7 +50,7 @@ function LoginData() {
             if (responseData.status === "success") {
                 if (responseData.role === "admin exist") {
                     navigate("/home");
-                } else if (responseData.role === "manager") {
+                } else if (responseData.role === "exist") {
                     navigate("/managerhome");
                 }
             } else if (responseData.error) {
