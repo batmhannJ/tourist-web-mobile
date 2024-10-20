@@ -49,5 +49,9 @@
   "devDependencies": {
     "eslint-config-react-app": "^7.0.1",
     "eslint-plugin-react": "^7.37.1"
+  },
+  "engines": {
+    "node": "16.x"
   }
+
 }
