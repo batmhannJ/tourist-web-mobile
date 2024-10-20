@@ -11,8 +11,7 @@ const path = require('path');
 
 
 const cors = require("cors")
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264','https://travication.vercel.app', 'https://travication-lwgjwyq9h-hannahs-projects-c42d0242.vercel.app', 'https://travications-k8pqch23b-hannahs-projects-c42d0242.vercel.app'
-]; // Add all allowed origins
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264','https://travication.vercel.app', 'https://travication-lwgjwyq9h-hannahs-projects-c42d0242.vercel.app', 'https://travication-doe9523av-hannahs-projects-c42d0242.vercel.app']; // Add all allowed origins
 require('dotenv').config();
 
 const app = express()
@@ -41,6 +40,7 @@ app.use(session({
     cookie: {
         secure: process.env.NODE_ENV === 'production', // Gawing true kapag sa production
         httpOnly: true, // Tinatanggal ang access sa cookie mula sa JavaScript
+        sameSite: 'none',  // Consider using 'lax' or 'none' in cross-origin scenarios
         maxAge: 1000 * 60 * 60 // 1 oras, baguhin ayon sa iyong pangangailangan
     }
 }));
@@ -430,5 +430,5 @@ app.patch("/editlocation/:id", upload.single('image'), async (req, res) => {
 });
 
 app.listen(4000, ()=>{
-    console.log("port connected")
+    console.log(`port connected at ${PORT}`)
 })

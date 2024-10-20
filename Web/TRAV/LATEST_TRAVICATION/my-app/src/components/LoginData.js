@@ -16,6 +16,19 @@ function LoginData() {
     const maxAttempts = 5;
     const lockoutDuration = 2 * 60 * 1000; // 2 minutes
 
+    useEffect(() => {
+        fetch('https://localhost:4000/check-session', {
+            method: 'GET',
+            credentials: 'include', // This ensures the session cookie is sent with the request
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // Handle session data
+        })
+        .catch(error => console.error('Error:', error));
+    }, []); // Empty dependency array means it runs once when the component mounts
+
+
     // Effect to manage the lockout timer
     useEffect(() => {
         let timer;
@@ -49,9 +62,9 @@ function LoginData() {
             // Assuming responseData is an object containing 'status' and 'role'
             if (responseData.status === "success") {
                 if (responseData === "admin exist") {
-                    window.location.href = "https://travication.vercel.app/home"; // Reload and navigate to /home
+                    window.location.href = "/home"; // Reload and navigate to /home
                 } else if (responseData === "exist") {
-                    window.location.href = "https://travication.vercel.app/managerhome"; // Reload and navigate to /managerhome
+                    window.location.href = "/managerhome"; // Reload and navigate to /managerhome
                 }
             } else if (responseData.error) {
                 // Handle different error cases
