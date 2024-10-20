@@ -20,6 +20,8 @@ function App() {
     <AuthProvider>
       <div className="App">
         <Routes>
+          <Route path="/" element={<Login />} />
+
           <Route path="/home" element={<Home />}/>
 
             <Route path="/managerhome" element={<ManagerHome />} />
