@@ -49,7 +49,7 @@ function LoginData() {
             // Assuming responseData is an object containing 'status' and 'role'
             if (responseData.status === "success") {
                 if (responseData.role === "admin") {
-                    navigate("/home");
+                    navigate("https://travication.vercel.app/home");
                 } else if (responseData.role === "manager") {
                     navigate("/managerhome");
                 }

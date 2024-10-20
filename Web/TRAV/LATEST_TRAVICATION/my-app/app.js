@@ -50,7 +50,9 @@ app.get('/check-session', (req, res) => {
     if (req.session.user) {
         return res.json({ user: req.session.user });
     }
+    else{
     res.status(401).json({ message: 'Not authenticated' });
+    }
 });
 
 const transporter = nodemailer.createTransport({
