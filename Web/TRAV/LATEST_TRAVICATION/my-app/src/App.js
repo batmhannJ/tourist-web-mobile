@@ -20,8 +20,6 @@ function App() {
     <AuthProvider>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Login />} />
-
           <Route path="/home" element={<Home />}/>
 
             <Route path="/managerhome" element={<ManagerHome />} />
@@ -38,6 +36,7 @@ function App() {
 
 
           <Route path="/forgotPassword" element={<ForgotPassword />} />
+          <Route path="/login" element={<Login />} />
 
           <Route path="/signup" element={<SignUp />} />
          
