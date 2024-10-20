@@ -39,7 +39,7 @@ app.use(session({
         mongoUrl: process.env.MONGODB_URI // Use environment variable for MongoDB URI
     }),
     cookie: {
-        secure: process.env.MONGODB_URI === 'production', // Gawing true kapag sa production
+        secure: process.env.NODE_ENV === 'production', // Gawing true kapag sa production
         httpOnly: true, // Tinatanggal ang access sa cookie mula sa JavaScript
         maxAge: 1000 * 60 * 60 // 1 oras, baguhin ayon sa iyong pangangailangan
     }
