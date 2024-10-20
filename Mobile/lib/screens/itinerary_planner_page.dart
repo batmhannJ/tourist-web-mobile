@@ -39,15 +39,15 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
     _loadTravelItineraries();
   }
 
-Future<void> _loadTravelItineraries() async {
-  final prefs = await SharedPreferences.getInstance();
-  String? itinerariesString = prefs.getString('travelItineraries');
-  if (itinerariesString != null) {
-    setState(() {
-      travelItineraries = List<Map<String, dynamic>>.from(json.decode(itinerariesString));
-    });
+  Future<void> _loadTravelItineraries() async {
+    final prefs = await SharedPreferences.getInstance();
+    String? itinerariesString = prefs.getString('travelItineraries');
+    if (itinerariesString != null) {
+      setState(() {
+        travelItineraries = List<Map<String, dynamic>>.from(json.decode(itinerariesString));
+      });
+    }
   }
-}
 
 Future<void> _saveTravelItineraries() async {
   final prefs = await SharedPreferences.getInstance();
@@ -136,201 +136,212 @@ Future<void> _saveTravelItineraries() async {
     );
   }
 
-Widget _buildTravelCard(int index) {
-  Map<String, dynamic> itinerary = travelItineraries[index];
+  Widget _buildTravelCard(int index) {
+    Map<String, dynamic> itinerary = travelItineraries[index];
 
-  return SingleChildScrollView(
-    child: Container(
-      width: MediaQuery.of(context).size.width * 0.9,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            spreadRadius: 2,
-            offset: Offset(0, 4),
-          ),
-        ],
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Header with Destination
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.blueAccent,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  itinerary['destination'],
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.orange),
-                    onPressed: () {
-                      _editTravelItinerary(index);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      setState(() {
-                        travelItineraries.removeAt(index);
-                        _saveTravelItineraries(); // Save changes
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          // Staying Period and Budget
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Staying Period:',
-                style: TextStyle(fontSize: 16, color: Colors.black54),
-              ),
-              Text(
-                itinerary['stayingPeriod'],
-                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Budget:',
-                style: TextStyle(fontSize: 16, color: Colors.black54),
-              ),
-              Text(
-                '₱${itinerary['budget']}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 15),
-          const Divider(color: Colors.black26),
-          const Text(
-            'Daily Itinerary:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.deepPurple),
-          ),
-          const SizedBox(height: 10),
-          Column(
-            children: List.generate(
-              itinerary['days'].length,
-              (dayIndex) {
-                Map<String, dynamic> day = itinerary['days'][dayIndex];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 20),
-                  padding: const EdgeInsets.all(10),
+    return SingleChildScrollView(
+      child: Container(
+        width: MediaQuery.of(context).size.width * 0.9,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 8,
+              spreadRadius: 2,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        margin: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with Destination
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                   decoration: BoxDecoration(
-                    color: Colors.purple[50],
-                    borderRadius: BorderRadius.circular(15),
+                    color: Colors.blueAccent,
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Day ${dayIndex + 1}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Color.fromARGB(255, 176, 142, 39),
+                  child: Text(
+                    itinerary['destination'],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.orange),
+                      onPressed: () {
+                        _editTravelItinerary(index);
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        setState(() {
+                          travelItineraries.removeAt(index);
+                          _saveTravelItineraries(); // Save changes
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            // Staying Period and Budget
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Staying Period:',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                Text(
+                  itinerary['stayingPeriod'],
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Budget:',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                Text(
+                  '₱${itinerary['budget']}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            const Divider(color: Colors.black26),
+            const Text(
+              'Daily Itinerary:',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+            ),
+            const SizedBox(height: 10),
+            Column(
+              children: List.generate(
+                itinerary['days'].length,
+                (dayIndex) {
+                  Map<String, dynamic> day = itinerary['days'][dayIndex];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.purple[50],
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Day ${dayIndex + 1}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            color: Color.fromARGB(255, 176, 142, 39),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Column(
-                        children: List.generate(
-                          day['activities'].length,
-                          (activityIndex) {
-                            Map<String, dynamic> activity = day['activities'][activityIndex];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  TextField(
-                                    onChanged: (value) {
-                                      setState(() {
-                                        activity['time'] = value;
-                                        _saveTravelItineraries(); // Save changes
-                                      });
-                                    },
-                                    decoration: const InputDecoration(
-                                      labelText: 'Time',
+                        const SizedBox(height: 8),
+                        Column(
+                          children: List.generate(
+                            day['activities'].length,
+                            (activityIndex) {
+                              Map<String, dynamic> activity = day['activities'][activityIndex];
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    TextField(
+                                      onChanged: (value) {
+                                        setState(() {
+                                          activity['time'] = value;
+                                        });
+                                        _saveTravelItineraries(); 
+                                      },
+                                      decoration: const InputDecoration(
+                                        labelText: 'Time',
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    onChanged: (value) {
-                                      setState(() {
-                                        activity['activity'] = value;
-                                        _saveTravelItineraries(); // Save changes
-                                      });
-                                    },
-                                    decoration: const InputDecoration(
-                                      labelText: 'Activity',
+                                    const SizedBox(height: 8),
+                                    TextField(
+                                      onChanged: (value) {
+                                        setState(() {
+                                          activity['activity'] = value;
+                                        });
+                                        _saveTravelItineraries();
+                                      },
+                                      decoration: const InputDecoration(
+                                        labelText: 'Activity',
+                                      ),
                                     ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete),
-                                    onPressed: () {
-                                      setState(() {
-                                        day['activities'].removeAt(activityIndex);
-                                        _saveTravelItineraries(); // Save changes
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      onPressed: () {
+                                        setState(() {
+                                          day['activities'].removeAt(activityIndex);
+                                          _saveTravelItineraries();
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              day['activities'].add({'time': '', 'activity': ''});
+                              _saveTravelItineraries();
+                            });
                           },
+                          child: const Text('Add Activity'),
                         ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            day['activities'].add({'time': '', 'activity': ''});
-                            _saveTravelItineraries(); // Save changes
-                          });
-                        },
-                        child: const Text('Add Activity'),
-                      ),
-                    ],
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 15),
+            ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Itinerary saved successfully!'),
                   ),
                 );
               },
+              child: const Text('Save All'),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
 
   void _addTravelItinerary() async {
