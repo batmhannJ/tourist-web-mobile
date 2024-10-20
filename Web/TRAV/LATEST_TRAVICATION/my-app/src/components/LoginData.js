@@ -49,9 +49,9 @@ function LoginData() {
             // Assuming responseData is an object containing 'status' and 'role'
             if (responseData.status === "success") {
                 if (responseData.role === "admin exist") {
-                    navigate("/home");
+                    window.location.href = "https://travication.vercel.app/home"; // Reload and navigate to /home
                 } else if (responseData.role === "exist") {
-                    navigate("/managerhome");
+                    window.location.href = "https://travication.vercel.app/managerhome"; // Reload and navigate to /managerhome
                 }
             } else if (responseData.error) {
                 // Handle different error cases
