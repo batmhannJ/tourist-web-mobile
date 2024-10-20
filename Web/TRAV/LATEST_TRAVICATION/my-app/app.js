@@ -11,7 +11,7 @@ const path = require('path');
 
 
 const cors = require("cors")
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264', 'https://travication.vercel.app'
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264','https://travication.vercel.app', 'https://travication.vercel.app/login'
 ]; // Add all allowed origins
 require('dotenv').config();
 
@@ -32,14 +32,19 @@ app.use(cors({
 }));
 
 app.use(session({
-    secret: 'yourSecretKey',
+    secret: 'yourSecretKey', // Palitan ito ng isang secure na key
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     store: MongoStore.create({
         mongoUrl: process.env.MONGODB_URI // Use environment variable for MongoDB URI
     }),
-    cookie: { maxAge: 180 * 60 * 1000 } // 3 hours
+    cookie: {
+        secure: process.env.NODE_ENV === 'production', // Gawing true kapag sa production
+        httpOnly: true, // Tinatanggal ang access sa cookie mula sa JavaScript
+        maxAge: 1000 * 60 * 60 // 1 oras, baguhin ayon sa iyong pangangailangan
+    }
 }));
+
 
 app.get('/check-session', (req, res) => {
     if (req.session.user) {

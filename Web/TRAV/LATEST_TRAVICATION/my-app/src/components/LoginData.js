@@ -42,6 +42,7 @@ function LoginData() {
                 email,
                 password
             }, { withCredentials: true });
+            console.log("Response Data:", response.data); // Log the response data
 
             const responseData = response.data;
 
