@@ -298,80 +298,79 @@ Widget _buildMainContent(BuildContext context) {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Display the destinations for the city
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 3 / 2,
-                        crossAxisSpacing: 16,
-                        mainAxisSpacing: 16,
-                      ),
-                      itemCount: cityDestinations.length,
-                      itemBuilder: (context, index) {
-                        PlaceInfo place = cityDestinations[index];
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailScreen(spot: place),
-                              ),
-                            );
-                          },
-                          child: Card(
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: ClipRRect(
-                                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                                    child: place.image != null && place.image!.isNotEmpty
-                                        ? Image.network(
-                                            place.image!,
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            errorBuilder: (context, error, stackTrace) {
-                                              print('Error loading image: $error');
-                                              return Image.asset(
-                                                'assets/images/tagtay.jpg',
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                              );
-                                            },
-                                          )
-                                        : Image.asset(
-                                            'assets/images/tagtay.jpg',
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                          ),
+                    // Display the destinations for the city in a horizontal scroll view
+                    SizedBox(
+                      height: 350,  // Set a fixed height for the horizontal scroll area
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: cityDestinations.map((place) {
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailScreen(spot: place),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                );
+                              },
+                              child: Container(
+                                width: 280,  // Width of each image card
+                                margin: const EdgeInsets.only(right: 16),  // Space between cards
+                                child: Card(
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        place.destinationName,
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                      Expanded(
+                                        child: ClipRRect(
+                                          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                                          child: place.image != null && place.image!.isNotEmpty
+                                              ? Image.network(
+                                                  place.image!,
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                  errorBuilder: (context, error, stackTrace) {
+                                                    print('Error loading image: $error');
+                                                    return Image.asset(
+                                                      'assets/images/tagtay.jpg',
+                                                      fit: BoxFit.cover,
+                                                      width: double.infinity,
+                                                    );
+                                                  },
+                                                )
+                                              : Image.asset(
+                                                  'assets/images/tagtay.jpg',
+                                                  fit: BoxFit.cover,
+                                                  width: double.infinity,
+                                                ),
+                                        ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      Text(place.city, style: const TextStyle(color: Colors.grey)),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              place.destinationName,
+                                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(place.city, style: const TextStyle(color: Colors.grey)),
+                                          ],
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
                     const Divider(height: 40),  // Divider between cities
                   ],
@@ -384,6 +383,7 @@ Widget _buildMainContent(BuildContext context) {
     ),
   );
 }
+
 
 
   @override
