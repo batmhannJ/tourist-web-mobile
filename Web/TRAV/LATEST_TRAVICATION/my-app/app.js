@@ -12,7 +12,6 @@ const path = require('path');
 
 const cors = require("cors")
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264','https://travication.vercel.app', 'https://travication-lwgjwyq9h-hannahs-projects-c42d0242.vercel.app', 'https://travication-doe9523av-hannahs-projects-c42d0242.vercel.app']; // Add all allowed origins
-require('dotenv').config();
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -33,13 +32,14 @@ app.use(cors({
 app.use(session({
     secret: 'yourSecretKey', // Palitan ito ng isang secure na key
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI // Use environment variable for MongoDB URI
+        mongoUrl: 'mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test' // Use environment variable for MongoDB URI
     }),
     cookie: {
-        secure: process.env.NODE_ENV === 'production', // Gawing true kapag sa production
+        //secure: process.env.NODE_ENV === 'production', // Gawing true kapag sa production
         httpOnly: true, // Tinatanggal ang access sa cookie mula sa JavaScript
+        secure: true,
         sameSite: 'none',  // Consider using 'lax' or 'none' in cross-origin scenarios
         maxAge: 1000 * 60 * 60 // 1 oras, baguhin ayon sa iyong pangangailangan
     }
@@ -50,9 +50,7 @@ app.get('/check-session', (req, res) => {
     if (req.session.user) {
         return res.json({ user: req.session.user });
     }
-    else{
     res.status(401).json({ message: 'Not authenticated' });
-    }
 });
 
 const transporter = nodemailer.createTransport({

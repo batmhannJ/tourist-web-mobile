@@ -7,6 +7,7 @@ import "./SignUpData.css"; // Import the CSS file
 import axios from "axios";
 import Carousel from './Carousel';
 
+
 function LoginData() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
@@ -15,19 +16,6 @@ function LoginData() {
     const [attempts, setAttempts] = useState(0);
     const maxAttempts = 5;
     const lockoutDuration = 2 * 60 * 1000; // 2 minutes
-
-    useEffect(() => {
-        fetch('https://localhost:4000/check-session', {
-            method: 'GET',
-            credentials: 'include', // This ensures the session cookie is sent with the request
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data); // Handle session data
-        })
-        .catch(error => console.error('Error:', error));
-    }, []); // Empty dependency array means it runs once when the component mounts
-
 
     // Effect to manage the lockout timer
     useEffect(() => {
@@ -55,18 +43,17 @@ function LoginData() {
                 password
             }, { withCredentials: true });
     
-            console.log("Response Data:", response.data);
+            //console.log("Response Data:", response.data);
     
             const responseData = response.data;
     
-            // Assuming responseData is an object containing 'status' and 'role'
-            if (responseData.status === "success") {
                 if (responseData === "admin exist") {
+                    localStorage.setItem("userType", "admin");
                     navigate("/home");
                 } else if (responseData === "exist") {
                     navigate("/managerhome");
                 }
-            } else if (responseData.error) {
+                else if (responseData.error) {
                 // Handle different error cases
                 if (responseData.error === "User not exist") {
                     alert("Account does not exist. Please sign up.");
