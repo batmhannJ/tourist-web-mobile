@@ -12,4 +12,5 @@ const ProtectedRoute = ({ redirectTo = "/login" }) => {
     return isAuthenticated ? <Outlet /> : <Navigate to={redirectTo} />;
 };
 
+
 export default ProtectedRoute;

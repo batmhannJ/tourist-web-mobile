@@ -16,6 +16,19 @@ function LoginData() {
     const maxAttempts = 5;
     const lockoutDuration = 2 * 60 * 1000; // 2 minutes
 
+    useEffect(() => {
+        fetch('https://localhost:4000/check-session', {
+            method: 'GET',
+            credentials: 'include', // This ensures the session cookie is sent with the request
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data); // Handle session data
+        })
+        .catch(error => console.error('Error:', error));
+    }, []); // Empty dependency array means it runs once when the component mounts
+
+
     // Effect to manage the lockout timer
     useEffect(() => {
         let timer;
@@ -30,26 +43,29 @@ function LoginData() {
 
     async function submit(e) {
         e.preventDefault();
-
-        // Check if the user is locked out
+    
         if (isLockedOut) {
             alert("You are temporarily locked out. Please try again later.");
             return;
         }
-
+    
         try {
             const response = await axios.post("http://localhost:4000/login", {
                 email,
                 password
             }, { withCredentials: true });
-
+    
+            console.log("Response Data:", response.data);
+    
             const responseData = response.data;
-
-            if (responseData === "admin exist") {
-                localStorage.setItem("userType", "admin");
-                navigate("/home");
-            } else if (responseData === "exist") {
-                navigate("/managerhome");
+    
+            // Assuming responseData is an object containing 'status' and 'role'
+            if (responseData.status === "success") {
+                if (responseData === "admin exist") {
+                    window.location.href = "/home"; // Reload and navigate to /home
+                } else if (responseData === "exist") {
+                    window.location.href = "/managerhome"; // Reload and navigate to /managerhome
+                }
             } else if (responseData.error) {
                 // Handle different error cases
                 if (responseData.error === "User not exist") {
@@ -57,7 +73,6 @@ function LoginData() {
                 } else if (responseData.error === "User login declined") {
                     alert("Your login has been declined.");
                 } else if (responseData.error === "Invalid username or password") {
-                    // Increment attempts and handle lockout logic
                     setAttempts(prev => {
                         const newAttempts = prev + 1;
                         if (newAttempts >= maxAttempts) {
@@ -79,6 +94,7 @@ function LoginData() {
             console.error(e);
         }
     }
+    
 
     return (
         <div className="login-page">
