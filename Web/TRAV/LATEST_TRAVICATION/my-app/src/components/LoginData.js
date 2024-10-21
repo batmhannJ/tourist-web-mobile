@@ -62,9 +62,9 @@ function LoginData() {
             // Assuming responseData is an object containing 'status' and 'role'
             if (responseData.status === "success") {
                 if (responseData === "admin exist") {
-                    window.location.href = "/home"; // Reload and navigate to /home
+                    navigate("/home");
                 } else if (responseData === "exist") {
-                    window.location.href = "/managerhome"; // Reload and navigate to /managerhome
+                    navigate("/managerhome");
                 }
             } else if (responseData.error) {
                 // Handle different error cases
