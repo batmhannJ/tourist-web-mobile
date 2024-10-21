@@ -7,7 +7,6 @@ import "./SignUpData.css"; // Import the CSS file
 import axios from "axios";
 import Carousel from './Carousel';
 
-
 function LoginData() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
@@ -31,35 +30,34 @@ function LoginData() {
 
     async function submit(e) {
         e.preventDefault();
-    
+
+        // Check if the user is locked out
         if (isLockedOut) {
             alert("You are temporarily locked out. Please try again later.");
             return;
         }
-    
+
         try {
             const response = await axios.post("http://localhost:4000/login", {
                 email,
                 password
             }, { withCredentials: true });
-    
-            //console.log("Response Data:", response.data);
-    
+
             const responseData = response.data;
-    
-                if (responseData === "admin exist") {
-                    localStorage.setItem("userType", "admin");
-                    navigate("/home");
-                } else if (responseData === "exist") {
-                    navigate("/managerhome");
-                }
-                else if (responseData.error) {
+
+            if (responseData === "admin exist") {
+                localStorage.setItem("userType", "admin");
+                navigate("/home");
+            } else if (responseData === "exist") {
+                navigate("/managerhome");
+            } else if (responseData.error) {
                 // Handle different error cases
                 if (responseData.error === "User not exist") {
                     alert("Account does not exist. Please sign up.");
                 } else if (responseData.error === "User login declined") {
                     alert("Your login has been declined.");
                 } else if (responseData.error === "Invalid username or password") {
+                    // Increment attempts and handle lockout logic
                     setAttempts(prev => {
                         const newAttempts = prev + 1;
                         if (newAttempts >= maxAttempts) {
@@ -81,7 +79,6 @@ function LoginData() {
             console.error(e);
         }
     }
-    
 
     return (
         <div className="login-page">

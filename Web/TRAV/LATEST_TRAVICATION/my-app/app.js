@@ -11,7 +11,7 @@ const path = require('path');
 
 
 const cors = require("cors")
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264','https://travication.vercel.app', 'https://travication-lwgjwyq9h-hannahs-projects-c42d0242.vercel.app', 'https://travication-doe9523av-hannahs-projects-c42d0242.vercel.app']; // Add all allowed origins
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264']; // Add all allowed origins
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -30,21 +30,14 @@ app.use(cors({
 }));
 
 app.use(session({
-    secret: 'yourSecretKey', // Palitan ito ng isang secure na key
+    secret: 'yourSecretKey',
     resave: false,
     saveUninitialized: true,
     store: MongoStore.create({
-        mongoUrl: 'mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test' // Use environment variable for MongoDB URI
+        mongoUrl: 'mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test'
     }),
-    cookie: {
-        //secure: process.env.NODE_ENV === 'production', // Gawing true kapag sa production
-        httpOnly: true, // Tinatanggal ang access sa cookie mula sa JavaScript
-        secure: true,
-        sameSite: 'none',  // Consider using 'lax' or 'none' in cross-origin scenarios
-        maxAge: 1000 * 60 * 60 // 1 oras, baguhin ayon sa iyong pangangailangan
-    }
+    cookie: { maxAge: 180 * 60 * 1000 } // 3 hours
 }));
-
 
 app.get('/check-session', (req, res) => {
     if (req.session.user) {
@@ -428,5 +421,5 @@ app.patch("/editlocation/:id", upload.single('image'), async (req, res) => {
 });
 
 app.listen(4000, ()=>{
-    console.log(`port connected at ${PORT}`)
+    console.log("port connected")
 })
