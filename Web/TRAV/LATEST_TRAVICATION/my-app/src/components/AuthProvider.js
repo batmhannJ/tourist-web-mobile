@@ -10,7 +10,14 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuthStatus = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/check-session', { withCredentials: true });
+            // Determine the API URL based on the environment
+            const apiURL =
+                process.env.NODE_ENV === 'production'
+                    ? 'https://travication.vercel.app/api/check-session'
+                    : 'http://localhost:4000/check-session';
+
+            // Use the apiURL for the request
+            const response = await axios.get(apiURL, { withCredentials: true });
             if (response.status === 200 && response.data.user) {
                 setIsAuthenticated(true);
             } else {
