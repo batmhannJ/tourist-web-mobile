@@ -12,7 +12,7 @@ const path = require('path');
 
 const cors = require("cors")
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264', 'http://localhost:43264','https://travication.vercel.app']; // Add all allowed origins
-
+require('dotenv').config();
 const app = express()
 const PORT = process.env.PORT || 4000
 
@@ -44,6 +44,10 @@ app.use(session({
         maxAge: 1000 * 60 * 60 // 1 oras, baguhin ayon sa iyong pangangailangan
     } // 3 hours
 }));
+
+if (process.env.NODE_ENV === 'production') {
+    console.log('App is running in production');
+}
 
 app.get('/check-session', (req, res) => {
     console.log(req.session); // Log session details
