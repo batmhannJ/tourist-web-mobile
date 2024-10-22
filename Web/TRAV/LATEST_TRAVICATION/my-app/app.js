@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = 'pC4l7f9H2a7Y1dC9Uk1ZjX6D8ErO23Dk5FxR7e0vF0O=';
 const session = require('express-session')
 const MongoStore = require('connect-mongo')
-const { collection, collection2 } = require("./mongo");
+const { collection, collection2, Search } = require("./mongo");
 const nodemailer = require('nodemailer');
 const multer = require('multer'); // Import multer
 const path = require('path');
@@ -427,6 +427,19 @@ app.patch("/editlocation/:id", upload.single('image'), async (req, res) => {
         res.status(500).json({ error: "Manager edit error" });
     }
 });
+
+app.get('/getMostSearchedDestinations', async (req, res) => {
+    try {
+        // Fetch the top 5 most searched destinations, sorted by the `count` field in descending order
+        const mostSearchedDestinations = await Search.find().sort({ count: -1 }).limit(5);
+        console.log(mostSearchedDestinations); // Debugging the data
+        res.status(200).json(mostSearchedDestinations);
+    } catch (error) {
+        console.error('Error fetching most searched destinations:', error);
+        res.status(500).json({ message: 'Failed to fetch most searched destinations.' });
+    }
+});
+
 
 app.listen(4000, ()=>{
     console.log("port connected")

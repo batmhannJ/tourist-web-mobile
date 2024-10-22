@@ -31,10 +31,12 @@ const getBestMonthsForCity = (city) => {
 
 const DataAnalytics = () => {
     const [destinations, setDestinations] = useState([]);
+    const [mostSearchedDestinations, setMostSearchedDestinations] = useState([]);
     const [expandedMonth, setExpandedMonth] = useState(null);
 
     useEffect(() => {
         fetchDestinations();
+        fetchMostSearchedDestinations();  // Fetch most searched destinations
     }, []);
 
     const fetchDestinations = async () => {
@@ -46,7 +48,6 @@ const DataAnalytics = () => {
             console.error('Failed to fetch destinations:', error);
         }
     };
-
     // Prepare data for the popular cities chart
     const citiesData = destinations.reduce((acc, place) => {
         const existingCity = acc.find(city => city.name === place.city);
@@ -89,10 +90,23 @@ const DataAnalytics = () => {
         setExpandedMonth(expandedMonth === month ? null : month);
     };
 
+    
+    const fetchMostSearchedDestinations = async () => {
+        try {
+            const response = await fetch('http://localhost:4000/getMostSearchedDestinations'); // Your API endpoint for most searched destinations
+            const data = await response.json();
+            console.log(data); // Log the response data to verify the structure
+            setMostSearchedDestinations(data);
+        } catch (error) {
+            console.error('Failed to fetch most searched destinations:', error);
+        }
+    };
+    
+
     return (
         <div className="analytics-container">
             <h1>Data Analytics Dashboard</h1>
-            <h2>Popular Cities</h2>
+            <h2>Destination counts per City</h2>
             <div className="chart-container">
                 <BarChart width={600} height={300} data={citiesData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -103,8 +117,36 @@ const DataAnalytics = () => {
                     <Bar dataKey="count" fill="#8884d8" />
                 </BarChart>
             </div>
+            <h2>Most Search Destinations</h2>
 
-            <h2>Best Months for Travel</h2>
+            <div className="most-searched-section">
+    <h2>Most Searched Destinations</h2>
+    <div className="most-searched-container">
+        {mostSearchedDestinations.length > 0 ? (
+            mostSearchedDestinations.map((destination, index) => (
+                <div key={index} className="destination-card">
+                    <div className="destination-info">
+                        <p className="destination-title">{destination.title || 'Unnamed Destination'}</p>
+                        <p
+                            className="destination-count"
+                            style={{
+                                backgroundColor: COLORS[index % COLORS.length],  // Dynamic color based on index
+                            }}
+                        >
+                            Search Count: {destination.count}
+                        </p>
+                    </div>
+                </div>
+            ))
+        ) : (
+            <p>No data available for most searched destinations.</p>
+        )}
+    </div>
+</div>
+
+
+
+            <h2>Popular Cities</h2>
             <div className="months-container">
                 {months.map(({ number, name }) => (
                     <div key={number} className="month-card">

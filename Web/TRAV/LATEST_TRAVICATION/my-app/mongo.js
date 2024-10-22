@@ -70,4 +70,11 @@ const locationSchema = new mongoose.Schema({
 
 const collection2 = mongoose.model("locationcollection", locationSchema)
 
-module.exports = { collection, collection2 };
+const searchSchema = new mongoose.Schema({
+    destinationName: String,
+    count: { type: Number, default: 0 }
+});
+
+const Search = mongoose.model('Search', searchSchema);
+
+module.exports = { collection, collection2, Search };

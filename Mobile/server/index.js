@@ -6,6 +6,7 @@ const authRouter = require("./routes/auth");
 const markersRouter = require("./routes/markers");
 const placesRouter = require("./routes/places"); // Import the places router
 const Otp = require('./model/otp');
+const collection2 = require('./model/place');
 const nodemailer = require('nodemailer');
 const User = require('./model/user');
 const bcrypt = require('bcrypt');
@@ -171,6 +172,24 @@ async function fetchThumbnailFromDBpedia(searchTerm) {
 
     return null;
 }
+
+app.get('/searchTouristSpots', async (req, res) => {
+    try {
+      const query = req.query.query.toLowerCase(); // Get the query parameter
+  
+      // Fetch tourist spots that match the search query
+      const spots = await collection2.find({
+        destionationName: { $regex: query, $options: 'i' }, // Case-insensitive search
+        city: { $regex: query, $options: 'i' }, // Case-insensitive search
+      });
+  
+      // Respond with the found spots
+      res.json(spots);
+    } catch (error) {
+      console.error('Error fetching tourist spots:', error);
+      res.status(500).json({ error: 'Failed to load tourist spots' });
+    }
+  });
 
 app.post('/logSearch', async (req, res) => {
     const { searchTerm } = req.body;

@@ -243,17 +243,6 @@ Widget _buildMainContent(BuildContext context) {
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
           child: Text(
-            "Most Search Destinations", 
-            style: TextStyle(fontSize: 23, fontWeight: FontWeight.w600, color: Color.fromARGB(255, 0, 0, 0)),
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildCategorySection(), // Preserved function
-
-        const SizedBox(height: 16),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
             "Popular Tourist Spots", 
             style: TextStyle(fontSize: 23, fontWeight: FontWeight.w600, color: Color.fromARGB(255, 0, 0, 0)),
           ),
