@@ -16,7 +16,7 @@ export default async (req, res) => {
         // Check if session exists and respond with the user data
         const user = await usersCollection.findOne({ role: 'admin' }); // Example query
         if (user) {
-            return res.status(200).json({ user: user.username });
+            return res.status(200).json({ user: user.email });
         } else {
             return res.status(401).json({ message: 'Not authenticated' });
         }
