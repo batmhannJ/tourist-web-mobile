@@ -1,19 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_2/model/place_model.dart';
 import 'package:flutter_application_2/screens/detailscreen/detail_screen.dart';
-import 'package:flutter_application_2/screens/bookmark_page.dart';
-import 'package:flutter_application_2/screens/map_page.dart';
-import 'package:flutter_application_2/screens/itinerary_planner_page.dart';
-import 'package:flutter_application_2/screens/profile_account.dart';
-import 'package:flutter_application_2/utilities/colors.dart';
-import 'package:flutter_application_2/services/auth_services.dart';
-import 'dart:async'; 
-//import 'widgets/category_card.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
-import 'package:flutter_application_2/providers/user_provider.dart';
 import 'package:flutter_application_2/services/dbpedia_service.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert'; 
 
 class Bookmark extends StatefulWidget {
   const Bookmark({Key? key}) : super(key: key);
@@ -23,136 +13,149 @@ class Bookmark extends StatefulWidget {
 }
 
 class _Bookmark extends State<Bookmark> {
-  List<PlaceInfo> places = [];  // Store PlaceInfo objects
+  List<PlaceInfo> places = [];
   String? _selectedMonth;
 
   List<String> months = [
-    "January", "February", "March", "April", "May", "June", "July", "August",
-    "September", "October", "November", "December"
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
   ];
 
   @override
   void initState() {
     super.initState();
-    _fetchPlaces();  // Fetch places when the widget is initialized
+    _fetchPlaces();
   }
 
-  // Function to fetch places and update the state
   Future<void> _fetchPlaces() async {
     try {
-      List<PlaceInfo> fetchedPlaces = await fetchDestinations();  // Fetch from API
-
-      // Debugging: Print fetched places
-      print("Fetched places: ${fetchedPlaces.length}");
-      for (var place in fetchedPlaces) {
-        print("Place: ${place.city}, Best Months: ${place.bestMonths}");
-      }
-
+      List<PlaceInfo> fetchedPlaces = await fetchDestinations();
       setState(() {
-        places = fetchedPlaces;  // Update the state with fetched places
+        places = fetchedPlaces;
       });
     } catch (error) {
       print('Error fetching places: $error');
     }
   }
 
- // Function to filter tourist spots based on selected month
-Widget _buildTouristSpotsByMonth() {
-  if (_selectedMonth == null) {
-    return const SizedBox();
-  }
+  Widget _buildTouristSpotsByMonth() {
+    if (_selectedMonth == null) {
+      return const SizedBox();
+    }
 
-  // Get the numeric month for filtering
-  int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;
+    int selectedMonthIndex = months.indexOf(_selectedMonth!) + 1;
+    List<PlaceInfo> filteredPlaces = places.where((place) {
+      return place.bestMonths.contains(selectedMonthIndex);
+    }).toList();
 
-  // Filter logic to show all destinations based on the selected month
-  List<PlaceInfo> filteredPlaces = places.where((place) {
-    return place.bestMonths.contains(selectedMonthIndex);
-  }).toList();
+    if (filteredPlaces.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text("No tourist spots found for this month.", style: TextStyle(fontSize: 18)),
+      );
+    }
 
-  if (filteredPlaces.isEmpty) {
-    return const Padding(
-      padding: EdgeInsets.all(16.0),
-      child: Text("No tourist spots found for this month."),
-    );
-  }
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: filteredPlaces.length,
+      itemBuilder: (context, index) {
+        String? dbImagePath = filteredPlaces[index].image;
+        String imageUrl = (dbImagePath != null && dbImagePath.isNotEmpty) 
+            ? 'http://localhost:4000/' + dbImagePath.replaceAll('\\', '/') 
+            : 'assets/images/tagtay.jpg';
 
-  // Display the filtered places with images
-  return ListView.builder(
-    shrinkWrap: true,
-    physics: const NeverScrollableScrollPhysics(),
-    itemCount: filteredPlaces.length,
-    itemBuilder: (context, index) {
-// Construct the image URL based on the provided logic
-String? dbImagePath = filteredPlaces[index].image; // This is now nullable
-String imageUrl = (dbImagePath != null && dbImagePath.isNotEmpty) 
-    ? 'http://localhost:4000/' + dbImagePath.replaceAll('\\', '/') 
-    : 'assets/images/tagtay.jpg'; // Provide a default image URL
-
-
-      return Padding(
-        padding: const EdgeInsets.only(left: 5, right: 15),
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(8.0),
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(8.0),
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-              width: 80,
-              height: 80,
-              errorBuilder: (context, error, stackTrace) {
-                print('Error loading image: $error');
-                return Image.asset(
-                  'assets/images/default_image.png', // Update to your default image path
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(8.0),
+              leading: ClipRRect(
+                borderRadius: BorderRadius.circular(10.0),
+                child: Image.network(
+                  imageUrl,
                   fit: BoxFit.cover,
                   width: 80,
                   height: 80,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Image.asset(
+                      'assets/images/default_image.png',
+                      fit: BoxFit.cover,
+                      width: 80,
+                      height: 80,
+                    );
+                  },
+                ),
+              ),
+              title: Text(
+                filteredPlaces[index].destinationName,
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    filteredPlaces[index].city,
+                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 4),
+                ],
+              ),
+              onTap: () {
+                PlaceInfo selectedSpot = filteredPlaces[index];
+                selectedSpot.image = imageUrl;
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DetailScreen(
+                      spot: selectedSpot,
+                    ),
+                  ),
                 );
               },
             ),
           ),
-          title: Text(filteredPlaces[index].destinationName),
-          subtitle: Text(filteredPlaces[index].city),
-          onTap: () {
-              // Update the image property of the spot
-              PlaceInfo selectedSpot = filteredPlaces[index];
-              selectedSpot.image = imageUrl; // Assigning imageUrl to the spot's image property
+        );
+      },
+    );
+  }
 
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DetailScreen(
-                    spot: selectedSpot,  // Pass the updated PlaceInfo object
-                  ),
-                ),
-              );
-            },
-        ),
-      );
-    },
-  );
-}
-
-  // Build the grid for selecting months
   Widget _buildMonthGrid() {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 4,
-        childAspectRatio: 2,
+        childAspectRatio: 1.5,
       ),
       itemCount: months.length,
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {
             setState(() {
-              _selectedMonth = months[index];  // Update the selected month
+              _selectedMonth = months[index];
             });
           },
           child: Card(
-            child: Center(child: Text(months[index])),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.calendar_today, color: Colors.blue), // Add a calendar icon
+                  const SizedBox(height: 8),
+                  Text(months[index], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                ],
+              ),
+            ),
           ),
         );
       },
@@ -165,11 +168,14 @@ String imageUrl = (dbImagePath != null && dbImagePath.isNotEmpty)
       appBar: AppBar(
         title: const Text('Tourist Spots by Month'),
       ),
-      body: SingleChildScrollView( // Wrap Column with SingleChildScrollView
+      body: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 10),
-            const Text("Select a Month", style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+            const Text(
+              "Select a Month",
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 10),
             _buildMonthGrid(),
             const SizedBox(height: 20),
@@ -179,5 +185,4 @@ String imageUrl = (dbImagePath != null && dbImagePath.isNotEmpty)
       ),
     );
   }
-
 }
