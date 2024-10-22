@@ -344,7 +344,7 @@ Future<void> _saveTravelItineraries() async {
   }
 
 
-  void _addTravelItinerary() async {
+ void _addTravelItinerary() async {
     Map<String, dynamic> newItinerary = await showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -384,15 +384,32 @@ Future<void> _saveTravelItineraries() async {
                       ),
                     ),
                     const SizedBox(height: 15),
-                    TextField(
-                      onChanged: (value) => stayingPeriod = value,
-                      decoration: const InputDecoration(
-                        labelText: 'Staying Period',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.calendar_today),
-                      ),
+                    
+                    // Add Calendar Picker for Staying Period
+                    ElevatedButton(
+                      onPressed: () async {
+                        DateTimeRange? pickedRange = await showDateRangePicker(
+                          context: context,
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2101),
+                        );
+                        if (pickedRange != null) {
+                          setState(() {
+                            stayingPeriod =
+                                '${pickedRange.start.toString().split(' ')[0]} to ${pickedRange.end.toString().split(' ')[0]}';
+                          });
+                        }
+                      },
+                      child: const Text('Select Staying Period'),
                     ),
+                    stayingPeriod.isNotEmpty
+                        ? Text(
+                            'Staying Period: $stayingPeriod',
+                            style: const TextStyle(fontSize: 16),
+                          )
+                        : const SizedBox.shrink(),
                     const SizedBox(height: 15),
+                    
                     TextField(
                       onChanged: (value) => budget = value,
                       decoration: const InputDecoration(
@@ -495,116 +512,135 @@ Future<void> _saveTravelItineraries() async {
     }
   }
 
-  void _editTravelItinerary(int index) async {
-    TextEditingController destinationController = TextEditingController(text: travelItineraries[index]['destination']);
-    TextEditingController stayingPeriodController = TextEditingController(text: travelItineraries[index]['stayingPeriod']);
-    TextEditingController budgetController = TextEditingController(text: travelItineraries[index]['budget']);
-    List<Map<String, dynamic>> days = List.from(travelItineraries[index]['days']);
-    int dayCounter = days.length;
+void _editTravelItinerary(int index) async {
+  TextEditingController destinationController = TextEditingController(text: travelItineraries[index]['destination']);
+  TextEditingController budgetController = TextEditingController(text: travelItineraries[index]['budget']);
+  String stayingPeriod = travelItineraries[index]['stayingPeriod'];
+  List<Map<String, dynamic>> days = List.from(travelItineraries[index]['days']);
+  int dayCounter = days.length;
 
-    Map<String, dynamic> editedItinerary = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Edit Travel'),
-              content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    TextField(
-                      controller: destinationController,
-                      decoration: const InputDecoration(
-                        labelText: 'Destination',
+  Map<String, dynamic> editedItinerary = await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Edit Travel'),
+            content: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextField(
+                    controller: destinationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Destination',
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  
+                  // Add Calendar Picker for Staying Period
+                  ElevatedButton(
+                    onPressed: () async {
+                      DateTimeRange? pickedRange = await showDateRangePicker(
+                        context: context,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2101),
+                      );
+                      if (pickedRange != null) {
+                        setState(() {
+                          stayingPeriod =
+                              '${pickedRange.start.toString().split(' ')[0]} to ${pickedRange.end.toString().split(' ')[0]}';
+                        });
+                      }
+                    },
+                    child: const Text('Edit Staying Period'),
+                  ),
+                  stayingPeriod.isNotEmpty
+                      ? Text(
+                          'Staying Period: $stayingPeriod',
+                          style: const TextStyle(fontSize: 16),
+                        )
+                      : const SizedBox.shrink(),
+                  const SizedBox(height: 10),
+                  
+                  TextField(
+                    controller: budgetController,
+                    decoration: const InputDecoration(
+                      labelText: 'Budget',
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'Days and Activities:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  _buildDayActivitiesTextField(days),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            days.add({'activities': []});
+                            dayCounter++;
+                          });
+                        },
+                        child: const Text('Add Day'),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: stayingPeriodController,
-                      decoration: const InputDecoration(
-                        labelText: 'Staying Period',
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: budgetController,
-                      decoration: const InputDecoration(
-                        labelText: 'Budget',
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Days and Activities:',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 10),
-                    _buildDayActivitiesTextField(days),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
+                      const SizedBox(width: 10),
+                      Text('$dayCounter days added'),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          if (dayCounter > 0) {
                             setState(() {
-                              days.add({'activities': []});
-                              dayCounter++;
+                              days.removeLast();
+                              dayCounter--;
                             });
-                          },
-                          child: const Text('Add Day'),
-                        ),
-                        const SizedBox(width: 10),
-                        Text('$dayCounter days added'),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (dayCounter > 0) {
-                              setState(() {
-                                days.removeLast();
-                                dayCounter--;
-                              });
-                            }
-                          },
-                          child: const Text('Remove Day'),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                          }
+                        },
+                        child: const Text('Remove Day'),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context, {
-                      'destination': destinationController.text,
-                      'stayingPeriod': stayingPeriodController.text,
-                      'budget': budgetController.text,
-                      'days': days,
-                    });
-                  },
-                  child: const Text('Save'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context, {
+                    'destination': destinationController.text,
+                    'stayingPeriod': stayingPeriod,
+                    'budget': budgetController.text,
+                    'days': days,
+                  });
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+    },
+  );
 
-    if (editedItinerary != null) {
-      setState(() {
-        travelItineraries[index] = editedItinerary;
-        _saveTravelItineraries(); // Save itinerary after editing
-      });
-    }
+  if (editedItinerary != null) {
+    setState(() {
+      travelItineraries[index] = editedItinerary;
+      _saveTravelItineraries(); // Save itinerary after editing
+    });
   }
-  
+}
+
 
   Widget _buildDayActivitiesTextField(List<Map<String, dynamic>> days) {
     return Column(
