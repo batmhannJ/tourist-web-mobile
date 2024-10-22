@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import {Navigate , Outlet  } from 'react-router-dom';
 import { AuthContext } from './AuthProvider';
 
+
 const ProtectedRoute = ({ redirectTo = "/home" }) => {
     const { isAuthenticated, loading } = useContext(AuthContext);
 

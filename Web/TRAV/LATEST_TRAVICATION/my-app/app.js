@@ -11,7 +11,7 @@ const path = require('path');
 
 
 const cors = require("cors")
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264']; // Add all allowed origins
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264', 'http://localhost:43264','https://travication.vercel.app']; // Add all allowed origins
 
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -36,10 +36,18 @@ app.use(session({
     store: MongoStore.create({
         mongoUrl: 'mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseraccount.hz2n2rg.mongodb.net/?retryWrites=true&w=majority&appName=test'
     }),
-    cookie: { maxAge: 180 * 60 * 1000 } // 3 hours
+    cookie: {
+        //secure: process.env.NODE_ENV === 'production', // Gawing true kapag sa production
+        //httpOnly: true, // Tinatanggal ang access sa cookie mula sa JavaScript
+        //secure: false,
+        //sameSite: 'lax',  // Consider using 'lax' or 'none' in cross-origin scenarios
+        maxAge: 1000 * 60 * 60 // 1 oras, baguhin ayon sa iyong pangangailangan
+    } // 3 hours
 }));
 
 app.get('/check-session', (req, res) => {
+    console.log(req.session); // Log session details
+
     if (req.session.user) {
         return res.json({ user: req.session.user });
     }
