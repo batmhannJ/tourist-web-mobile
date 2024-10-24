@@ -84,39 +84,61 @@
     font-weight: bold; /* Bold text */
 }
 
-/* Month Card Styles */
+.popular-cities-section {
+    padding: 40px; /* Space around the section */
+    background-color: #fafafa; /* Light background for a fresh look */
+    border-radius: 25px; /* More rounded corners */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* Deeper shadow for more depth */
+    max-width: 1200px; /* Max width for the section */
+    margin: 0 auto; /* Center the section */
+    text-align: center; /* Center the text */
+}
+
+
 .months-container {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
+    flex-wrap: wrap; /* Allow wrapping of cards */
+    justify-content: center; /* Center the cards */
+    gap: 20px; /* Space between cards */
 }
 
 .month-card {
-    width: 160px; /* Fixed width */
-    margin: 10px;
-    text-align: center;
-    background-color: #ffffff; /* White background */
-    border-radius: 15px; /* Rounded edges */
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Light shadow */
-    transition: transform 0.3s; /* Transition for hover effects */
+    width: 180px; /* Slightly wider month cards */
+    text-align: center; /* Center the text */
+    background-color: #ffffff; /* White background for cards */
+    border-radius: 20px; /* Rounded edges for cards */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    transition: transform 0.3s, box-shadow 0.3s; /* Smooth transition for hover */
+    overflow: hidden; /* Prevent overflow of elements */
 }
 
 .month-card:hover {
-    transform: scale(1.05); /* Enlarge on hover */
+    transform: translateY(-8px); /* Lift effect on hover */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2); /* Increased shadow on hover */
 }
 
 .month-btn {
-    padding: 15px; /* Padding for buttons */
-    background-color: #ff4081; /* Bright pink for buttons */
-    color: white; /* White text for buttons */
+    background-color: #4caf50; /* Bright green background */
+    color: white; /* White text */
     border: none; /* No border */
-    border-radius: 10px; /* Rounded edges */
-    cursor: pointer; /* Pointer cursor */
-    transition: background-color 0.3s; /* Smooth transition */
+    border-radius: 20px; /* Rounded edges for buttons */
+    padding: 15px; /* Padding inside the button */
+    font-size: 1.2em; /* Font size for the button */
+    cursor: pointer; /* Pointer cursor on hover */
+    width: 100%; /* Full width */
+    transition: background-color 0.3s, transform 0.3s; /* Smooth transition for background color */
 }
 
 .month-btn:hover {
-    background-color: #d5006d; /* Darker color on hover */
+    background-color: #388e3c; /* Darker green on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.month-name {
+    text-transform: uppercase; /* Uppercase text for modern look */
+    letter-spacing: 1px; /* Spacing for a stylish effect */
+    font-weight: bold; /* Bold text for emphasis */
+    font-size: 1.1em; /* Adjust font size */
 }
 
 /* Styles for destination list */
@@ -140,33 +162,97 @@
     text-align: center; /* Center the message */
     padding: 10px 0; /* Spacing */
 }
-
-.modal-overlay {
+/* Sliding panel styles */
+.sliding-panel {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    top: 20%; /* Moved further down the screen */
+    right: -100%; /* Hidden by default */
+    width: 300px; /* Width of the panel */
+    height: auto; /* Automatic height */
+    max-height: 70%; /* Maximum height */
+    background-color: #ffffff; /* White background */
+    box-shadow: -5px 0 30px rgba(0, 0, 0, 0.3); /* Deep shadow for depth */
+    transition: right 0.4s ease; /* Smooth slide-in transition */
+    z-index: 1000; /* Ensure it's above other content */
+    padding: 10px; /* Padding for inner content */
+    border-left: 5px solid #4caf50; /* Left border for accent */
+    border-radius: 10px 0 0 10px; /* Rounded corners on the left side */
     display: flex;
-    justify-content: center;
-    align-items: center;
+    flex-direction: column; /* Column layout for header, content, footer */
+    justify-content: flex-start; /* Align items to the start */
 }
 
-.modal {
-    background-color: white;
-    padding: 20px;
-    width: 400px;
-    height: 300px;
-    border-radius: 8px;
-    text-align: center;
+/* Open state */
+.sliding-panel.open {
+    right: 0; /* Slide in when open */
 }
 
-.close-modal-btn {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #FF6F61;
-    color: white;
-    border: none;
-    cursor: pointer;
+/* Header styling */
+.panel-header {
+    display: flex;
+    justify-content: space-between; /* Space between title and close button */
+    align-items: center; /* Center items vertically */
+    margin-bottom: 10px; /* Space below header */
+}
+
+/* Title styling */
+.panel-title {
+    font-size: 1.3em; /* Smaller font size */
+    color: #333; /* Dark text color */
+    font-weight: 600; /* Bold font weight */
+}
+
+/* Content area of the panel */
+.panel-content {
+    flex-grow: 1; /* Allow content to grow */
+    overflow-y: auto; /* Enable scrolling */
+}
+
+/* Cancel button styling */
+.close-panel-btn {
+    background-color: #4caf50; /* Blue background */
+    color: white; /* White text */
+    border: none; /* No border */
+    padding: 6px 10px; /* Further reduced padding for the button */
+    cursor: pointer; /* Pointer cursor */
+    border-radius: 5px; /* Rounded edges */
+    font-size: 0.9em; /* Normal font size */
+    transition: background-color 0.3s; /* Smooth transition for hover */
+}
+
+.close-panel-btn:hover {
+    background-color: #357ABD; /* Darker shade on hover */
+}
+
+/* Footer section for close button */
+.panel-footer {
+    display: flex;
+    justify-content: center; /* Center the button */
+    margin-top: 10px; /* Space above the footer */
+}
+
+/* List styles */
+.destination-list {
+    list-style: none; /* Remove default list style */
+    padding: 0; /* Remove default padding */
+    margin: 0; /* Remove default margin */
+}
+
+.destination-item {
+    padding: 6px 0; /* Further reduced padding for item */
+    border-bottom: 1px solid #eee; /* Light border between items */
+    color: #555; /* Slightly lighter text for readability */
+    font-size: 0.9em; /* Smaller font for items */
+    transition: background-color 0.2s; /* Smooth background color change */
+}
+
+.destination-item:hover {
+    background-color: #f0f0f0; /* Highlight on hover */
+}
+
+/* Message for no destinations */
+.no-destinations {
+    text-align: center; /* Center the message */
+    color: #888; /* Gray text for no destinations */
+    font-size: 0.8em; /* Smaller font size */
 }

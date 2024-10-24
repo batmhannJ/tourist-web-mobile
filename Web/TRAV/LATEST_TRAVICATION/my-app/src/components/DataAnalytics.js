@@ -33,8 +33,7 @@ const DataAnalytics = () => {
     const [destinations, setDestinations] = useState([]);
     const [mostSearchedDestinations, setMostSearchedDestinations] = useState([]);
     const [expandedMonth, setExpandedMonth] = useState(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalContent, setModalContent] = useState("");
+    const [isPanelOpen, setIsPanelOpen] = useState(false); // State for panel visibility
 
     useEffect(() => {
         fetchDestinations();
@@ -87,19 +86,28 @@ const DataAnalytics = () => {
         { number: 12, name: 'December' },
     ];
 
-    const handleToggleMonth = (month) => {
-        setExpandedMonth(expandedMonth === month ? null : month);
+    const handleToggleMonth = (monthNumber) => {
+        // Check if there are tourist spots for the selected month
+        if (bestMonthCities[monthNumber]?.length > 0) {
+            if (expandedMonth === monthNumber) {
+                // If the month is already expanded, toggle the panel closed
+                setIsPanelOpen(!isPanelOpen);
+            } else {
+                // Set the new month and open the panel
+                setExpandedMonth(monthNumber);
+                setIsPanelOpen(true);
+            }
+        } else {
+            // If no spots are available, keep the panel closed
+            setIsPanelOpen(false);
+        }
     };
 
-    const handleOpenModal = (destination) => {
-        setModalContent(destination);
-        setIsModalOpen(true);
+    const handleClosePanel = () => {
+        setIsPanelOpen(false);
+        setExpandedMonth(null); // Reset the expanded month when closing
     };
-
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setModalContent("");
-    };
+    
 
     const fetchMostSearchedDestinations = async () => {
         try {
@@ -154,51 +162,38 @@ const DataAnalytics = () => {
             </section><br />
 
             <section className="popular-cities-section">
-                <h2 className="section-title">Popular Cities</h2>
-                <div className="months-container">
-                    {months.map(({ number, name }) => (
-                        <div key={number} className="month-card">
-                            <button
-                                className="month-btn"
-                                onClick={() => handleToggleMonth(number)}
-                            >
-                                {name}
-                            </button>
-
-                            {expandedMonth === number && (
-                                <div className="destinations-list">
-                                    {bestMonthCities[number] && bestMonthCities[number].length > 0 ? (
-                                        <ul className="destination-list">
-                                            {bestMonthCities[number].map((destination, index) => (
-                                                <li
-                                                    key={index}
-                                                    className="destination-item"
-                                                    onClick={() => handleOpenModal(destination)} // Open modal on click
-                                                >
-                                                    {destination}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    ) : (
-                                        <p className="no-destinations">No destinations for this month</p>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* Modal Structure */}
-            {isModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <h3 className="modal-title">Destination Details</h3>
-                        <p>{modalContent}</p>
-                        <button className="close-modal-btn" onClick={handleCloseModal}>Close</button>
+            <h2 className="section-title">Popular Cities</h2>
+            <div className="months-container">
+                {months.map(({ number, name }) => (
+                    <div key={number} className="month-card">
+                        <button className="month-btn" onClick={() => handleToggleMonth(number)}>
+                            {name}
+                        </button>
                     </div>
+                ))}
+            </div>
+
+            {/* Sliding Panel Structure */}
+            <div className={`sliding-panel ${isPanelOpen ? 'open' : ''}`}>
+                <div className="panel-header">
+                    <h2 className="panel-title">Explore Tourist Spots for {months[expandedMonth - 1]?.name}</h2>
+                    <button className="close-panel-btn" onClick={handleClosePanel}>✖</button>
                 </div>
-            )}
+                <div className="panel-content">
+                    {bestMonthCities[expandedMonth]?.length > 0 ? (
+                        <ul className="destination-list">
+                            {bestMonthCities[expandedMonth].map((destination, index) => (
+                                <li key={index} className="destination-item">
+                                    {destination}
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="no-destinations" style={{ display: 'none' }}>No tourist spots available.</p>
+                    )}
+                </div>
+            </div>
+        </section>
 
         </div>
     );
