@@ -97,7 +97,7 @@ app.post('/forgotpassword', async (req, res) => {
     try {
         const user = await collection.findOne({ email: email });
         if (!user) {
-            return res.status(404).json({ error: "User not found" });
+            return res.status(404).json({ error: "The system encountered an error while updating the password." });
         }
 
         const token = generateToken(); 
@@ -122,13 +122,13 @@ app.patch("/forgotpassword", async (req, res) => {
         );
 
         if (!updatedPassword) {
-            return res.status(404).json({ error: "User not found" });
+            return res.status(404).json({ error: "The specified user cannot be found." });
         }
 
         res.status(200).json(updatedPassword);
     } catch (e) {
-        console.error("Password update error:", e);
-        res.status(500).json({ error: "Password update error" });
+        console.error("An error occurred while updating the password.", e);
+        res.status(500).json({ error: "The system encountered an error while updating the password." });
     }
 });
 
@@ -143,12 +143,12 @@ app.post("/login", async (req, res) => {
         let user = await collection.findOne({ email: email });
 
         if (!user) {
-            return res.status(400).json({ error: 'User does not exist' });
+            return res.status(400).json({ error: 'The specified user cannot be found.' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ error: 'Invalid username or password' });
+            return res.status(400).json({ error: 'The entered username or password does not match our records.' });
         }
 
         if (user.role === 'admin') {
@@ -158,14 +158,14 @@ app.post("/login", async (req, res) => {
             return res.json("admin exist");
         } else {
             if (user.status === 'decline') {
-                return res.status(403).json({ error: 'User login declined' });
+                return res.status(403).json({ error: 'Access has been declined for this user login attempt.' });
             } else if (user.status === 'approved') {
                 req.session.userId = user._id;
                 req.session.role = user.role;
                 req.session.user = user;
                 return res.json("exist");
             } else {
-                return res.status(403).json({ error: 'User not approved yet' });
+                return res.status(403).json({ error: 'The user account has not been activated pending approval.' });
             }
         }
     } catch (e) {
@@ -181,7 +181,7 @@ app.post('/logout', (req, res) => {
         if (err) {
             return res.status(500).json({ message: 'Logout error' })
         }
-        res.status(200).json({ message: 'Logout successful' })
+        res.status(200).json({ message: 'You have been successfully signed out.' })
     })
 })
 
@@ -356,7 +356,7 @@ app.post('/locations', (req, res) => {
             });
 
             newLocation.save()
-                .then(() => res.status(200).json({ message: 'Location added successfully', newLocation }))
+                .then(() => res.status(200).json({ message: 'Location has been added to the system successfully.', newLocation }))
                 .catch(error => res.status(400).json({ error }));
         }
     });
@@ -382,8 +382,8 @@ app.post('/addlocation', upload.single('image'), (req, res) => {
     });
 
     newLocation.save()
-        .then(() => res.json({ message: 'Location added successfully' }))
-        .catch(err => res.status(500).json({ error: 'Error adding location' }));
+        .then(() => res.json({ message: 'Location has been added to the system successfully.' }))
+        .catch(err => res.status(500).json({ error: 'An error occurred while attempting to add the location.' }));
 });
 
 app.get("/getlocation", async(req, res) => {
