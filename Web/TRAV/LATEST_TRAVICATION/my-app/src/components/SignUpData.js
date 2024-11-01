@@ -15,32 +15,52 @@ function SignUpData() {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
 
-    async function submit(e){
+    // Validate email
+    const isEmailValid = (email) => {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Check for "@" and "."
+        return regex.test(email);
+    };
+
+    // Validate password
+    const isPasswordValid = (password) => {
+        const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/; // At least 8 chars, 1 uppercase, 1 number, 1 special char
+        return regex.test(password);
+    };
+
+    async function submit(e) {
         e.preventDefault();
 
-        try{
-            await axios.post("http://localhost:4000/signupdata",{
+        // Validate inputs
+        if (!isEmailValid(email)) {
+            alert("Please ensure that you enter a valid email address.");
+            return;
+        }
+
+        if (!isPasswordValid(password)) {
+            alert("Password must be at least 8 characters long and include uppercase letter, number, and special character.");
+            return;
+        }
+
+        try {
+            await axios.post("http://localhost:4000/signupdata", {
                 name, email, password
             })
-            .then(res=>{
-                if(res.data === "exist"){
-                    alert("User already exists")
-                } else if(res.data === "not exist"){
-                    alert("Account Created Successfuly")
-                    history("/login", {state:{id:email}})
+            .then(res => {
+                if (res.data === "exist") {
+                    alert("The account associated with this user already exists.");
+                } else if (res.data === "not exist") {
+                    alert("The account has been created successfully.");
+                    history("/login", { state: { id: email } });
                 }
             })
-            .catch(e=>{
-                alert("wrong details")
+            .catch(e => {
+                alert("Incorrect information provided. Please try again.");
                 console.log(e);
-            })
-        }
-        catch(e){
+            });
+        } catch (e) {
             console.log(e);
         }
     }
-
-   
 
     return (
         <div className="sign-page">
@@ -77,7 +97,7 @@ function SignUpData() {
                         <input
                             type="email"
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Email"
+                            placeholder="Email Address"
                             required
                         />
                     </div>

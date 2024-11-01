@@ -28,10 +28,10 @@ function ForgotPassword() {
                 setShowInputs(true); // Show the additional inputs
                 setOtpSentTime(Date.now());
             } else {
-                alert("Error sending verification code.");
+                alert("There was an error in sending the verification code. Please enter correct email address.");
             }
         } catch (error) {
-            alert("Error sending verification code.");
+            alert("There was an error in sending the verification code. Please enter correct email address.");
             console.error(error);
         }
     }
@@ -87,13 +87,13 @@ function ForgotPassword() {
             });
 
             if (response.status === 200) {
-                alert("Password updated successfully");
+                alert("We confirm that your password has been successfully updated.");
                 navigate("/login");
             } else {
-                alert("Error updating password");
+                alert("An error occurred while updating the password.");
             }
         } catch (error) {
-            alert("Error updating password");
+            alert("An error occurred while updating the password.");
             console.error(error);
         }
     }
@@ -120,7 +120,7 @@ function ForgotPassword() {
                         <input
                             type="text" // Email input
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Email"
+                            placeholder="Email Address"
                             required
                         />
                     </div>

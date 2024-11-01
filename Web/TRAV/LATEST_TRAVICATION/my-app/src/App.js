@@ -5,6 +5,7 @@ import { Routes, Route } from "react-router-dom";
 import Home from './routes/Home';
 import About from './routes/About';
 import Service from './routes/Service';
+import AdminLocations from './routes/spots';
 import Contact from './routes/Contact';
 import SignUp from './routes/SignUp';
 import Login from './routes/Login';
@@ -48,6 +49,10 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/managerRegister" element={<ManagerRegister />} />
+          </Route>
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/Spots" element={<AdminLocations />} />
           </Route>
 
           <Route path="/forgotPassword" element={<ForgotPassword />} />

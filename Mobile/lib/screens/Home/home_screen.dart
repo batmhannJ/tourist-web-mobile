@@ -30,26 +30,37 @@ class _HomeScreenState extends State<HomeScreen> {
   DateTime _lastActivityTime = DateTime.now();
   List<dynamic> mostSearchedCategories = []; // To store most searched categories
   List<dynamic> _touristSpots = [];
+  List<dynamic> _filteredTouristSpots = []; // Filtered list to display
   final List<String> _imageUrls = [];
   final Map<String, List<dynamic>> _cachedResults = {};
   Timer? _debounce;
    bool isSearching = false;
   String searchQuery = '';
   String? imagePath;
-  // Function to handle search
-  void _search(String query) {
-    setState(() {
-      searchQuery = query;
-      isSearching = query.isNotEmpty; // Set isSearching to true if there's a query
-    });
-  }
   
   @override
   void initState() {
     super.initState();
     _startSessionTimer();
     fetchMostSearchedCategories(); 
-    fetchDestinations(); 
+    _fetchDestinations(); 
+  }
+
+ // Fetches destinations and initializes both lists
+  void _fetchDestinations() async {
+    List<dynamic> fetchedSpots = await fetchDestinations();
+    setState(() {
+      _touristSpots = fetchedSpots;
+      _filteredTouristSpots = List.from(fetchedSpots); // Initially, show all spots
+    });
+  }
+
+  // Handles search query input
+  void _search(String query) {
+    setState(() {
+      searchQuery = query;
+    });
+    _searchForSpots(query);
   }
 
 Future<List<PlaceInfo>> fetchDestinations() async {
@@ -150,41 +161,25 @@ String dbImagePath = item['image']; // From the database
  final Map<String, String?> imageCache = {};
 
 
-void _searchForSpots(String query) async {
-  if (_cachedResults.containsKey(query)) {
+void _searchForSpots(String query) {
+  if (_debounce?.isActive ?? false) _debounce!.cancel();
+
+  _debounce = Timer(const Duration(milliseconds: 300), () {
     setState(() {
-      _touristSpots = _cachedResults[query]!;
+      if (query.isNotEmpty) {
+        _filteredTouristSpots = _touristSpots.where((spot) {
+          final city = (spot['city'] ?? '').toLowerCase();
+          return city.contains(query.toLowerCase());
+        }).toList();
+      } else {
+        // Show all tourist spots if no query is entered
+        _filteredTouristSpots = List.from(_touristSpots);
+      }
     });
-    return;
-  }
-
-  try {
-    final service = DBpediaService();
-
-    // Log the search term before fetching results
-    await logSearch(query);  // Call the logSearch function here
-    
-    // Fetching tourist spots with image URLs
-    final allSpots = await service.fetchTouristSpots(query);
-
-    // Filtering spots based on the query
-    final filteredSpots = allSpots.where((spot) {
-      return (spot['name']?.toLowerCase() ?? "").contains(query.toLowerCase());
-    }).toList();
-
-    setState(() {
-      _touristSpots = filteredSpots;
-      _cachedResults[query] = filteredSpots;
-    });
-        // Optionally, update the most searched categories here
-    await updateMostSearchedCategories(query);
-  } catch (e) {
-    print('Error searching for spots: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error searching for spots: $e')),
-    );
-  }
+  });
 }
+
+
 
 Future<void> logSearch(String searchTerm) async {
   final response = await http.post(
@@ -227,12 +222,26 @@ Future<List<dynamic>> fetchMostSearchedCategories() async {
   }
 }
 
-void _onSearchChanged(String query) {
+void _searchtouristSpots(String query) {
   if (_debounce?.isActive ?? false) _debounce!.cancel();
-  _debounce = Timer(const Duration(seconds: 3), () {
-    _searchForSpots(query);  // Call the updated function
+  
+  _debounce = Timer(const Duration(milliseconds: 300), () {
+    setState(() {
+      if (query.isNotEmpty) {
+        _filteredTouristSpots = _touristSpots.where((spot) {
+          final destinationName = spot['destinationName']?.toLowerCase() ?? '';
+          final cityName = spot['city']?.toLowerCase() ?? '';
+          return destinationName.contains(query.toLowerCase()) || 
+                 cityName.contains(query.toLowerCase());
+        }).toList();
+      } else {
+        _filteredTouristSpots = List.from(_touristSpots);
+      }
+    });
   });
 }
+
+
 
 // Build the main content
 Widget _buildMainContent(BuildContext context) {
@@ -545,64 +554,103 @@ Widget _buildAppBar(String userName) {
   );
 }
 
- Widget _buildSearchSection() {
-  return Container(
-    decoration: BoxDecoration(
-      color: Colors.orange, // Changed to teal for a more fresh look
-      borderRadius: BorderRadius.circular(10), // Slightly less rounded corners
-    ),
-    padding: const EdgeInsets.all(12), // Padding is reduced for a more compact design
-    child: Column(
-      children: [
-        const Text(
-          "Explore New Places",
-          style: TextStyle(
-            fontSize: 28, // Larger font size for emphasis
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+ Widget _buildTouristSpotsList() {
+  return ListView.builder(
+    itemCount: _filteredTouristSpots.length,
+    itemBuilder: (context, index) {
+      final spot = _filteredTouristSpots[index];
+      final destinationName = spot['destinationName'] ?? 'Unknown Destination';
+      final city = spot['city'] ?? 'Unknown City';
+      final description = spot['description'] ?? 'No Description';
+      final latitude = spot['latitude']?.toDouble() ?? 0.0;
+      final longitude = spot['longitude']?.toDouble() ?? 0.0;
+
+      return ListTile(
+        title: Text(destinationName),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("City: $city"),
+            Text("Description: $description"),
+            Text("Coordinates: ($latitude, $longitude)"),
+          ],
         ),
-        const SizedBox(height: 15),
-        Material(
-          borderRadius: BorderRadius.circular(50), // Keeping the rounded shape
-          elevation: 6, // A bit higher elevation for better shadow effect
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(50),
-              border: Border.all(color: Colors.orange.withOpacity(0.5), width: 1), // Adding a border
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      onChanged: _onSearchChanged, // Functionality remains unchanged
-                      decoration: const InputDecoration(
-                        hintText: "Enter a destination",
-                        hintStyle: TextStyle(color: Colors.grey),
-                        prefixIcon: Icon(Icons.search, color: Colors.grey),
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
+      );
+    },
+  );
+}
+
+
+  // Builds the search section widget
+  Widget _buildSearchSection() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      child: Column(
+        children: [
+          const Text(
+            "Explore New Places",
+            style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.orange),
+          ),
+          const SizedBox(height: 15),
+          Material(
+            borderRadius: BorderRadius.circular(50),
+            elevation: 6,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(color: Colors.orange.withOpacity(0.5), width: 1),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 15),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        onChanged: _search,
+                        decoration: const InputDecoration(
+                          hintText: "Enter a destination",
+                          hintStyle: TextStyle(color: Colors.grey),
+                          prefixIcon: Icon(Icons.search, color: Colors.grey),
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  const CircleAvatar(
-                    radius: 22,
-                    backgroundColor: Color.fromARGB(255, 218, 164, 17),
-                    child: Icon(Icons.sort_by_alpha_sharp, color: Colors.white),
-                  ),
-                ],
+                    const SizedBox(width: 10),
+                    const CircleAvatar(
+                      radius: 22,
+                      backgroundColor: Color.fromARGB(255, 218, 164, 17),
+                      child: Icon(Icons.sort_by_alpha_sharp, color: Colors.white),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+@override
+Widget _build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("Tourist Spots"),
+      backgroundColor: Colors.orange,
+    ),
+    body: Column(
+      children: [
+        _buildSearchSection(), 
+        Expanded(
+          child: _buildTouristSpotsList(),
         ),
       ],
     ),
   );
 }
+
+
 
 
  Widget _buildCategorySection() {

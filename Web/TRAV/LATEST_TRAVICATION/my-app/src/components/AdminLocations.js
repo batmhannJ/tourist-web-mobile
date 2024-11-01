@@ -260,6 +260,7 @@ function ManageLocations() {
                         <th>Longitude</th>
                         <th>Description</th>
                         <th>Image</th> {/* New column for the image */}
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -290,12 +291,12 @@ function ManageLocations() {
                                 )}
                             </td>
 
-                            {/*<td>
+                            <td>
                             <div className="action-buttons">
                                 <button className="edit-button" onClick={() => handleEditLocation(index)}>Edit</button>
                                 <button className="delete-button" onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
                             </div>
-                            </td>*/}
+                            </td>
                         </tr>
                     ))}
                 </tbody>

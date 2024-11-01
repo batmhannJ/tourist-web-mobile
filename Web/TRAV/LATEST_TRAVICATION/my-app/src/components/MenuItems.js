@@ -18,8 +18,8 @@ export const MenuItems = [
         icon : "fa-solid fa-briefcase"
     },
     {
-        title: "Manager Registration",
-        url: "/ManagerRegister",
+        title: "Map Management",
+        url: "/spots",
         cName: "nav-links",
         icon: "fa-solid fa-address-book"
     },
