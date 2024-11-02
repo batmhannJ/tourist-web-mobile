@@ -42,7 +42,7 @@ const DataAnalytics = () => {
 
     const fetchDestinations = async () => {
         try {
-            const response = await fetch('http://localhost:4000/getlocation'); // Your API endpoint
+            const response = await fetch('https://travication-backend.onrender.com/getlocation'); // Your API endpoint
             const data = await response.json();
             setDestinations(data);
         } catch (error) {
@@ -111,7 +111,7 @@ const DataAnalytics = () => {
 
     const fetchMostSearchedDestinations = async () => {
         try {
-            const response = await fetch('http://localhost:4000/getMostSearchedDestinations'); // Your API endpoint for most searched destinations
+            const response = await fetch('https://travication-backend.onrender.com/getMostSearchedDestinations'); // Your API endpoint for most searched destinations
             const data = await response.json();
             setMostSearchedDestinations(data);
         } catch (error) {

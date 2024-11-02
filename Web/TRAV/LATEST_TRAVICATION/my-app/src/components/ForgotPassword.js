@@ -22,7 +22,7 @@ function ForgotPassword() {
     async function requestResetVerificationCode(e) {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:4000/forgotpassword", { email });
+            const response = await axios.post("https://travication-backend.onrender.com/forgotpassword", { email });
             if (response.status === 200) {
                 alert("A verification code has been sent to your email.");
                 setShowInputs(true); // Show the additional inputs
@@ -80,7 +80,7 @@ function ForgotPassword() {
         setPasswordError('');
 
         try {
-            const response = await axios.patch("http://localhost:4000/forgotpassword", {
+            const response = await axios.patch("https://travication-backend.onrender.com/forgotpassword", {
                 email,
                 verificationCode,
                 password

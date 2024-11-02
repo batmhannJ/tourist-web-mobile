@@ -34,7 +34,7 @@ function LoginData() {
     // Function to send OTP
     async function sendOtp() {
         try {
-            const response = await axios.post("http://localhost:4000/send-otp", { email });
+            const response = await axios.post("https://travication-backend.onrender.com/send-otp", { email });
             if (response.data.success) {
                 alert("OTP sent to your email.");
                 setIsOtpSent(true); // Set to true to show OTP input
@@ -51,7 +51,7 @@ function LoginData() {
     // Function to verify OTP
     async function verifyOtp() {
         try {
-            const response = await axios.post("http://localhost:4000/verify-otp", { email, otp });
+            const response = await axios.post("https://travication-backend.onrender.com/verify-otp", { email, otp });
             console.log("Verify OTP Response:", response.data); // Log response for debugging
             if (response.data.success) {
                 alert("OTP verified successfully.");
@@ -84,7 +84,7 @@ function LoginData() {
         }
 
         try {
-            const response = await axios.post("http://localhost:4000/login", {
+            const response = await axios.post("https://travication-backend.onrender.com/login", {
                 email,
                 password
             }, { withCredentials: true });

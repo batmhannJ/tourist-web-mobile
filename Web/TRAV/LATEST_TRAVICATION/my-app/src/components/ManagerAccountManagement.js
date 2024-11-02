@@ -13,7 +13,7 @@ function TourManagerPage() {
 
     const fetchManagers = async () => {
         try {
-            const response = await axios.get('http://localhost:4000/getmanagers');
+            const response = await axios.get('https://travication-backend.onrender.com/getmanagers');
             if (Array.isArray(response.data)) {
                 setManagers(response.data);
             } else {
@@ -33,7 +33,7 @@ function TourManagerPage() {
 
         const id = managers[editingManager]._id; // Get the id of the manager being edited
         try {
-            const response = await axios.patch(`http://localhost:4000/editmanager/${id}`, {
+            const response = await axios.patch(`https://travication-backend.onrender.com/editmanager/${id}`, {
                 name: updatedManager.name,
                 email: updatedManager.email,
             });
@@ -65,7 +65,7 @@ function TourManagerPage() {
         const confirmDelete = window.confirm("Are you sure you want to delete this?");
         if (confirmDelete) {
             try {
-                await axios.delete(`http://localhost:4000/deletemanager/${id}`);
+                await axios.delete(`https://travication-backend.onrender.com/deletemanager/${id}`);
                 const updatedManagers = [...managers];
                 updatedManagers.splice(index, 1);
                 setManagers(updatedManagers);
@@ -79,7 +79,7 @@ function TourManagerPage() {
 
     const handleApproveManager = async (id, index) => {
         try {
-            const response = await axios.patch(`http://localhost:4000/approvemanager/${id}`);
+            const response = await axios.patch(`https://travication-backend.onrender.com/approvemanager/${id}`);
             const updatedManagers = [...managers];
             updatedManagers[index] = response.data;
             setManagers(updatedManagers);
@@ -92,7 +92,7 @@ function TourManagerPage() {
 
     const handleDeclineManager = async (id, index) => {
         try {
-            const response = await axios.patch(`http://localhost:4000/declinemanager/${id}`);
+            const response = await axios.patch(`https://travication-backend.onrender.com/declinemanager/${id}`);
             const updatedManagers = [...managers];
             updatedManagers[index] = response.data;
             setManagers(updatedManagers);

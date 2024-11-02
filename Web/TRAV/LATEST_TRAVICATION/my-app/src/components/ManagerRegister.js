@@ -9,7 +9,7 @@ function ManagerRegister() { // Renamed to ManagerRegister
     const [newManager, setNewManager] = useState({ name: '', email: '', password: '', role: ''});
 
     useEffect(() => {
-        axios.get('http://localhost:4000/getmanagers')
+        axios.get('https://travication-backend.onrender.com/getmanagers')
             .then(response => {
                 if (Array.isArray(response.data)) {
                     setManagers(response.data);
@@ -25,7 +25,7 @@ function ManagerRegister() { // Renamed to ManagerRegister
    
     const handleApproveManager = async (id, index) => {
         try {
-            const response = await axios.patch(`http://localhost:4000/approvemanager/${id}`);
+            const response = await axios.patch(`https://travication-backend.onrender.com/approvemanager/${id}`);
             const updatedManager = response.data;
     
             const updatedManagers = [...managers];
@@ -41,7 +41,7 @@ function ManagerRegister() { // Renamed to ManagerRegister
     
     const handleDeclineManager = async (id, index) => {
         try {
-            const response = await axios.patch(`http://localhost:4000/declinemanager/${id}`);
+            const response = await axios.patch(`https://travication-backend.onrender.com/declinemanager/${id}`);
             const updatedManager = response.data;
     
             const updatedManagers = [...managers];
@@ -57,7 +57,7 @@ function ManagerRegister() { // Renamed to ManagerRegister
 
     const handleDeleteManager = async (id, index) => {
         try {
-            await axios.delete(`http://localhost:4000/deletemanager/${id}`);
+            await axios.delete(`https://travication-backend.onrender.com/deletemanager/${id}`);
             const updatedManagers = [...managers];
             updatedManagers.splice(index, 1);
             setManagers(updatedManagers);

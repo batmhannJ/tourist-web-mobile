@@ -13,8 +13,8 @@ export const AuthProvider = ({ children }) => {
             // Determine the API URL based on the environment
             const apiURL =
                 process.env.NODE_ENV === 'production'
-                    ? 'https://travication.vercel.app/api/check-session'
-                    : 'http://localhost:4000/check-session';
+                    ? 'https://travication-backend.onrender.com/check-session'
+                    : 'https://travication-backend.onrender.com/check-session';
 
             // Use the apiURL for the request
             const response = await axios.get(apiURL, { withCredentials: true });
