@@ -122,21 +122,43 @@ const DataAnalytics = () => {
     return (
         <div className="analytics-container">
 
-            <section className="chart-section">
-                <h2 className="section-title">Destination Counts per City</h2>
-                <div className="chart-container">
-                    <BarChart width={600} height={300} data={citiesData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="count" fill="#FF6F61" />
-                    </BarChart>
-                </div>
-            </section><br />
+<section style={{
+    backgroundColor: '#ffffff', // Bright white background for clarity
+    padding: '30px', // Increased padding for spaciousness
+    borderRadius: '15px', // More pronounced rounded corners
+    boxShadow: '0 4px 15px rgba(0, 0, 0, 0.1)', // Deeper shadow for depth
+    maxWidth: '900px', // Wider section for more space
+    margin: '20px auto', // Center horizontally
+    textAlign: 'center' // Center all text
+}}>
+    <h2 style={{
+        fontSize: '26px', // Slightly larger title font size
+        color: '#2c3e50', // Darker text color for better contrast
+        marginBottom: '25px', // Space below title
+        fontWeight: 'bold' // Bold title for emphasis
+    }}>Destination Counts per City</h2>
+    <div style={{
+        backgroundColor: '#f7f9fc', // Light background for the chart area
+        borderRadius: '10px', // Rounded corners for the chart area
+        padding: '25px', // Padding around the chart
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)', // Subtle shadow for the chart area
+        display: 'flex', // Flexbox for centering
+        justifyContent: 'center', // Center the chart
+        alignItems: 'center' // Center vertically
+    }}>
+        <BarChart width={800} height={300} data={citiesData}> {/* Increased width of the BarChart */}
+            <CartesianGrid strokeDasharray="3 3" stroke="#dcdcdc" /> {/* Light gray grid */}
+            <XAxis dataKey="name" tick={{ fill: "#34495e" }} /> {/* Darker tick color */}
+            <YAxis tick={{ fill: "#34495e" }} />
+            <Tooltip contentStyle={{ backgroundColor: '#fff', border: '1px solid #ddd' }} /> {/* Tooltip styling */}
+            <Legend />
+            <Bar dataKey="count" fill="#3498db" /> {/* Changed bar color to blue */}
+        </BarChart>
+    </div>
+</section>
+<br />
 
-            <section className="searched-section">
+            {/*<section className="searched-section">
                 <h2 className="section-title">Most Searched Destinations</h2>
                 <div className="most-searched-container">
                     {mostSearchedDestinations.length > 0 ? (
@@ -159,7 +181,7 @@ const DataAnalytics = () => {
                         <p>No data available for most searched destinations.</p>
                     )}
                 </div>
-            </section><br />
+            </section>*/}
 
             <section className="popular-cities-section">
             <h2 className="section-title">Popular Cities</h2>

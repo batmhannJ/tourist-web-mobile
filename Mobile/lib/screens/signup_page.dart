@@ -169,204 +169,202 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     const SizedBox(height: 20),
                     Form(
-                      key: _formKey,
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: emailController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Email',
-                                    border: const OutlineInputBorder(),
-                                    filled: true,
-                                    fillColor: Colors.grey[200],
-                                    prefixIcon: const Icon(Icons.email, color: Colors.orange),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Please enter your email';
-                                    }
-                                    if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
-                                      return 'Please enter a valid email';
-                                    }
-                                    return null;
-                                  },
-                                  enabled: !isOTPVerified,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              if (!isOTPVerified)
-                                ElevatedButton(
-                                  onPressed: isButtonDisabled ? null : sendOTP,
-                                  style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.orange,
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                    textStyle: const TextStyle(fontSize: 14),
-                                  ),
-                                  child: const Text('Send OTP'),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          if (isOTPSent && !isOTPVerified) ...[
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: otpController,
-                                    decoration: InputDecoration(
-                                      labelText: 'Enter OTP',
-                                      border: const OutlineInputBorder(),
-                                      filled: true,
-                                      fillColor: Colors.grey[200],
-                                      prefixIcon: const Icon(Icons.lock, color: Colors.orange),
-                                    ),
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return 'Please enter the OTP sent to your email';
-                                      }
-                                      return null;
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: verifyOTP,
-                                  style: ElevatedButton.styleFrom(
-                                    foregroundColor: Colors.white,
-                                    backgroundColor: Colors.orange,
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                                    textStyle: const TextStyle(fontSize: 14),
-                                  ),
-                                  child: const Text('Submit'),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 20),
-                            if (isButtonDisabled) 
-                              Text('Resend OTP in $cooldownTime seconds', style: const TextStyle(color: Colors.red)),
-                          ],
-                          if (isOTPVerified) ...[
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: nameController,
-                              decoration: InputDecoration(
-                                labelText: 'Name',
-                                border: const OutlineInputBorder(),
-                                filled: true,
-                                fillColor: Colors.grey[200],
-                                prefixIcon: const Icon(Icons.person, color: Colors.orange),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your name';
-                                }
-                                if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
-                                  return 'Name must contain only letters and spaces';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: birthdateController,
-                              decoration: InputDecoration(
-                                labelText: 'Birthdate (DD/MM/YYYY)',
-                                border: const OutlineInputBorder(),
-                                filled: true,
-                                fillColor: Colors.grey[200],
-                                prefixIcon: const Icon(Icons.calendar_today, color: Colors.orange),
-                                helperText: 'You must be 18+ years old to sign up',
-                              ),
-                              keyboardType: TextInputType.datetime,
-                              readOnly: true,
-                              onTap: () => pickDate(context),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please select your birthdate';
-                                }
-                                if (!isLegalAge) {
-                                  return 'You must be at least 18 years old to sign up';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: passwordController,
-                              obscureText: true,
-                              decoration: InputDecoration(
-                                labelText: 'Password',
-                                border: const OutlineInputBorder(),
-                                filled: true,
-                                fillColor: Colors.grey[200],
-                                prefixIcon: const Icon(Icons.lock, color: Colors.orange),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please enter your password';
-                                }
-                                if (value.length < 6) {
-                                  return 'Password must be at least 6 characters long';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 20),
+  key: _formKey,
+  child: Column(
+    children: [
+      Row(
+        children: [
+          Expanded(
+            child: TextFormField(
+              controller: emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                border: const OutlineInputBorder(),
+                filled: true,
+                fillColor: Colors.grey[200],
+                prefixIcon: const Icon(Icons.email, color: Colors.orange),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter your email';
+                }
+                if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                  return 'Please enter a valid email';
+                }
+                return null;
+              },
+              enabled: !isOTPVerified,
+            ),
+          ),
+          const SizedBox(width: 10),
+          if (!isOTPVerified)
+            ElevatedButton(
+              onPressed: isButtonDisabled ? null : sendOTP,
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.orange,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                textStyle: const TextStyle(fontSize: 14),
+              ),
+              child: const Text('Send OTP'),
+            ),
+        ],
+      ),
+      const SizedBox(height: 16), // Set a consistent height for spacing
+      if (isOTPSent && !isOTPVerified) ...[
+        Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: otpController,
+                decoration: InputDecoration(
+                  labelText: 'Enter OTP',
+                  border: const OutlineInputBorder(),
+                  filled: true,
+                  fillColor: Colors.grey[200],
+                  prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the OTP sent to your email';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(width: 10),
+            ElevatedButton(
+              onPressed: verifyOTP,
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.orange,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                textStyle: const TextStyle(fontSize: 14),
+              ),
+              child: const Text('Submit'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (isButtonDisabled)
+          Text('Resend OTP in $cooldownTime seconds', style: const TextStyle(color: Colors.red)),
+      ],
+      if (isOTPVerified) ...[
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: nameController,
+          decoration: InputDecoration(
+            labelText: 'Name',
+            border: const OutlineInputBorder(),
+            filled: true,
+            fillColor: Colors.grey[200],
+            prefixIcon: const Icon(Icons.person, color: Colors.orange),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your name';
+            }
+            if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(value)) {
+              return 'Name must contain only letters and spaces';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: birthdateController,
+          decoration: InputDecoration(
+            labelText: 'Birthdate (DD/MM/YYYY)',
+            border: const OutlineInputBorder(),
+            filled: true,
+            fillColor: Colors.grey[200],
+            prefixIcon: const Icon(Icons.calendar_today, color: Colors.orange),
+            helperText: 'You must be 18+ years old to sign up',
+          ),
+          keyboardType: TextInputType.datetime,
+          readOnly: true,
+          onTap: () => pickDate(context),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select your birthdate';
+            }
+            if (!isLegalAge) {
+              return 'You must be at least 18 years old to sign up';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: passwordController,
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: 'Password',
+            border: const OutlineInputBorder(),
+            filled: true,
+            fillColor: Colors.grey[200],
+            prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please enter your password';
+            }
+            if (value.length < 6) {
+              return 'Password must be at least 6 characters long';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
+        TextFormField(
+          controller: confirmPasswordController,
+          obscureText: true,
+          decoration: InputDecoration(
+            labelText: 'Confirm Password',
+            border: const OutlineInputBorder(),
+            filled: true,
+            fillColor: Colors.grey[200],
+            prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+          ),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please confirm your password';
+            }
+            if (value != passwordController.text) {
+              return 'Passwords do not match';
+            }
+            return null;
+          },
+        ),
+        const SizedBox(height: 16),
+        CheckboxListTile(
+          title: const Text("I agree to the Terms of Use and Privacy Policy"),
+          value: isTermsAccepted,
+          onChanged: (newValue) {
+            setState(() {
+              isTermsAccepted = newValue ?? false;
+            });
+          },
+          controlAffinity: ListTileControlAffinity.leading,
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: ElevatedButton(
+            onPressed: (isTermsAccepted && isLegalAge) ? signupUser : null,
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.orange,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              textStyle: const TextStyle(fontSize: 14),
+            ),
+            child: const Text('Sign Up'),
+          ),
+        ),
+      ],
+    ],
+  ),
+),
 
-                            TextFormField(
-                              controller: confirmPasswordController,
-                              obscureText: true,
-                              decoration: InputDecoration(
-                                labelText: 'Confirm Password',
-                                border: const OutlineInputBorder(),
-                                filled: true,
-                                fillColor: Colors.grey[200],
-                                prefixIcon: const Icon(Icons.lock, color: Colors.orange),
-                              ),
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Please confirm your password';
-                                }
-                                if (value != passwordController.text) {
-                                  return 'Passwords do not match';
-                                }
-                                return null;
-                              },
-                            ),
-                            const SizedBox(height: 20),
-
-                            CheckboxListTile(
-                              title: const Text("I agree to the Terms of Use and Privacy Policy"),
-                              value: isTermsAccepted,
-                              onChanged: (newValue) {
-                                setState(() {
-                                  isTermsAccepted = newValue ?? false;
-                                });
-                              },
-                              controlAffinity: ListTileControlAffinity.leading,
-                            ),
-
-                            Align(
-                              alignment: Alignment.center,
-                              child: ElevatedButton(
-                                onPressed: (isTermsAccepted && isLegalAge) ? signupUser : null,
-                                style: ElevatedButton.styleFrom(
-                                  foregroundColor: Colors.white,
-                                  backgroundColor: Colors.orange,
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                                  textStyle: const TextStyle(fontSize: 14),
-                                ),
-                                child: const Text('Sign Up'),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
                     TextButton(
                       onPressed: () {
                         Navigator.push(

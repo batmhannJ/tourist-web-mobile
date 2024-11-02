@@ -74,147 +74,166 @@ void verifyOtp() async {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+@override
+Widget build(BuildContext context) {
+  return GestureDetector(
+    onTap: () => FocusScope.of(context).unfocus(),
+    child: Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF5B247A), Color(0xFF1BCEDF)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+          image: DecorationImage(
+            image: AssetImage('assets/images/backg.png'),
+            fit: BoxFit.cover,
           ),
         ),
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(32.0),
-            child: Column(
-              children: [
-                const Text(
-                  'Please enter your email to search for your account',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: Offset(0, 2),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      if (!otpSent) ...[
-                        // Email Input Field
-                        TextFormField(
-                          controller: emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(),
+                ],
+              ),
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                children: [
+                  const Text(
+                    'Enter your email to retrieve your account.',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 0, 0, 0),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        if (!otpSent) ...[
+                          // Email Input Field
+                          TextFormField(
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.email, color: Colors.orange),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter your email';
+                              }
+                              if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                                return 'Please enter a valid email';
+                              }
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter your email';
-                            }
-                            if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
-                              return 'Please enter a valid email';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        // Submit Button to Send OTP
-                        ElevatedButton(
-                          onPressed: requestOtp,
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.deepPurple,
-                            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                            textStyle: const TextStyle(fontSize: 18),
+                          const SizedBox(height: 20),
+                          // Submit Button to Send OTP
+                          ElevatedButton(
+                            onPressed: requestOtp,
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.orange,
+                              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                              textStyle: const TextStyle(fontSize: 18),
+                            ),
+                            child: const Text('Submit'),
                           ),
-                          child: const Text('Submit'),
-                        ),
-                      ] else if (!otpVerified) ...[
-                        // OTP Input Field
-                        TextFormField(
-                          controller: otpController,
-                          decoration: const InputDecoration(
-                            labelText: 'Enter OTP',
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(),
+                        ] else if (!otpVerified) ...[
+                          // OTP Input Field
+                          TextFormField(
+                            controller: otpController,
+                            decoration: InputDecoration(
+                              labelText: 'Enter OTP',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter the OTP';
+                              }
+                              return null;
+                            },
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter the OTP';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        // Verify OTP Button
-                        ElevatedButton(
-                          onPressed: verifyOtp,
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.deepPurple,
-                            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                            textStyle: const TextStyle(fontSize: 18),
+                          const SizedBox(height: 20),
+                          // Verify OTP Button
+                          ElevatedButton(
+                            onPressed: verifyOtp,
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.orange,
+                              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                              textStyle: const TextStyle(fontSize: 18),
+                            ),
+                            child: const Text('Verify OTP'),
                           ),
-                          child: const Text('Verify OTP'),
-                        ),
-                      ] else ...[
-                        // New Password Input Field
-                        TextFormField(
-                          controller: newPasswordController,
-                          decoration: const InputDecoration(
-                            labelText: 'New Password',
-                            filled: true,
-                            fillColor: Colors.white,
-                            border: OutlineInputBorder(),
+                        ] else ...[
+                          // New Password Input Field
+                          TextFormField(
+                            controller: newPasswordController,
+                            decoration: InputDecoration(
+                              labelText: 'New Password',
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.lock, color: Colors.orange),
+                            ),
+                            obscureText: true,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter a new password';
+                              }
+                              return null;
+                            },
                           ),
-                          obscureText: true,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter a new password';
-                            }
-                            return null;
-                          },
-                        ),
-                        const SizedBox(height: 20),
-                        // Change Password Button
-                        ElevatedButton(
-                          onPressed: resetPassword,
-                          style: ElevatedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.deepPurple,
-                            padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                            textStyle: const TextStyle(fontSize: 18),
+                          const SizedBox(height: 20),
+                          // Change Password Button
+                          ElevatedButton(
+                            onPressed: resetPassword,
+                            style: ElevatedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.orange,
+                              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                              textStyle: const TextStyle(fontSize: 18),
+                            ),
+                            child: const Text('Change Password'),
                           ),
-                          child: const Text('Change Password'),
-                        ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const LoginPage()),
-                    );
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const LoginPage()),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.black,
+                    ),
+                    child: const Text('Cancel'),
                   ),
-                  child: const Text('Cancel'),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
