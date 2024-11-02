@@ -61,14 +61,14 @@ app.get('/check-session', (req, res) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'olshco.electionupdates@gmail.com', 
-        pass: 'nxgb fqoh qkxk svjs', 
+        user: 'travications@gmail.com', 
+        pass: 'gkvd dcii empd ejzr', 
     },
 });
 
 const sendVerificationEmail = (email, token) => {
     const mailOptions = {
-        from: 'olshco.electionupdates@gmail.com',
+        from: 'travications@gmail.com',
         to: email,
         subject: 'Password Reset Verification Token',
         text: `Your password reset token is: ${token}`,
@@ -97,7 +97,7 @@ app.post('/forgotpassword', async (req, res) => {
     try {
         const user = await collection.findOne({ email: email });
         if (!user) {
-            return res.status(404).json({ error: "The system encountered an error while updating the password." });
+            return res.status(404).json({ error: "User not found" });
         }
 
         const token = generateToken(); 
@@ -122,13 +122,13 @@ app.patch("/forgotpassword", async (req, res) => {
         );
 
         if (!updatedPassword) {
-            return res.status(404).json({ error: "The specified user cannot be found." });
+            return res.status(404).json({ error: "User not found" });
         }
 
         res.status(200).json(updatedPassword);
     } catch (e) {
-        console.error("An error occurred while updating the password.", e);
-        res.status(500).json({ error: "The system encountered an error while updating the password." });
+        console.error("Password update error:", e);
+        res.status(500).json({ error: "Password update error" });
     }
 });
 
@@ -181,7 +181,7 @@ app.post('/logout', (req, res) => {
         if (err) {
             return res.status(500).json({ message: 'Logout error' })
         }
-        res.status(200).json({ message: 'You have been successfully signed out.' })
+        res.status(200).json({ message: 'Logout successful' })
     })
 })
 
@@ -356,7 +356,7 @@ app.post('/locations', (req, res) => {
             });
 
             newLocation.save()
-                .then(() => res.status(200).json({ message: 'Location has been added to the system successfully.', newLocation }))
+                .then(() => res.status(200).json({ message: 'Location added successfully', newLocation }))
                 .catch(error => res.status(400).json({ error }));
         }
     });
@@ -382,8 +382,8 @@ app.post('/addlocation', upload.single('image'), (req, res) => {
     });
 
     newLocation.save()
-        .then(() => res.json({ message: 'Location has been added to the system successfully.' }))
-        .catch(err => res.status(500).json({ error: 'An error occurred while attempting to add the location.' }));
+        .then(() => res.json({ message: 'Location added successfully' }))
+        .catch(err => res.status(500).json({ error: 'Error adding location' }));
 });
 
 app.get("/getlocation", async(req, res) => {
@@ -441,6 +441,86 @@ app.get('/getMostSearchedDestinations', async (req, res) => {
     } catch (error) {
         console.error('Error fetching most searched destinations:', error);
         res.status(500).json({ message: 'Failed to fetch most searched destinations.' });
+    }
+});
+
+const otpStore = {};
+
+// Function to send the OTP email
+const sendOTPEmail = async (email, otp) => {
+    const mailOptions = {
+        from: 'olshco.electionupdates@gmail.com',
+        to: email,
+        subject: 'Your OTP for Login',
+        text: `Your OTP is: ${otp}. It is valid for 5 minutes.`,
+    };
+
+    return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email: ', error.message);
+                reject(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+                resolve(info);
+            }
+        });
+    });
+};
+
+// Endpoint to request OTP
+app.post("/send-otp", async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await collection.findOne({ email: email });
+        if (!user) {
+            return res.status(400).json({ error: 'User does not exist' });
+        }
+
+        const otp = generateToken(); // Assuming generateToken() generates a valid OTP
+        otpStore[email] = { otp, expires: Date.now() + 300000 }; // Store OTP with expiration time (5 mins)
+
+        await sendOTPEmail(email, otp); // Send the OTP to user's email
+        return res.status(200).json({ success: true, message: 'OTP sent to your email.' }); // Return success response
+    } catch (e) {
+        console.error("OTP request error:", e);
+        return res.status(500).json({ success: false, error: "Server error" }); // Improved error handling
+    }
+});
+
+// Endpoint to verify OTP and log in the user
+app.post("/verify-otp", async (req, res) => {
+    const { email, otp } = req.body;
+
+    const otpData = otpStore[email];
+    if (!otpData || otpData.otp !== otp) {
+        return res.status(400).json({ success: false, error: 'Invalid OTP or OTP expired' });
+    }
+
+    if (Date.now() > otpData.expires) {
+        delete otpStore[email]; // Remove OTP if expired
+        return res.status(400).json({ success: false, error: 'OTP expired' });
+    }
+
+    delete otpStore[email]; // Remove OTP after successful verification
+
+    try {
+        let user = await collection.findOne({ email: email });
+
+        if (!user) {
+            return res.status(400).json({ success: false, error: 'User does not exist' });
+        }
+
+        // Log in the user
+        req.session.userId = user._id;
+        req.session.role = user.role;
+        req.session.user = user;
+
+        return res.json({ success: true, message: "Logged in successfully." }); // Return success response
+    } catch (e) {
+        console.error("Login error:", e);
+        return res.status(500).json({ success: false, error: "Server error" }); // Improved error handling
     }
 });
 

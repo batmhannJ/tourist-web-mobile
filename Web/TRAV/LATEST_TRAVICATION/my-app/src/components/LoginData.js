@@ -11,6 +11,9 @@ function LoginData() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [otp, setOtp] = useState('');
+    const [isOtpSent, setIsOtpSent] = useState(false);
+    const [isOtpVerified, setIsOtpVerified] = useState(false);
     const [isLockedOut, setIsLockedOut] = useState(false);
     const [attempts, setAttempts] = useState(0);
     const maxAttempts = 5;
@@ -28,8 +31,51 @@ function LoginData() {
         return () => clearTimeout(timer);
     }, [isLockedOut]);
 
+    // Function to send OTP
+    async function sendOtp() {
+        try {
+            const response = await axios.post("http://localhost:4000/send-otp", { email });
+            if (response.data.success) {
+                alert("OTP sent to your email.");
+                setIsOtpSent(true); // Set to true to show OTP input
+            } else {
+                alert("Error sending OTP. Please try again.");
+                console.error("Error response:", response.data); // Log error details
+            }
+        } catch (error) {
+            alert("An error occurred while sending OTP.");
+            console.error("Error while sending OTP:", error);
+        }
+    }
+
+    // Function to verify OTP
+    async function verifyOtp() {
+        try {
+            const response = await axios.post("http://localhost:4000/verify-otp", { email, otp });
+            console.log("Verify OTP Response:", response.data); // Log response for debugging
+            if (response.data.success) {
+                alert("OTP verified successfully.");
+                setIsOtpVerified(true);
+            } else {
+                alert("Invalid OTP. Please try again.");
+            }
+        } catch (error) {
+            if (error.response) {
+                alert(`Error: ${error.response.data.message || 'An error occurred during OTP verification.'}`);
+            } else {
+                alert("An unexpected error occurred. Please try again.");
+            }
+            console.error("Error during OTP verification:", error);
+        }
+    }
+
     async function submit(e) {
         e.preventDefault();
+
+        if (!isOtpVerified) {
+            alert("Please verify your OTP first.");
+            return;
+        }
 
         // Check if the user is locked out
         if (isLockedOut) {
@@ -99,7 +145,7 @@ function LoginData() {
                 <form onSubmit={submit}>
                     <br />
                     <div className="input">
-                    <img src={email_icon} alt="Email icon" className="email-icon" />
+                        <img src={email_icon} alt="Email icon" className="email-icon" />
                         <input
                             type="email"
                             value={email}
@@ -107,23 +153,43 @@ function LoginData() {
                             placeholder="Email"
                             required
                         />
+                        {!isOtpSent && (
+                            <button type="button" onClick={sendOtp}>
+                                Send OTP
+                            </button>
+                        )}
                     </div>
+                    {isOtpSent && !isOtpVerified && (
+                        <div className="input">
+                            <input
+                                type="text"
+                                value={otp}
+                                onChange={(e) => setOtp(e.target.value)}
+                                placeholder="Enter OTP"
+                                required
+                            />
+                            <button type="button" onClick={verifyOtp}>
+                                Verify OTP
+                            </button>
+                        </div>
+                    )}
                     <br />
                     <div className="input">
-                    <img src={password_icon} alt="Email icon" className="email-icon" />
+                        <img src={password_icon} alt="Password icon" className="email-icon" />
                         <input
                             type="password"
                             value={password}
                             onChange={(e) => { setPassword(e.target.value) }}
                             placeholder="Password"
                             required
+                            disabled={!isOtpVerified}
                         />
                     </div>
                     <div className="forgot-password">
                         <Link to="/ForgotPassword">Forgot Password?</Link>
                     </div>
                     <br />
-                    <input className="submit" type="submit" value="Login" disabled={isLockedOut} />
+                    <input className="submit" type="submit" value="Login" disabled={!isOtpVerified || isLockedOut} />
                 </form>
                 <br />
                 <p>Don't have an account?</p>
@@ -203,7 +269,7 @@ function LoginData() {
     background: #fff; /* White background */
     padding: 20px;
     border-radius: 15px;
-    margin-left:480px;
+    margin-left:515px;
     margin-top: 170px; /* Adjusted margin for upward movement */
     box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1); /* Shadow for depth */
     width: 100%; /* Adjusted width */
