@@ -61,8 +61,8 @@ app.get('/check-session', (req, res) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'olshco.electionupdates@gmail.com', 
-        pass: 'nxgb fqoh qkxk svjs', 
+        user: 'travications@gmail.com', 
+        pass: 'gkvd dcii empd ekzr', 
     },
     tls: {
         rejectUnauthorized: false, // Disables strict SSL, bypassing self-signed certificates
@@ -71,7 +71,7 @@ const transporter = nodemailer.createTransport({
 
 const sendVerificationEmail = (email, token) => {
     const mailOptions = {
-        from: 'olshco.electionupdates@gmail.com',
+        from: 'travications@gmail.com',
         to: email,
         subject: 'Password Reset Verification Token',
         text: `Your password reset token is: ${token}`,
@@ -452,7 +452,7 @@ const otpStore = {};
 // Function to send the OTP email
 const sendOTPEmail = async (email, otp) => {
     const mailOptions = {
-        from: 'olshco.electionupdates@gmail.com',
+        from: 'travications@gmail.com',
         to: email,
         subject: 'Your OTP for Login',
         text: `Your OTP is: ${otp}. It is valid for 5 minutes.`,

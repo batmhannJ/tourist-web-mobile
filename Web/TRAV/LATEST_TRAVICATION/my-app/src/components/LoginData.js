@@ -269,7 +269,7 @@ function LoginData() {
     background: #fff; /* White background */
     padding: 20px;
     border-radius: 15px;
-    margin-left:515px;
+    margin-left: 480px;
     margin-top: 170px; /* Adjusted margin for upward movement */
     box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1); /* Shadow for depth */
     width: 100%; /* Adjusted width */
