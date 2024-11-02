@@ -64,6 +64,9 @@ const transporter = nodemailer.createTransport({
         user: 'travications@gmail.com', 
         pass: 'gkvd dcii empd ejzr', 
     },
+    tls: {
+        rejectUnauthorized: false, // Disables strict SSL, bypassing self-signed certificates
+    },
 });
 
 const sendVerificationEmail = (email, token) => {
