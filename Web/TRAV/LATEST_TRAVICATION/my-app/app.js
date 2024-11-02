@@ -449,7 +449,7 @@ const otpStore = {};
 // Function to send the OTP email
 const sendOTPEmail = async (email, otp) => {
     const mailOptions = {
-        from: 'olshco.electionupdates@gmail.com',
+        from: 'travications@gmail.com',
         to: email,
         subject: 'Your OTP for Login',
         text: `Your OTP is: ${otp}. It is valid for 5 minutes.`,
