@@ -1,5 +1,5 @@
 const express = require("express")
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const jwtSecret = 'pC4l7f9H2a7Y1dC9Uk1ZjX6D8ErO23Dk5FxR7e0vF0O=';
 const session = require('express-session')
@@ -117,7 +117,7 @@ app.patch("/forgotpassword", async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcryptjs.hash(password, 10);
         const updatedPassword = await collection.findOneAndUpdate(
             { email: email },
             { password: hashedPassword },
@@ -149,7 +149,7 @@ app.post("/login", async (req, res) => {
             return res.status(400).json({ error: 'The specified user cannot be found.' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ error: 'The entered username or password does not match our records.' });
         }
@@ -193,8 +193,8 @@ app.post("/signupdata", async(req, res)=>{
 
 
     try {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(password, salt);
             const data = {
                 name: name,
                 email:email,
@@ -219,8 +219,8 @@ app.post("/addmanager", async(req, res)=>{
     const{name, email, password, role} = req.body
 
     try{ 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(password, salt);
             const data = {
                 name: name,
                 email: email,
