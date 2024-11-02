@@ -61,17 +61,14 @@ app.get('/check-session', (req, res) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'travications@gmail.com', 
-        pass: 'gkvd dcii empd ejzr', 
-    },
-    tls: {
-        rejectUnauthorized: false, // Disables strict SSL, bypassing self-signed certificates
+        user: 'olshco.electionupdates@gmail.com', 
+        pass: 'nxgb fqoh qkxk svjs', 
     },
 });
 
 const sendVerificationEmail = (email, token) => {
     const mailOptions = {
-        from: 'travications@gmail.com',
+        from: 'olshco.electionupdates@gmail.com',
         to: email,
         subject: 'Password Reset Verification Token',
         text: `Your password reset token is: ${token}`,
@@ -146,12 +143,12 @@ app.post("/login", async (req, res) => {
         let user = await collection.findOne({ email: email });
 
         if (!user) {
-            return res.status(400).json({ error: 'The specified user cannot be found.' });
+            return res.status(400).json({ error: 'User does not exist' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ error: 'The entered username or password does not match our records.' });
+            return res.status(400).json({ error: 'Invalid username or password' });
         }
 
         if (user.role === 'admin') {
@@ -161,14 +158,14 @@ app.post("/login", async (req, res) => {
             return res.json("admin exist");
         } else {
             if (user.status === 'decline') {
-                return res.status(403).json({ error: 'Access has been declined for this user login attempt.' });
+                return res.status(403).json({ error: 'User login declined' });
             } else if (user.status === 'approved') {
                 req.session.userId = user._id;
                 req.session.role = user.role;
                 req.session.user = user;
                 return res.json("exist");
             } else {
-                return res.status(403).json({ error: 'The user account has not been activated pending approval.' });
+                return res.status(403).json({ error: 'User not approved yet' });
             }
         }
     } catch (e) {
@@ -452,7 +449,7 @@ const otpStore = {};
 // Function to send the OTP email
 const sendOTPEmail = async (email, otp) => {
     const mailOptions = {
-        from: 'travications@gmail.com',
+        from: 'olshco.electionupdates@gmail.com',
         to: email,
         subject: 'Your OTP for Login',
         text: `Your OTP is: ${otp}. It is valid for 5 minutes.`,
