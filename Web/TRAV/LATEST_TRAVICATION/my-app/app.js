@@ -550,6 +550,101 @@ app.post('/send-email', async (req, res) => {
     });
 });
 
+app.get('/proxy-image', async (req, res) => {
+    const imageUrl = req.query.url;
+    try {
+      const response = await axios.get(imageUrl, { responseType: 'arraybuffer' });
+      res.set('Content-Type', 'image/png');
+      res.send(response.data);
+    } catch (error) {
+      res.status(500).send('Error fetching the image');
+    }
+});
+
+
+app.post('/api/verify-otp', async (req, res) => {
+    const { email, otp } = req.body;
+
+    try {
+        const otpRecord = await Otp.findOne({ email });
+
+        if (!otpRecord) {
+            return res.status(400).json({ success: false, message: 'OTP not found' });
+        }
+
+        if (otpRecord.otp !== otp) {
+            return res.status(400).json({ success: false, message: 'Invalid OTP' });
+        }
+
+        const now = new Date();
+        if (now - otpRecord.createdAt > 5 * 60 * 1000) { // 5 minutes expiration
+            return res.status(400).json({ success: false, message: 'OTP expired' });
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error verifying OTP:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+});
+
+
+app.post('/api/reset-password', async (req, res) => {
+    const { email, newPassword } = req.body;
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+
+        user.password = await bcryptjs.hash(newPassword, saltRounds);
+        await user.save();
+
+        res.status(200).json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Failed to reset password:', error);
+        res.status(500).json({ message: 'Failed to reset password' });
+    }
+});
+
+
+const API_KEY = 'AIzaSyBEcu_p865o6zGHCcA9oDlKl04xeFCBaIs';
+app.get('/directions', async (req, res) => {
+    const { origin, destination } = req.query;
+    const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=driving&key=${API_KEY}`;
+
+    try {
+        const response = await axios.get(url);
+        res.json(response.data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error fetching directions');
+    }
+});
+
+
+app.get('/searchTouristSpots', async (req, res) => {
+    try {
+      const query = req.query.query.toLowerCase(); // Get the query parameter
+  
+      // Fetch tourist spots that match the search query
+      const spots = await collection2.find({
+        destionationName: { $regex: query, $options: 'i' }, // Case-insensitive search
+        city: { $regex: query, $options: 'i' }, // Case-insensitive search
+      });
+  
+      // Respond with the found spots
+      res.json(spots);
+    } catch (error) {
+      console.error('Error fetching tourist spots:', error);
+      res.status(500).json({ error: 'Failed to load tourist spots' });
+    }
+  });
+
+
 app.listen(4000, ()=>{
     console.log("port connected")
 })
