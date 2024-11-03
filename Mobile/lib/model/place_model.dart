@@ -70,7 +70,7 @@ class PlaceInfo {
 // Function to fetch places from the API
 Future<List<PlaceInfo>> fetchDestinations() async {
   final response = await http
-      .get(Uri.parse('https://travication-backend.onrender.com/api/places'));
+      .get(Uri.parse('https://travication-backend.onrender.com/places'));
   print(
       "API Response: ${response.body}"); // Add this line to see the raw response
 

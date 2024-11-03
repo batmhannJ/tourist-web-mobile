@@ -9,24 +9,27 @@ class MapPage extends StatefulWidget {
   final double destinationLat;
   final double destinationLong;
 
-  const MapPage(
-      {Key? key, required this.destinationLat, required this.destinationLong})
-      : super(key: key);
+  const MapPage({
+    Key? key,
+    required this.destinationLat,
+    required this.destinationLong,
+  }) : super(key: key);
 
   @override
   State<MapPage> createState() => _MapPageState();
 }
 
 class _MapPageState extends State<MapPage> {
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
   final List<Marker> _markers = [];
   LatLng? _userLocation;
   final Set<Polyline> _polylines = {};
   final PolylinePoints polylinePoints = PolylinePoints();
 
-  String distance = ''; // State variable for distance
-  String duration = ''; // State variable for duration
-  String summary = ''; // State variable for route summary
+  String distance = '';
+  String duration = '';
+  String summary = '';
+
   @override
   void initState() {
     super.initState();
@@ -52,36 +55,24 @@ class _MapPageState extends State<MapPage> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('API response: $data');
 
         if (data['routes'] != null && data['routes'].isNotEmpty) {
           final route = data['routes'][0];
           final legs = route['legs'][0];
 
-          // 1. Distance and Duration
           setState(() {
-            distance = legs['distance']['text']; // Update distance state
-            duration = legs['duration']['text']; // Update duration state
-            summary = route['summary']; // Update route summary state
+            distance = legs['distance']['text'];
+            duration = legs['duration']['text'];
+            summary = route['summary'];
           });
 
-          // 2. Polyline
           final String encodedPolyline = route['overview_polyline']['points'];
           if (encodedPolyline.isNotEmpty) {
-            try {
-              List<PointLatLng> result =
-                  polylinePoints.decodePolyline(encodedPolyline);
-              print('Decoded polyline points: ${result.length}');
-              if (result.isNotEmpty) {
-                displayRoute(result);
-              } else {
-                print('Decoded polyline is empty.');
-              }
-            } catch (e) {
-              print('Error decoding polyline: $e');
+            List<PointLatLng> result =
+                polylinePoints.decodePolyline(encodedPolyline);
+            if (result.isNotEmpty) {
+              displayRoute(result);
             }
-          } else {
-            print('Encoded polyline is empty or null.');
           }
         } else {
           print('No routes found in the response.');
@@ -95,10 +86,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   void displayRoute(List<PointLatLng> points) {
-    if (points.isEmpty) {
-      print('No points found for polyline.');
-      return;
-    }
+    if (points.isEmpty) return;
 
     List<LatLng> routePoints =
         points.map((point) => LatLng(point.latitude, point.longitude)).toList();
@@ -106,90 +94,86 @@ class _MapPageState extends State<MapPage> {
     setState(() {
       _polylines.add(
         Polyline(
-          polylineId: PolylineId('route'),
+          polylineId: const PolylineId('route'),
           points: routePoints,
           color: Colors.blue,
           width: 5,
         ),
       );
-
-      print('Polyline added with ${routePoints.length} points.');
     });
   }
 
   Future<void> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        throw 'Location services are disabled.';
       }
-    }
 
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are permanently denied');
-    }
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          throw 'Location permissions are denied';
+        }
+      }
 
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+      if (permission == LocationPermission.deniedForever) {
+        throw 'Location permissions are permanently denied';
+      }
 
-    setState(() {
-      _userLocation = LatLng(position.latitude, position.longitude);
+      Position position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.high);
 
-      // Add user and destination markers
-      _markers.add(
-        Marker(
+      setState(() {
+        _userLocation = LatLng(position.latitude, position.longitude);
+
+        _markers.add(Marker(
           markerId: const MarkerId('userLocation'),
           position: _userLocation!,
           infoWindow: const InfoWindow(title: 'Your Location'),
-        ),
-      );
+        ));
 
-      _markers.add(
-        Marker(
+        _markers.add(Marker(
           markerId: const MarkerId('destination'),
           position: LatLng(widget.destinationLat, widget.destinationLong),
           infoWindow: const InfoWindow(title: 'Destination'),
-        ),
-      );
+        ));
+      });
 
-      // Move the camera to show both markers
-      if (_userLocation != null) {
-        mapController.animateCamera(
-          CameraUpdate.newLatLngBounds(
-            LatLngBounds(
-              southwest: LatLng(
-                widget.destinationLat < _userLocation!.latitude
-                    ? widget.destinationLat
-                    : _userLocation!.latitude,
-                widget.destinationLong < _userLocation!.longitude
-                    ? widget.destinationLong
-                    : _userLocation!.longitude,
-              ),
-              northeast: LatLng(
-                widget.destinationLat > _userLocation!.latitude
-                    ? widget.destinationLat
-                    : _userLocation!.latitude,
-                widget.destinationLong > _userLocation!.longitude
-                    ? widget.destinationLong
-                    : _userLocation!.longitude,
-              ),
-            ),
-            100,
+      _moveCameraToBounds();
+      fetchRoute();
+    } catch (e) {
+      print('Error determining position: $e');
+    }
+  }
+
+  void _moveCameraToBounds() {
+    if (mapController == null || _userLocation == null) return;
+
+    mapController!.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(
+            widget.destinationLat < _userLocation!.latitude
+                ? widget.destinationLat
+                : _userLocation!.latitude,
+            widget.destinationLong < _userLocation!.longitude
+                ? widget.destinationLong
+                : _userLocation!.longitude,
           ),
-        );
-
-        fetchRoute();
-      }
-    });
+          northeast: LatLng(
+            widget.destinationLat > _userLocation!.latitude
+                ? widget.destinationLat
+                : _userLocation!.latitude,
+            widget.destinationLong > _userLocation!.longitude
+                ? widget.destinationLong
+                : _userLocation!.longitude,
+          ),
+        ),
+        100,
+      ),
+    );
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -209,7 +193,6 @@ class _MapPageState extends State<MapPage> {
             padding: const EdgeInsets.all(8.0),
             child: Column(
               children: [
-                // Display Distance, Duration, and Route Summary
                 Text('Distance: $distance'),
                 Text('Duration: $duration'),
                 Text('Route Summary: $summary'),

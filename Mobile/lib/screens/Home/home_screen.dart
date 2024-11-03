@@ -67,8 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<PlaceInfo>> fetchDestinations() async {
     try {
-      final response = await http.get(
-          Uri.parse('https://travication-backend.onrender.com/api/places'));
+      final response = await http
+          .get(Uri.parse('https://travication-backend.onrender.com/places'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
