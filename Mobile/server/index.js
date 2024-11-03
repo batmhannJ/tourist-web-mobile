@@ -9,7 +9,7 @@ const Otp = require('./model/otp');
 const collection2 = require('./model/place');
 const nodemailer = require('nodemailer');
 const User = require('./model/user');
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 const saltRounds = 10;
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -131,7 +131,7 @@ app.post('/api/reset-password', async (req, res) => {
         }
 
 
-        user.password = await bcrypt.hash(newPassword, saltRounds);
+        user.password = await bcryptjs.hash(newPassword, saltRounds);
         await user.save();
 
         res.status(200).json({ message: 'Password reset successful' });
