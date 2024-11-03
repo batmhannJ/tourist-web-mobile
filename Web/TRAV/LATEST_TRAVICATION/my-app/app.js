@@ -718,6 +718,25 @@ app.put("/api/update-user", async (req, res) => {
     }
 });
 
+app.get("/markers", async (req, res) => {
+    try {
+      const markers = await Marker.find({});
+      res.json(markers);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  app.get("/places", async (req, res) => {
+    try {
+        const places = await collection2.find(); // Fetch all places from MongoDB
+        res.json(places); // Send the places as a JSON response
+    } catch (error) {
+        console.error("Error fetching places:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
 app.listen(4000, ()=>{
     console.log("port connected")
 })

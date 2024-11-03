@@ -86,4 +86,14 @@ const otpSchema = new mongoose.Schema({
 
 const Otp = mongoose.model('Otp', otpSchema);
 
-module.exports = { collection, collection2, Search, Otp};
+const markerSchema = new mongoose.Schema({
+    destinationName: String,
+    latitude: Number,
+    longitude: Number,
+    description: String,
+    destinationType: String
+  });
+  
+  const Marker = mongoose.model("locationcollections", markerSchema);
+
+module.exports = { collection, collection2, Search, Otp, Marker};
