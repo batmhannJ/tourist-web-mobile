@@ -11,13 +11,10 @@ export const AuthProvider = ({ children }) => {
     const checkAuthStatus = async () => {
         try {
             // Determine the API URL based on the environment
-            const apiURL =
-                process.env.NODE_ENV === 'production'
-                    ? 'https://travication-backend.onrender.com/check-session'
-                    : 'https://travication-backend.onrender.com/check-session';
+            const response = await axios.get('https://travications-backend/check-session', { withCredentials: true });
 
             // Use the apiURL for the request
-            const response = await axios.get(apiURL, { withCredentials: true });
+            //const response = await axios.get(apiURL, { withCredentials: true });
             console.log("API Response:", response); // Debugging line
 
             if (response.status === 200 && response.data.user) {
