@@ -89,8 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
           if (dbImagePath != null && dbImagePath.isNotEmpty) {
             // Construct the correct image URL
-            String imageUrl =
-                'http://localhost:4000/' + dbImagePath.replaceAll('\\', '/');
+            String imageUrl = 'https://travication-backend.onrender.com/' +
+                dbImagePath.replaceAll('\\', '/');
             print('Image URL: $imageUrl');
 
             places.add(PlaceInfo(

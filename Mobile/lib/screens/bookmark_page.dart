@@ -17,8 +17,18 @@ class _Bookmark extends State<Bookmark> {
   String? _selectedMonth;
 
   List<String> months = [
-    "January", "February", "March", "April", "May", "June", 
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December"
   ];
 
   @override
@@ -51,7 +61,8 @@ class _Bookmark extends State<Bookmark> {
     if (filteredPlaces.isEmpty) {
       return const Padding(
         padding: EdgeInsets.all(16.0),
-        child: Text("No tourist spots found for this month.", style: TextStyle(fontSize: 18)),
+        child: Text("No tourist spots found for this month.",
+            style: TextStyle(fontSize: 18)),
       );
     }
 
@@ -61,8 +72,9 @@ class _Bookmark extends State<Bookmark> {
       itemCount: filteredPlaces.length,
       itemBuilder: (context, index) {
         String? dbImagePath = filteredPlaces[index].image;
-        String imageUrl = (dbImagePath != null && dbImagePath.isNotEmpty) 
-            ? 'http://localhost:4000/' + dbImagePath.replaceAll('\\', '/') 
+        String imageUrl = (dbImagePath != null && dbImagePath.isNotEmpty)
+            ? 'https://travication-backend.onrender.com/' +
+                dbImagePath.replaceAll('\\', '/')
             : 'assets/images/tagtay.jpg';
 
         return Padding(
@@ -93,7 +105,8 @@ class _Bookmark extends State<Bookmark> {
               ),
               title: Text(
                 filteredPlaces[index].destinationName,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,9 +163,12 @@ class _Bookmark extends State<Bookmark> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.calendar_today, color: Colors.blue), // Add a calendar icon
+                  Icon(Icons.calendar_today,
+                      color: Colors.blue), // Add a calendar icon
                   const SizedBox(height: 8),
-                  Text(months[index], style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  Text(months[index],
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w500)),
                 ],
               ),
             ),

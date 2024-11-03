@@ -9,7 +9,9 @@ class MapPage extends StatefulWidget {
   final double destinationLat;
   final double destinationLong;
 
-  const MapPage({Key? key, required this.destinationLat, required this.destinationLong}) : super(key: key);
+  const MapPage(
+      {Key? key, required this.destinationLat, required this.destinationLong})
+      : super(key: key);
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -20,7 +22,7 @@ class _MapPageState extends State<MapPage> {
   final List<Marker> _markers = [];
   LatLng? _userLocation;
   final Set<Polyline> _polylines = {};
-final PolylinePoints polylinePoints = PolylinePoints();
+  final PolylinePoints polylinePoints = PolylinePoints();
 
   String distance = ''; // State variable for distance
   String duration = ''; // State variable for duration
@@ -32,63 +34,65 @@ final PolylinePoints polylinePoints = PolylinePoints();
   }
 
   Future<void> fetchRoute() async {
-  if (_userLocation == null) {
-    print('User location is not available');
-    return;
-  }
+    if (_userLocation == null) {
+      print('User location is not available');
+      return;
+    }
 
-  final double startLat = _userLocation!.latitude;
-  final double startLon = _userLocation!.longitude;
-  final double endLat = widget.destinationLat;
-  final double endLon = widget.destinationLong;
+    final double startLat = _userLocation!.latitude;
+    final double startLon = _userLocation!.longitude;
+    final double endLat = widget.destinationLat;
+    final double endLon = widget.destinationLong;
 
-  final String url = 'http://localhost:3000/directions?origin=$startLat,$startLon&destination=$endLat,$endLon';
+    final String url =
+        'https://travication-backend.onrender.com/directions?origin=$startLat,$startLon&destination=$endLat,$endLon';
 
-  try {
-    final response = await http.get(Uri.parse(url));
+    try {
+      final response = await http.get(Uri.parse(url));
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      print('API response: $data');
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        print('API response: $data');
 
-      if (data['routes'] != null && data['routes'].isNotEmpty) {
-        final route = data['routes'][0];
-        final legs = route['legs'][0];
+        if (data['routes'] != null && data['routes'].isNotEmpty) {
+          final route = data['routes'][0];
+          final legs = route['legs'][0];
 
-        // 1. Distance and Duration
-        setState(() {
-          distance = legs['distance']['text'];  // Update distance state
-          duration = legs['duration']['text'];  // Update duration state
-          summary = route['summary'];           // Update route summary state
-        });
+          // 1. Distance and Duration
+          setState(() {
+            distance = legs['distance']['text']; // Update distance state
+            duration = legs['duration']['text']; // Update duration state
+            summary = route['summary']; // Update route summary state
+          });
 
-        // 2. Polyline
-        final String encodedPolyline = route['overview_polyline']['points'];
-        if (encodedPolyline.isNotEmpty) {
-          try {
-            List<PointLatLng> result = polylinePoints.decodePolyline(encodedPolyline);
-            print('Decoded polyline points: ${result.length}');
-            if (result.isNotEmpty) {
-              displayRoute(result);
-            } else {
-              print('Decoded polyline is empty.');
+          // 2. Polyline
+          final String encodedPolyline = route['overview_polyline']['points'];
+          if (encodedPolyline.isNotEmpty) {
+            try {
+              List<PointLatLng> result =
+                  polylinePoints.decodePolyline(encodedPolyline);
+              print('Decoded polyline points: ${result.length}');
+              if (result.isNotEmpty) {
+                displayRoute(result);
+              } else {
+                print('Decoded polyline is empty.');
+              }
+            } catch (e) {
+              print('Error decoding polyline: $e');
             }
-          } catch (e) {
-            print('Error decoding polyline: $e');
+          } else {
+            print('Encoded polyline is empty or null.');
           }
         } else {
-          print('Encoded polyline is empty or null.');
+          print('No routes found in the response.');
         }
       } else {
-        print('No routes found in the response.');
+        print('Failed to load route: ${response.statusCode}');
       }
-    } else {
-      print('Failed to load route: ${response.statusCode}');
+    } catch (e) {
+      print('Error fetching route: $e');
     }
-  } catch (e) {
-    print('Error fetching route: $e');
   }
-}
 
   void displayRoute(List<PointLatLng> points) {
     if (points.isEmpty) {
@@ -96,7 +100,8 @@ final PolylinePoints polylinePoints = PolylinePoints();
       return;
     }
 
-    List<LatLng> routePoints = points.map((point) => LatLng(point.latitude, point.longitude)).toList();
+    List<LatLng> routePoints =
+        points.map((point) => LatLng(point.latitude, point.longitude)).toList();
 
     setState(() {
       _polylines.add(
@@ -133,7 +138,8 @@ final PolylinePoints polylinePoints = PolylinePoints();
       return Future.error('Location permissions are permanently denied');
     }
 
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
 
     setState(() {
       _userLocation = LatLng(position.latitude, position.longitude);
@@ -161,12 +167,20 @@ final PolylinePoints polylinePoints = PolylinePoints();
           CameraUpdate.newLatLngBounds(
             LatLngBounds(
               southwest: LatLng(
-                widget.destinationLat < _userLocation!.latitude ? widget.destinationLat : _userLocation!.latitude,
-                widget.destinationLong < _userLocation!.longitude ? widget.destinationLong : _userLocation!.longitude,
+                widget.destinationLat < _userLocation!.latitude
+                    ? widget.destinationLat
+                    : _userLocation!.latitude,
+                widget.destinationLong < _userLocation!.longitude
+                    ? widget.destinationLong
+                    : _userLocation!.longitude,
               ),
               northeast: LatLng(
-                widget.destinationLat > _userLocation!.latitude ? widget.destinationLat : _userLocation!.latitude,
-                widget.destinationLong > _userLocation!.longitude ? widget.destinationLong : _userLocation!.longitude,
+                widget.destinationLat > _userLocation!.latitude
+                    ? widget.destinationLat
+                    : _userLocation!.latitude,
+                widget.destinationLong > _userLocation!.longitude
+                    ? widget.destinationLong
+                    : _userLocation!.longitude,
               ),
             ),
             100,
@@ -182,40 +196,39 @@ final PolylinePoints polylinePoints = PolylinePoints();
     mapController = controller;
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Map with Route'),
-      backgroundColor: Colors.green[700],
-    ),
-    body: Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              // Display Distance, Duration, and Route Summary
-              Text('Distance: $distance'),
-              Text('Duration: $duration'),
-              Text('Route Summary: $summary'),
-            ],
-          ),
-        ),
-        Expanded(
-          child: GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: const CameraPosition(
-              target: LatLng(14.5995, 120.9842),
-              zoom: 7,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Map with Route'),
+        backgroundColor: Colors.green[700],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                // Display Distance, Duration, and Route Summary
+                Text('Distance: $distance'),
+                Text('Duration: $duration'),
+                Text('Route Summary: $summary'),
+              ],
             ),
-            markers: Set<Marker>.of(_markers),
-            polylines: _polylines,
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+          Expanded(
+            child: GoogleMap(
+              onMapCreated: _onMapCreated,
+              initialCameraPosition: const CameraPosition(
+                target: LatLng(14.5995, 120.9842),
+                zoom: 7,
+              ),
+              markers: Set<Marker>.of(_markers),
+              polylines: _polylines,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

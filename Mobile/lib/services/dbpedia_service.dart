@@ -3,8 +3,9 @@ import 'package:http/http.dart' as http;
 
 // DBpediaService class
 class DBpediaService {
-   final String proxyServerUrl = 'http://localhost:3000/proxy-image?url=';
- Future<List<dynamic>> fetchTouristSpots(String query) async {
+  final String proxyServerUrl =
+      'https://travication-backend.onrender.com/proxy-image?url=';
+  Future<List<dynamic>> fetchTouristSpots(String query) async {
     try {
       const String sparqlQuery = '''
       PREFIX dbo: <http://dbpedia.org/ontology/>
@@ -45,7 +46,9 @@ class DBpediaService {
 
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
-        if (jsonResponse == null || jsonResponse['results'] == null || jsonResponse['results']['bindings'] == null) {
+        if (jsonResponse == null ||
+            jsonResponse['results'] == null ||
+            jsonResponse['results']['bindings'] == null) {
           print("No valid results found in response.");
           return [];
         }
@@ -61,12 +64,15 @@ class DBpediaService {
           String placeName = result['placeLabel']['value'];
 
           // Use the proxy URL to fetch the image
-          String proxyImageUrl = imageUrl != null ? '$proxyServerUrl$imageUrl' : 'No image available';
+          String proxyImageUrl = imageUrl != null
+              ? '$proxyServerUrl$imageUrl'
+              : 'No image available';
 
           return {
             'place': result['place']['value'],
             'name': placeName,
-            'description': result['abstract']?['value'] ?? 'No description available',
+            'description':
+                result['abstract']?['value'] ?? 'No description available',
             'imageUrl': proxyImageUrl,
             'lat': result['lat']['value'],
             'long': result['long']['value'],
