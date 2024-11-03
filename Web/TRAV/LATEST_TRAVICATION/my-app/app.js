@@ -525,6 +525,31 @@ app.post("/verify-otp", async (req, res) => {
 });
 
 
+app.post('/send-email', async (req, res) => {
+    const { to } = req.body;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    await Otp.findOneAndUpdate(
+        { email: to },
+        { otp, createdAt: new Date() },
+        { upsert: true }
+    );
+
+    const mailOptions = {
+        from: 'travications@gmail.com',
+        to: to,
+        subject: 'Your OTP Code',
+        text: `Your OTP is ${otp}. It is valid for 5 minutes.`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return res.status(500).send('Error sending email: ' + error.toString());
+        }
+        res.status(200).send('OTP sent successfully');
+    });
+});
+
 app.listen(4000, ()=>{
     console.log("port connected")
 })
