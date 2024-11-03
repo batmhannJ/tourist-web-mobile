@@ -22,10 +22,7 @@ function App() {
       <div className="App">
         <Routes>
           <Route path="/" element={<Login />} />
-
-          <Route element={<ProtectedRoute />}>
             <Route path="/home" element={<Home />} />
-          </Route>
 
           <Route element={<ProtectedRoute />}>
             <Route path="/managerhome" element={<ManagerHome />} />

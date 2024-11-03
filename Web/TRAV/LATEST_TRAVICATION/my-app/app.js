@@ -45,9 +45,6 @@ app.use(session({
     } // 3 hours
 }));
 
-if (process.env.NODE_ENV === 'production') {
-    console.log('App is running in production');
-}
 
 app.get('/check-session', (req, res) => {
     console.log(req.session); // Log session details
