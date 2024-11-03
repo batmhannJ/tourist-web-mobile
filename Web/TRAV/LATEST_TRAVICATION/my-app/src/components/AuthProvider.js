@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
     const checkAuthStatus = async () => {
         try {
             // Determine the API URL based on the environment
-            const response = await axios.get('https://travications-backend/check-session', { withCredentials: true });
+            const response = await axios.get('https://travication-backend/check-session', { withCredentials: true });
 
             // Use the apiURL for the request
             //const response = await axios.get(apiURL, { withCredentials: true });
