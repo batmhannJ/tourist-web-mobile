@@ -67,8 +67,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<List<PlaceInfo>> fetchDestinations() async {
     try {
-      final response =
-          await http.get(Uri.parse('http://localhost:3000/api/places'));
+      final response = await http.get(
+          Uri.parse('https://travication-backend.onrender.com/api/places'));
 
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
@@ -85,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // Correctly format the image URL
           String dbImagePath = item['image']; // From the database
-//String imageUrl = 'http://localhost:3000/${dbImagePath.replaceAll('\\', '/')}';  // Replace Windows-style backslashes
+//String imageUrl = 'https://travication-backend.onrender.com/${dbImagePath.replaceAll('\\', '/')}';  // Replace Windows-style backslashes
 
           if (dbImagePath != null && dbImagePath.isNotEmpty) {
             // Construct the correct image URL
@@ -182,7 +182,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> logSearch(String searchTerm) async {
     final response = await http.post(
-      Uri.parse('http://localhost:3000/logSearch'),
+      Uri.parse('https://travication-backend.onrender.com/logSearch'),
       body: {'searchTerm': searchTerm},
     );
 
@@ -196,7 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> updateMostSearchedCategories(String query) async {
     final response = await http.post(
       Uri.parse(
-          'http://localhost:3000/logSearch'), // Update this to your API URL
+          'https://travication-backend.onrender.com/logSearch'), // Update this to your API URL
       headers: {'Content-Type': 'application/json'},
       body: json.encode({'searchTerm': query}),
     );
@@ -209,8 +209,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<dynamic>> fetchMostSearchedCategories() async {
-    final response =
-        await http.get(Uri.parse('http://localhost:3000/mostSearched'));
+    final response = await http.get(
+        Uri.parse('https://travication-backend.onrender.com/mostSearched'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
