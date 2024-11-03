@@ -177,7 +177,10 @@ class _MapPageState extends State<MapPage> {
   }
 
   void _onMapCreated(GoogleMapController controller) {
-    mapController = controller;
+    if (mapController == null) {
+      mapController = controller;
+      _moveCameraToBounds(); // Adjusts the camera only after initializing
+    }
   }
 
   @override
