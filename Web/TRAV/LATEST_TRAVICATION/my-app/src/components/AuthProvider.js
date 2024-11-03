@@ -18,6 +18,8 @@ export const AuthProvider = ({ children }) => {
 
             // Use the apiURL for the request
             const response = await axios.get(apiURL, { withCredentials: true });
+            console.log("API Response:", response); // Debugging line
+
             if (response.status === 200 && response.data.user) {
                 setIsAuthenticated(true);
             } else {
