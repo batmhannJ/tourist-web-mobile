@@ -195,9 +195,9 @@ function LoginData() {
                 <p>Don't have an account?</p>
                 <Link to="/signup">Signup Page</Link>
             </div>
-            <style>{`
-                
-
+            <style>
+{`
+/* General Styles */
 .header-container {
     display: flex;
     align-items: center;
@@ -207,100 +207,107 @@ function LoginData() {
     top: 30px;
     left: 50%;
     transform: translateX(-50%);
+    padding: 0 10px;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .logo {
-    height: 60px; /* Logo size */
-    margin-right: 10px; /* Reduced space between logo and text */
+    height: 60px;
+    margin-right: 10px;
     width: auto;
 }
 
 .main-title {
-    font-size: 40px; /* Large title */
+    font-size: 40px;
     font-weight: bold;
-    color: #1f4b99; /* Dark blue title */
+    color: #1f4b99;
 }
 
 .sub-title {
     font-size: 22px;
     font-weight: 500;
-    color: #3f7cfb; /* Lighter blue subtitle */
+    color: #3f7cfb;
 }
 
 .text {
-    font-size: 30px; /* Adjust font size as needed */
-    font-weight: bold; /* Make the text bold */
-    color: #1f4b99; /* Text color */
-    text-align: center; /* Center the text */
+    font-size: 30px;
+    font-weight: bold;
+    color: #1f4b99;
+    text-align: center;
     margin-top: 5px;
 }
 
 .underline {
-    width: 100%; /* Full width */
-    height: 1px; /* Height of the underline */
-    background-color: #3f7cfb; /* Underline color */
-    margin: 0 auto; /* Center the underline */
-    max-width: 300px; /* Max width to limit size */
+    width: 100%;
+    height: 1px;
+    background-color: #3f7cfb;
+    margin: 0 auto;
+    max-width: 300px;
 }
 
 .login-text {
-    font-size: 12px; /* Adjust this value to make text smaller */
+    font-size: 12px;
     font-weight: normal;
-    color: #555; /* Gray login text */
-    margin: 0; /* Ensure no extra margin */
-    text-align: center; /* Center the text */
+    color: #555;
+    margin: 0;
+    text-align: center;
 }
 
 .email-icon {
-    height: 24px; /* Set the desired height of the icon */
-    width: auto; /* Maintain aspect ratio */
-    margin-right: 10px; /* Space between icon and adjacent text/input */
-    transition: transform 0.2s ease; /* Smooth transition for hover effect */
+    height: 24px;
+    width: auto;
+    margin-right: 10px;
+    transition: transform 0.2s ease;
 }
 
-/* Optional: Hover effect */
 .email-icon:hover {
-    transform: scale(1.1); /* Slightly enlarge the icon on hover */
+    transform: scale(1.1);
 }
 
 .login-container {
     position: relative;
     z-index: 1;
-    background: #fff; /* White background */
+    background: #fff;
     padding: 20px;
     border-radius: 15px;
-    margin-left: 480px;
-    margin-top: 170px; /* Adjusted margin for upward movement */
-    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1); /* Shadow for depth */
-    width: 100%; /* Adjusted width */
-    max-width: 500px; /* Maximum width */
-    box-sizing: border-box; /* Include padding and border in element's total width and height */
+    margin: auto;
+    margin-top: 170px;
+    box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    box-sizing: border-box;
 }
 
-/* Input Fields */
+/* Apply zero margin-bottom to input elements */
 .input {
     display: flex;
     align-items: center;
-    margin-bottom: 5; /* Space between input fields */
+    margin-bottom: 0; /* Ensure no extra space is added */
     background-color: #f9f9f9;
     border-radius: 8px;
-    padding: 5px 10px; /* Increased padding for better touch */
-    box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.1); /* Inner shadow */
+    padding: 5px 10px;
+    box-shadow: inset 0px 2px 5px rgba(0, 0, 0, 0.1);
     border: 1px solid #ddd;
     transition: border 0.3s ease;
     width: 100%;
     height: 50px;
-    box-sizing: border-box; /* Ensure padding is part of width */
+    box-sizing: border-box;
+}
+
+/* Set specific spacing between each input within the login container */
+.login-container .input + .input {
+    margin-top: 8px; /* Reduced gap between input fields */
 }
 
 .input img {
-    height: 24px; /* Icon size */
-    margin-right: 10px; /* Space between icon and input */
+    height: 24px;
+    margin-right: 10px;
 }
 
 .input input {
-    width: 100%; /* Full width for input */
-    padding: 8px; /* Padding inside input */
+    width: 100%;
+    padding: 8px;
     font-size: 16px;
     border: none;
     background: transparent;
@@ -309,12 +316,12 @@ function LoginData() {
 }
 
 .input:focus-within {
-    border-color: #3f7cfb; /* Blue border on focus */
+    border-color: #3f7cfb;
 }
 
 .forgot-password {
-    margin-top:10px;
-    margin-left: auto; /* Aligns to the right */
+    margin-top: 10px;
+    margin-left: auto;
     font-size: 14px;
 }
 
@@ -332,37 +339,114 @@ function LoginData() {
     width: 100%;
     background-color: #3f7cfb;
     color: white;
-    padding: 10px; /* Padding for button */
+    padding: 10px;
     border: none;
     border-radius: 8px;
     font-size: 18px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     box-sizing: border-box;
-    margin-top: 10px; /* Space above the button */
+    margin-top: 10px;
 }
 
 .submit:hover {
-    background-color: #1f4b99; /* Darker shade on hover */
+    background-color: #1f4b99;
 }
 
 .signup-link {
-    display: inline-block; /* Makes the link behave like a button */
-    padding: 10px 20px; /* Padding for spacing */
-    background-color: #3f7cfb; /* Background color */
-    color: white; /* Text color */
-    border-radius: 8px; /* Rounded corners */
-    font-size: 16px; /* Font size */
-    text-decoration: none; /* Removes underline */
-    text-align: center; /* Center the text */
-    transition: background-color 0.3s ease; /* Smooth transition on hover */
-    margin-top: 10px; /* Margin on top */
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #3f7cfb;
+    color: white;
+    border-radius: 8px;
+    font-size: 16px;
+    text-decoration: none;
+    text-align: center;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
 }
 
 .signup-link:hover {
-    background-color: #1f4b99; /* Darker shade on hover */
+    background-color: #1f4b99;
 }
-            `}</style>
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        top: 20px;
+    }
+
+    .main-title {
+        font-size: 30px;
+    }
+
+    .sub-title {
+        font-size: 18px;
+    }
+
+    .text {
+        font-size: 24px;
+    }
+
+    .login-container {
+        margin-top: 100px;
+        padding: 15px;
+        width: 95%;
+    }
+
+    .input {
+        height: 45px;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        padding: 5px;
+    }
+
+    .logo {
+        height: 50px;
+        margin: 0 auto 5px;
+    }
+
+    .main-title {
+        font-size: 24px;
+    }
+
+    .sub-title {
+        font-size: 16px;
+    }
+
+    .text {
+        font-size: 20px;
+    }
+
+    .login-container {
+        margin-top: 70px;
+        padding: 10px;
+        width: 100%;
+    }
+
+    .input {
+        height: 40px;
+        padding: 4px 8px;
+    }
+
+    .submit {
+        font-size: 16px;
+        padding: 8px;
+    }
+
+    .signup-link {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+}
+`}
+</style>
+
+
         </div>
     );
 }
