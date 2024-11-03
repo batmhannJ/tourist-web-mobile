@@ -59,42 +59,6 @@ function ManageLocations() {
         return lat >= latMin && lat <= latMax && lon >= lonMin && lon <= lonMax;
     };
 
-    const handleAddLocation = async () => {
-        const lat = parseFloat(newLocation.latitude);
-        const lon = parseFloat(newLocation.longitude);
-
-        if (!newLocation.city || !newLocation.destinationName || !newLocation.latitude || !newLocation.longitude || !newLocation.description || !selectedImage) {
-            alert("Please fill all fields and select an image");
-            return;
-        }
-
-        // Validate latitude and longitude
-        if (!isWithinBoundary(lat, lon)) {
-            alert(`Latitude must be between ${cityData[selectedCity].latitude.min} and ${cityData[selectedCity].latitude.max}, and Longitude must be between ${cityData[selectedCity].longitude.min} and ${cityData[selectedCity].longitude.max}.`);
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append("city", newLocation.city);
-        formData.append("destinationName", newLocation.destinationName);
-        formData.append("latitude", newLocation.latitude);
-        formData.append("longitude", newLocation.longitude);
-        formData.append("description", newLocation.description);
-        formData.append("image", selectedImage);
-
-        try {
-            await axios.post("https://travication-backend.onrender.com/addlocation", formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            alert("Location added successfully.");
-            window.location.reload();
-        } catch (e) {
-            alert("Location add error");
-        }
-    };
-
     const handleEditLocation = (index) => {
         setEditingLocation(index);
         setNewLocation({ ...locations[index] });
@@ -153,7 +117,7 @@ function ManageLocations() {
 
     const handleDeleteManager = async (id, index) => {
         const confirmDelete = window.confirm("Are you sure you want to delete this?");
-        if(confirmDelete){
+        if (confirmDelete) {
             try {
                 await axios.delete(`https://travication-backend.onrender.com/deletelocation/${id}`);
                 const updatedLocations = [...locations];
@@ -171,86 +135,79 @@ function ManageLocations() {
         <div className="form-container">
             <h1>Manage Locations</h1>
             <div className="location-fields">
-            <div className="form-container">
-    <form>
-        {/* City Selection */}
-        <div className="field-group">
-            <label htmlFor="city">City:</label>
-            <select id="city" value={selectedCity} onChange={handleCityChange}>
-                <option value="">Select City</option>
-                {Object.keys(cityData).map((city) => (
-                    <option key={city} value={city}>
-                        {city}
-                    </option>
-                ))}
-            </select>
-        </div>
+                <div className="form-container">
+                    <form>
+                        {/* City Selection */}
+                        <div className="field-group">
+                            <label htmlFor="city">City:</label>
+                            <select id="city" value={selectedCity} onChange={handleCityChange}>
+                                <option value="">Select City</option>
+                                {Object.keys(cityData).map((city) => (
+                                    <option key={city} value={city}>
+                                        {city}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-        {/* Destination Name */}
-        <div className="field-group">
-            <label htmlFor="destinationName">Destination Name:</label>
-            <input
-                id="destinationName"
-                type="text"
-                value={newLocation.destinationName}
-                onChange={(e) => setNewLocation({ ...newLocation, destinationName: e.target.value })}
-            />
-        </div>
+                        {/* Destination Name */}
+                        <div className="field-group">
+                            <label htmlFor="destinationName">Destination Name:</label>
+                            <input
+                                id="destinationName"
+                                type="text"
+                                value={newLocation.destinationName}
+                                onChange={(e) => setNewLocation({ ...newLocation, destinationName: e.target.value })}
+                            />
+                        </div>
 
-        {/* Latitude */}
-        <div className="field-group">
-            <label htmlFor="latitude">Latitude:</label>
-            <input
-                id="latitude"
-                type="text"
-                value={newLocation.latitude}
-                onChange={(e) => setNewLocation({ ...newLocation, latitude: e.target.value })}
-                disabled={!selectedCity}
-            />
-        </div>
+                        {/* Latitude */}
+                        <div className="field-group">
+                            <label htmlFor="latitude">Latitude:</label>
+                            <input
+                                id="latitude"
+                                type="text"
+                                value={newLocation.latitude}
+                                onChange={(e) => setNewLocation({ ...newLocation, latitude: e.target.value })}
+                                disabled={!selectedCity}
+                            />
+                        </div>
 
-        {/* Longitude */}
-        <div className="field-group">
-            <label htmlFor="longitude">Longitude:</label>
-            <input
-                id="longitude"
-                type="text"
-                value={newLocation.longitude}
-                onChange={(e) => setNewLocation({ ...newLocation, longitude: e.target.value })}
-                disabled={!selectedCity}
-            />
-        </div>
+                        {/* Longitude */}
+                        <div className="field-group">
+                            <label htmlFor="longitude">Longitude:</label>
+                            <input
+                                id="longitude"
+                                type="text"
+                                value={newLocation.longitude}
+                                onChange={(e) => setNewLocation({ ...newLocation, longitude: e.target.value })}
+                                disabled={!selectedCity}
+                            />
+                        </div>
 
-        {/* Description */}
-        <div className="description-field">
-            <label htmlFor="description">Description:</label>
-            <div className="description">
-                This is where you can describe the location.
+                        {/* Description */}
+                        <div className="description-field">
+                            <label htmlFor="description">Description:</label>
+                            <textarea
+                                id="description"
+                                value={newLocation.description}
+                                onChange={(e) => setNewLocation({ ...newLocation, description: e.target.value })}
+                            />
+                        </div>
+
+                        {/* Image Upload */}
+                        <div className="field-group">
+                            <label htmlFor="image">Image:</label>
+                            <input id="image" type="file" onChange={handleImageChange} />
+                        </div>
+
+                        {/* Update Button */}
+                        <div className="button-group">
+                            <button type="submit" onClick={handleUpdateLocation}>Update Location</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <textarea
-                id="description"
-                value={newLocation.description}
-                onChange={(e) => setNewLocation({ ...newLocation, description: e.target.value })}
-            />
-        </div>
-
-        {/* Image Upload */}
-        <div className="field-group">
-            <label htmlFor="image">Image:</label>
-            <input id="image" type="file" onChange={handleImageChange} />
-        </div>
-
-        {/* Submit Buttons */}
-        <div className="button-group">
-            {editingLocation !== null ? (
-                <button type="submit" onClick={handleUpdateLocation}>Update Location</button>
-            ) : (
-                <button type="submit" onClick={handleAddLocation}>Add Location</button>
-            )}
-        </div>
-    </form>
-</div>
-</div>
             <table>
                 <thead>
                     <tr>
@@ -259,7 +216,7 @@ function ManageLocations() {
                         <th>Latitude</th>
                         <th>Longitude</th>
                         <th>Description</th>
-                        <th>Image</th> {/* New column for the image */}
+                        <th>Image</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -273,29 +230,23 @@ function ManageLocations() {
                             <td>{location.description}</td>
                             <td>
                                 {location.image ? (
-                                    <>
-                                        {console.log('Fetching image from URL:', `https://travication-backend.onrender.com/${location.image.replace(/\\/g, '/')}`)}
-                                        <img 
-                                            src={`https://travication-backend.onrender.com/${location.image.replace(/\\/g, '/')}`} 
-                                            alt={location.destinationName} 
-                                            width="300" 
-                                            height="300"
-                                            onError={(e) => {
-                                                console.error('Error loading image:', e.target.src);
-                                                e.target.src = '/fallback-image.jpg'; // Optional fallback image
-                                            }}
-                                        />
-                                    </>
+                                    <img
+                                        src={`https://travication-backend.onrender.com/${location.image.replace(/\\/g, '/')}`}
+                                        alt={location.destinationName}
+                                        width="300"
+                                        height="300"
+                                        onError={(e) => {
+                                            console.error('Error loading image:', e.target.src);
+                                            e.target.src = '/fallback-image.jpg';
+                                        }}
+                                    />
                                 ) : (
-                                    <p>No image available</p>
+                                    'No image'
                                 )}
                             </td>
-
                             <td>
-                            <div className="action-buttons">
-                                <button className="edit-button" onClick={() => handleEditLocation(index)}>Edit</button>
-                                <button className="delete-button" onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
-                            </div>
+                                <button onClick={() => handleEditLocation(index)}>Edit</button>
+                                <button onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
                             </td>
                         </tr>
                     ))}
