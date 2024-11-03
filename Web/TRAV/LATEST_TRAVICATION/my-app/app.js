@@ -686,6 +686,7 @@ app.post("/api/login", async (req, res) => {
     }
 });
 
+
 // Update user details
 app.put("/api/update-user", async (req, res) => {
     const { name, email, password } = req.body;
