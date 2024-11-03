@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = 'pC4l7f9H2a7Y1dC9Uk1ZjX6D8ErO23Dk5FxR7e0vF0O=';
 const session = require('express-session')
 const MongoStore = require('connect-mongo')
-const { collection, collection2, Search } = require("./mongo");
+const { collection, collection2, Search, Otp } = require("./mongo");
 const nodemailer = require('nodemailer');
 const multer = require('multer'); // Import multer
 const path = require('path');
