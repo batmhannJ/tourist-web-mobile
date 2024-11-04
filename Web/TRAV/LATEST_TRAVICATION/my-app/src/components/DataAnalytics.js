@@ -136,7 +136,7 @@ const DataAnalytics = () => {
                 </div>
             </section><br />
 
-            <section className="searched-section">
+            {/*<section className="searched-section">
                 <h2 className="section-title">Most Searched Destinations</h2>
                 <div className="most-searched-container">
                     {mostSearchedDestinations.length > 0 ? (
@@ -159,7 +159,7 @@ const DataAnalytics = () => {
                         <p>No data available for most searched destinations.</p>
                     )}
                 </div>
-            </section><br />
+            </section>*/}
 
             <section className="popular-cities-section">
             <h2 className="section-title">Popular Cities</h2>
