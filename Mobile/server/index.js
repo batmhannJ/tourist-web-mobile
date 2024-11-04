@@ -45,8 +45,8 @@ mongoose.connect("mongodb+srv://travication:usRDnGdoj1VL3HYt@travicationuseracco
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'reyeshannahjoy82@gmail.com',
-        pass: 'cnoy eucq dvka vrlt' 
+        user: 'travications@gmail.com',
+        pass: 'gkvd dcii empd ekzr' 
     },
     tls: {
         rejectUnauthorized: false
@@ -80,7 +80,7 @@ app.post('/send-email', async (req, res) => {
     );
 
     const mailOptions = {
-        from: 'reyeshannahjoy82@gmail.com',
+        from: 'travications@gmail.com',
         to: to,
         subject: 'Your OTP Code',
         text: `Your OTP is ${otp}. It is valid for 5 minutes.`

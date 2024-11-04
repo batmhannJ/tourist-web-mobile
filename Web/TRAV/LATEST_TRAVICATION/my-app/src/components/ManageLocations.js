@@ -19,7 +19,7 @@ function ManageLocations() {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:4000/getlocation')
+        axios.get('https://travication-backend.onrender.com/getlocation')
             .then(response => {
                 if (Array.isArray(response.data)) {
                     setLocations(response.data);
@@ -83,7 +83,7 @@ function ManageLocations() {
         formData.append("image", selectedImage);
 
         try {
-            await axios.post("http://localhost:4000/addlocation", formData, {
+            await axios.post("https://travication-backend.onrender.com/addlocation", formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -136,7 +136,7 @@ function ManageLocations() {
         }
 
         try {
-            const response = await axios.patch(`http://localhost:4000/editlocation/${id}`, formData, {
+            const response = await axios.patch(`https://travication-backend.onrender.com/editlocation/${id}`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -155,7 +155,7 @@ function ManageLocations() {
         const confirmDelete = window.confirm("Are you sure you want to delete this?");
         if(confirmDelete){
             try {
-                await axios.delete(`http://localhost:4000/deletelocation/${id}`);
+                await axios.delete(`https://travication-backend.onrender.com/deletelocation/${id}`);
                 const updatedLocations = [...locations];
                 updatedLocations.splice(index, 1);
                 setLocations(updatedLocations);
@@ -273,9 +273,9 @@ function ManageLocations() {
                             <td>
                                 {location.image ? (
                                     <>
-                                        {console.log('Fetching image from URL:', `http://localhost:4000/${location.image.replace(/\\/g, '/')}`)}
+                                        {console.log('Fetching image from URL:', `https://travication-backend.onrender.com/${location.image.replace(/\\/g, '/')}`)}
                                         <img 
-                                            src={`http://localhost:4000/${location.image.replace(/\\/g, '/')}`} 
+                                            src={`https://travication-backend.onrender.com/${location.image.replace(/\\/g, '/')}`} 
                                             alt={location.destinationName} 
                                             width="300" 
                                             height="300"

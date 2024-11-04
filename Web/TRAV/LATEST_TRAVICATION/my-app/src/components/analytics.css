@@ -118,7 +118,7 @@
 }
 
 .month-btn {
-    background-color: #4caf50; /* Bright green background */
+    background-color: #0074e0; /* Bright green background */
     color: white; /* White text */
     border: none; /* No border */
     border-radius: 20px; /* Rounded edges for buttons */
@@ -130,7 +130,7 @@
 }
 
 .month-btn:hover {
-    background-color: #388e3c; /* Darker green on hover */
+    background-color: #44cbdd; /* Darker green on hover */
     transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
@@ -175,7 +175,7 @@
     transition: right 0.4s ease; /* Smooth slide-in transition */
     z-index: 1000; /* Ensure it's above other content */
     padding: 10px; /* Padding for inner content */
-    border-left: 5px solid #4caf50; /* Left border for accent */
+    border-left: 5px solid #0074e0; /* Left border for accent */
     border-radius: 10px 0 0 10px; /* Rounded corners on the left side */
     display: flex;
     flex-direction: column; /* Column layout for header, content, footer */
@@ -210,7 +210,7 @@
 
 /* Cancel button styling */
 .close-panel-btn {
-    background-color: #4caf50; /* Blue background */
+    background-color: #44cbdd; /* Blue background */
     color: white; /* White text */
     border: none; /* No border */
     padding: 6px 10px; /* Further reduced padding for the button */

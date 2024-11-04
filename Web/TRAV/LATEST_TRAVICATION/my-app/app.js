@@ -1,5 +1,5 @@
 const express = require("express")
-const bcrypt = require('bcrypt');
+const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const jwtSecret = 'pC4l7f9H2a7Y1dC9Uk1ZjX6D8ErO23Dk5FxR7e0vF0O=';
 const session = require('express-session')
@@ -11,7 +11,7 @@ const path = require('path');
 
 
 const cors = require("cors")
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264', 'http://localhost:43264','https://travication.vercel.app']; // Add all allowed origins
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264', 'http://localhost:43264','https://travication.vercel.app', 'https://travications.onrender.com', 'https://travication.vercel.app/api/check-session']; // Add all allowed origins
 require('dotenv').config();
 const app = express()
 const PORT = process.env.PORT || 4000
@@ -45,9 +45,6 @@ app.use(session({
     } // 3 hours
 }));
 
-if (process.env.NODE_ENV === 'production') {
-    console.log('App is running in production');
-}
 
 app.get('/check-session', (req, res) => {
     console.log(req.session); // Log session details
@@ -61,14 +58,17 @@ app.get('/check-session', (req, res) => {
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'olshco.electionupdates@gmail.com', 
-        pass: 'nxgb fqoh qkxk svjs', 
+        user: 'travications@gmail.com', 
+        pass: 'gkvd dcii empd ekzr', 
+    },
+    tls: {
+        rejectUnauthorized: false, // Disables strict SSL, bypassing self-signed certificates
     },
 });
 
 const sendVerificationEmail = (email, token) => {
     const mailOptions = {
-        from: 'olshco.electionupdates@gmail.com',
+        from: 'travications@gmail.com',
         to: email,
         subject: 'Password Reset Verification Token',
         text: `Your password reset token is: ${token}`,
@@ -114,7 +114,7 @@ app.patch("/forgotpassword", async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcryptjs.hash(password, 10);
         const updatedPassword = await collection.findOneAndUpdate(
             { email: email },
             { password: hashedPassword },
@@ -143,12 +143,12 @@ app.post("/login", async (req, res) => {
         let user = await collection.findOne({ email: email });
 
         if (!user) {
-            return res.status(400).json({ error: 'User does not exist' });
+            return res.status(400).json({ error: 'The specified user cannot be found.' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcryptjs.compare(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ error: 'Invalid username or password' });
+            return res.status(400).json({ error: 'The entered username or password does not match our records.' });
         }
 
         if (user.role === 'admin') {
@@ -158,14 +158,14 @@ app.post("/login", async (req, res) => {
             return res.json("admin exist");
         } else {
             if (user.status === 'decline') {
-                return res.status(403).json({ error: 'User login declined' });
+                return res.status(403).json({ error: 'Access has been declined for this user login attempt.' });
             } else if (user.status === 'approved') {
                 req.session.userId = user._id;
                 req.session.role = user.role;
                 req.session.user = user;
                 return res.json("exist");
             } else {
-                return res.status(403).json({ error: 'User not approved yet' });
+                return res.status(403).json({ error: 'The user account has not been activated pending approval.' });
             }
         }
     } catch (e) {
@@ -190,8 +190,8 @@ app.post("/signupdata", async(req, res)=>{
 
 
     try {
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(password, salt);
             const data = {
                 name: name,
                 email:email,
@@ -216,8 +216,8 @@ app.post("/addmanager", async(req, res)=>{
     const{name, email, password, role} = req.body
 
     try{ 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const salt = await bcryptjs.genSalt(10);
+        const hashedPassword = await bcryptjs.hash(password, salt);
             const data = {
                 name: name,
                 email: email,
@@ -441,6 +441,86 @@ app.get('/getMostSearchedDestinations', async (req, res) => {
     } catch (error) {
         console.error('Error fetching most searched destinations:', error);
         res.status(500).json({ message: 'Failed to fetch most searched destinations.' });
+    }
+});
+
+const otpStore = {};
+
+// Function to send the OTP email
+const sendOTPEmail = async (email, otp) => {
+    const mailOptions = {
+        from: 'travications@gmail.com',
+        to: email,
+        subject: 'Your OTP for Login',
+        text: `Your OTP is: ${otp}. It is valid for 5 minutes.`,
+    };
+
+    return new Promise((resolve, reject) => {
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email: ', error.message);
+                reject(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+                resolve(info);
+            }
+        });
+    });
+};
+
+// Endpoint to request OTP
+app.post("/send-otp", async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        const user = await collection.findOne({ email: email });
+        if (!user) {
+            return res.status(400).json({ error: 'User does not exist' });
+        }
+
+        const otp = generateToken(); // Assuming generateToken() generates a valid OTP
+        otpStore[email] = { otp, expires: Date.now() + 300000 }; // Store OTP with expiration time (5 mins)
+
+        await sendOTPEmail(email, otp); // Send the OTP to user's email
+        return res.status(200).json({ success: true, message: 'OTP sent to your email.' }); // Return success response
+    } catch (e) {
+        console.error("OTP request error:", e);
+        return res.status(500).json({ success: false, error: "Server error" }); // Improved error handling
+    }
+});
+
+// Endpoint to verify OTP and log in the user
+app.post("/verify-otp", async (req, res) => {
+    const { email, otp } = req.body;
+
+    const otpData = otpStore[email];
+    if (!otpData || otpData.otp !== otp) {
+        return res.status(400).json({ success: false, error: 'Invalid OTP or OTP expired' });
+    }
+
+    if (Date.now() > otpData.expires) {
+        delete otpStore[email]; // Remove OTP if expired
+        return res.status(400).json({ success: false, error: 'OTP expired' });
+    }
+
+    delete otpStore[email]; // Remove OTP after successful verification
+
+    try {
+        let user = await collection.findOne({ email: email });
+
+        if (!user) {
+            return res.status(400).json({ success: false, error: 'User does not exist' });
+        }
+
+        // Log in the user
+        req.session.userId = user._id;
+        req.session.role = user.role;
+        req.session.user = user;
+
+        return res.json({ success: true, message: "Logged in successfully." }); // Return success response
+    } catch (e) {
+        console.error("Login error:", e);
+        return res.status(500).json({ success: false, error: "Server error" }); // Improved error handling
     }
 });
 

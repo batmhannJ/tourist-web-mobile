@@ -42,7 +42,7 @@ function SignUpData() {
         }
 
         try {
-            await axios.post("http://localhost:4000/signupdata", {
+            await axios.post("https://travication-backend.onrender.com/signupdata", {
                 name, email, password
             })
             .then(res => {
