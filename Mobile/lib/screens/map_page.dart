@@ -45,7 +45,7 @@ class _MapPageState extends State<MapPage> {
     final double endLon = widget.destinationLong;
 
     final String url =
-        'http://localhost:3000/directions?origin=$startLat,$startLon&destination=$endLat,$endLon';
+        'https://travication-backend.onrender.com/directions?origin=$startLat,$startLon&destination=$endLat,$endLon';
 
     try {
       final response = await http.get(Uri.parse(url));

@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = 'pC4l7f9H2a7Y1dC9Uk1ZjX6D8ErO23Dk5FxR7e0vF0O=';
 const session = require('express-session')
 const MongoStore = require('connect-mongo')
-const { collection, collection2, Search, Otp, Marker } = require("./mongo");
+const { collection, collection2, Search, Otp, Marker, User } = require("./mongo");
 const nodemailer = require('nodemailer');
 const multer = require('multer'); // Import multer
 const path = require('path');
@@ -651,13 +651,13 @@ app.post("/api/signup", async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        const existingUser = await collection.findOne({ email });
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ msg: "Email already exists!" });
         }
 
         const hashedPassword = await bcryptjs.hash(password, 8);
-        let user = new collection({ email, password: hashedPassword, name });
+        let user = new User({ email, password: hashedPassword, name });
         user = await user.save();
         res.json(user);
     } catch (e) {
