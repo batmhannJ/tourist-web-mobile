@@ -10,7 +10,8 @@ const multer = require('multer'); // Import multer
 const path = require('path');
 
 
-const cors = require("cors")
+const cors = require("cors");
+const { Collection } = require("mongoose");
 const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264', 'http://localhost:43264','https://travication.vercel.app', 'https://travications.onrender.com', 'https://travication.vercel.app/api/check-session']; // Add all allowed origins
 require('dotenv').config();
 const app = express()
@@ -697,7 +698,7 @@ app.put("/api/update-user", async (req, res) => {
         const userId = decoded.id; // Get user ID from token
 
         // Find user by ID and update
-        const updatedUser = await User.findByIdAndUpdate(
+        const updatedUser = await collection.findByIdAndUpdate(
             userId,
             { 
                 name, 
