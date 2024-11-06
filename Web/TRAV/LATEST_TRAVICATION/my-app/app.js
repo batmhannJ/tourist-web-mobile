@@ -651,13 +651,14 @@ app.post("/api/signup", async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        const existingUser = await User.findOne({ email });
+        const existingUser = await collection.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ msg: "Email already exists!" });
         }
 
         const hashedPassword = await bcryptjs.hash(password, 8);
-        let user = new User({ email, password: hashedPassword, name });
+        let user = new collection({ email, password: hashedPassword, name, role: 'tourist' 
+        });
         user = await user.save();
         res.json(user);
     } catch (e) {
