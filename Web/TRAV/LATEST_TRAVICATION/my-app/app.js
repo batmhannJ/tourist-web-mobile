@@ -600,7 +600,7 @@ app.post('/api/reset-password', async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-
+        const saltRounds = 10; // Define salt rounds for bcrypt
         user.password = await bcryptjs.hash(newPassword, saltRounds);
         await user.save();
 
