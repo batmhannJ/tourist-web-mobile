@@ -96,32 +96,4 @@ const markerSchema = new mongoose.Schema({
   
   const Marker = mongoose.model("locationcollections", markerSchema);
 
-  const userSchema = new mongoose.Schema({
-    name: {
-        type: String, 
-        required: true
-    },
-    email:{
-        type: String,
-        required: true,
-        unique: true
-    },
-    password:{
-        type: String,
-        required: true
-    },
-    role:{
-        type: String,
-        default: 'tourist'
-    }
-    ,
-    status:{
-        type: String,
-        required: true,
-        default: 'pending'
-    }
-})
-
-const User = mongoose.model("accounts", userSchema)
-
-module.exports = { collection, collection2, Search, Otp, Marker, User};
+module.exports = { collection, collection2, Search, Otp, Marker};
