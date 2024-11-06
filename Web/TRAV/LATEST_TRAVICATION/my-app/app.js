@@ -657,7 +657,7 @@ app.post("/api/signup", async (req, res) => {
         }
 
         const hashedPassword = await bcryptjs.hash(password, 8);
-        let user = new User({ email, password: hashedPassword, name });
+        let user = new collection({ email, password: hashedPassword, name });
         user = await user.save();
         res.json(user);
     } catch (e) {
