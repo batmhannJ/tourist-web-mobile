@@ -194,6 +194,16 @@ function LoginData() {
                 <br />
                 <p>Don't have an account?</p>
                 <Link to="/signup">Signup Page</Link>
+                <br />
+                <p>Download our application by clicking the link below:</p>
+                <a
+                    href="https://drive.google.com/file/d/1_Ac9qjl1lmbXvaqOi1Wd7Dj78jaPovof/view?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="download-link"
+                >
+                    Download App
+                </a>
             </div>
             <style>
 {`
@@ -210,6 +220,22 @@ function LoginData() {
     padding: 0 10px;
     max-width: 100%;
     box-sizing: border-box;
+}
+
+.download-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #fff;
+    background-color: #1f4b99;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.download-link:hover {
+    background-color: #3f7cfb;
 }
 
 .logo {
