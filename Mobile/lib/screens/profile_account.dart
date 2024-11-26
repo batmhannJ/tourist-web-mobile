@@ -9,7 +9,8 @@ class ProfileAccountPage extends StatelessWidget {
   const ProfileAccountPage({Key? key}) : super(key: key);
 
   Future<void> _logout(BuildContext context) async {
-    final AuthService authService = AuthService(); // Create an instance of AuthService
+    final AuthService authService =
+        AuthService(); // Create an instance of AuthService
     await authService.logout(); // Call the logout method
     Navigator.pushReplacementNamed(context, '/login_page');
   }
@@ -44,10 +45,10 @@ class ProfileAccountPage extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const CircleAvatar(
+                  /*const CircleAvatar(
                     radius: 40,
                     backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
-                  ),
+                  ),*/
                   const SizedBox(width: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,10 +82,12 @@ class ProfileAccountPage extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const EditAccountPage()),
+                    MaterialPageRoute(
+                        builder: (context) => const EditAccountPage()),
                   );
                 },
-                trailing: const Icon(Icons.arrow_forward_ios, color: Colors.orange),
+                trailing:
+                    const Icon(Icons.arrow_forward_ios, color: Colors.orange),
               ),
             ),
 
@@ -106,7 +109,6 @@ class ProfileAccountPage extends StatelessWidget {
               ),
             ),*/
 
-
             const SizedBox(height: 10),
 
             // Logout Button
@@ -121,7 +123,8 @@ class ProfileAccountPage extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 textStyle: const TextStyle(fontSize: 18),
               ),
             ),
@@ -137,7 +140,8 @@ class ProfileAccountPage extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => LandingPage(mostSearchedDestinations: searchedDestinations),
+        builder: (context) =>
+            LandingPage(mostSearchedDestinations: searchedDestinations),
       ),
     );
   }

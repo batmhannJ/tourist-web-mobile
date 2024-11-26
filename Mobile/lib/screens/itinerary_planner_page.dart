@@ -44,15 +44,16 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
     String? itinerariesString = prefs.getString('travelItineraries');
     if (itinerariesString != null) {
       setState(() {
-        travelItineraries = List<Map<String, dynamic>>.from(json.decode(itinerariesString));
+        travelItineraries =
+            List<Map<String, dynamic>>.from(json.decode(itinerariesString));
       });
     }
   }
 
-Future<void> _saveTravelItineraries() async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('travelItineraries', json.encode(travelItineraries));
-}
+  Future<void> _saveTravelItineraries() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('travelItineraries', json.encode(travelItineraries));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,13 +93,7 @@ Future<void> _saveTravelItineraries() async {
             const SizedBox(height: 20),
             Expanded(
               child: travelItineraries.isNotEmpty
-                  ? GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
-                        childAspectRatio: 0.9,
-                      ),
+                  ? ListView.builder(
                       itemCount: travelItineraries.length,
                       itemBuilder: (context, index) {
                         return _buildTravelCard(index);
@@ -136,348 +131,387 @@ Future<void> _saveTravelItineraries() async {
     );
   }
 
-Widget _buildTravelCard(int index) {
-  Map<String, dynamic> itinerary = travelItineraries[index];
+  Widget _buildTravelCard(int index) {
+    Map<String, dynamic> itinerary = travelItineraries[index];
 
-  return SingleChildScrollView(
-    child: Container(
-      width: MediaQuery.of(context).size.width * 0.95,
+    return Container(
+      width: double.infinity, // Full-width for single-column display
+      margin: const EdgeInsets.only(bottom: 12), // Adjust spacing between cards
+      padding: const EdgeInsets.all(15), // Padding for each card
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Colors.grey,
-            blurRadius: 10,
-            spreadRadius: 2,
-            offset: Offset(0, 5),
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-      padding: const EdgeInsets.all(15),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with Destination
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.blueAccent,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Text(
-              itinerary['destination'],
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+          Text(
+            itinerary['destination'],
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.teal,
             ),
           ),
-          const SizedBox(height: 10),
-
-          // Staying Period
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Staying Period:',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    itinerary['stayingPeriod'],
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Budget
+          const SizedBox(height: 6),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Budget:',
-                style: TextStyle(fontSize: 16, color: Colors.black54),
-              ),
+              const Icon(Icons.calendar_today, size: 16, color: Colors.teal),
+              const SizedBox(width: 6),
               Text(
-                '₱${itinerary['budget']}',
+                'Staying Period: ${itinerary['stayingPeriod']}',
+                style: const TextStyle(fontSize: 14, color: Colors.black87),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              const Icon(Icons.attach_money, size: 16, color: Colors.teal),
+              const SizedBox(width: 6),
+              Text(
+                'Budget: ₱${itinerary['budget']}',
                 style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
                   color: Colors.green,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 15),
-          const Divider(color: Colors.black26),
-
-          // Daily Itinerary Title
-          const Text(
-            'Daily Itinerary:',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple),
-          ),
-          const SizedBox(height: 10),
-
-          // Daily Activities
+          const SizedBox(height: 12),
           Column(
-            children: List.generate(
-              itinerary['days'].length,
-              (dayIndex) {
-                Map<String, dynamic> day = itinerary['days'][dayIndex];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 15),
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.purple[50],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.purple[100]!, width: 1.5),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Day ${dayIndex + 1}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Color.fromARGB(255, 176, 142, 39),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Column(
-                        children: List.generate(
-                          day['activities'].length,
-                          (activityIndex) {
-                            Map<String, dynamic> activity = day['activities'][activityIndex];
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () => _selectTime(context, activity, dayIndex, activityIndex),
-                                    child: Container(
-                                      padding: const EdgeInsets.all(10),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: Colors.blueAccent, width: 1.5),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Text(
-                                        activity['time'].isNotEmpty ? activity['time'] : 'Select Time',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: activity['time'].isEmpty ? Colors.black54 : Colors.black,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Daily Itinerary:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 6),
+              Column(
+                children: List.generate(
+                  itinerary['days'].length,
+                  (dayIndex) {
+                    Map<String, dynamic> day = itinerary['days'][dayIndex];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Day ${dayIndex + 1}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.teal,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: List.generate(
+                              day['activities'].length,
+                              (activityIndex) {
+                                Map<String, dynamic> activity =
+                                    day['activities'][activityIndex];
+                                return Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4.0),
+                                  child: Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => _selectTime(context,
+                                            activity, dayIndex, activityIndex),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[200],
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            activity['time'].isNotEmpty
+                                                ? activity['time']
+                                                : 'Set Time',
+                                            style: TextStyle(
+                                              color: activity['time'].isEmpty
+                                                  ? Colors.grey
+                                                  : Colors.black,
+                                              fontSize: 14,
+                                            ),
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: TextField(
+                                          onChanged: (value) {
+                                            setState(() {
+                                              activity['activity'] = value;
+                                            });
+                                            _saveTravelItineraries();
+                                          },
+                                          decoration: const InputDecoration(
+                                            hintText: 'Activity name',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.delete,
+                                            color: Colors.red, size: 20),
+                                        onPressed: () {
+                                          setState(() {
+                                            day['activities']
+                                                .removeAt(activityIndex);
+                                            _saveTravelItineraries();
+                                          });
+                                        },
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 8),
-                                  TextField(
-                                    onChanged: (value) {
-                                      setState(() {
-                                        activity['activity'] = value;
-                                      });
-                                      _saveTravelItineraries();
-                                    },
-                                    decoration: const InputDecoration(
-                                      labelText: 'Activity',
-                                      border: OutlineInputBorder(),
-                                      prefixIcon: Icon(Icons.edit),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () {
-                                      setState(() {
-                                        day['activities'].removeAt(activityIndex);
-                                        _saveTravelItineraries();
-                                      });
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            day['activities'].add({'time': '', 'activity': ''});
-                            _saveTravelItineraries();
-                          });
-                        },
-                        child: const Text('Add Activity'),
-                        style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+                                );
+                              },
+                            ),
                           ),
-                        ),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                day['activities']
+                                    .add({'time': '', 'activity': ''});
+                                _saveTravelItineraries();
+                              });
+                            },
+                            child: const Text('Add Activity'),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 15),
-
-       // Delete Itinerary Button
-ElevatedButton(
-  onPressed: () {
-    _deleteItinerary(index); // Call function to delete the itinerary
-  },
-  child: const Text('Delete Itinerary'),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.redAccent, // Changed the button color
-    foregroundColor: Colors.white, // Text color
-    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Increased padding
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(30), // More rounded corners
-    ),
-    elevation: 5, // Added elevation for shadow
-    shadowColor: Colors.black54, // Shadow color
-  ),
-),
-
-// Save All Button
-ElevatedButton(
-  onPressed: () {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Itinerary saved successfully!'),
-      ),
-    );
-  },
-  child: const Text('Save All'),
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.greenAccent, // Changed the button color
-    foregroundColor: Colors.white, // Text color
-    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20), // Increased padding
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(30), // More rounded corners
-    ),
-    elevation: 5, // Added elevation for shadow
-    shadowColor: Colors.black54, // Shadow color
-  ),
-),
-
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    travelItineraries.removeAt(index);
+                    _saveTravelItineraries();
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white, // Set the text color to white
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Itinerary saved!')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text(
+                  'Save',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white, // Set the text color to white
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
-    ),
-  );
-}
-
-// Function to delete an itinerary
-void _deleteItinerary(int index) {
-  setState(() {
-    travelItineraries.removeAt(index); // Remove the itinerary at the given index
-    _saveTravelItineraries(); // Save the updated list
-  });
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Itinerary deleted successfully!'),
-    ),
-  );
-}
-
+    );
+  }
 
 // Function to display the time picker
-Future<void> _selectTime(BuildContext context, Map<String, dynamic> activity, int dayIndex, int activityIndex) async {
-  TimeOfDay? picked = await showTimePicker(
-    context: context,
-    initialTime: TimeOfDay.now(),
-  );
-  if (picked != null) {
-    String formattedTime = picked.format(context); // Format the time
-    setState(() {
-      activity['time'] = formattedTime; // Update the time in the activity
-    });
-    _saveTravelItineraries(); // Save changes
+  Future<void> _selectTime(BuildContext context, Map<String, dynamic> activity,
+      int dayIndex, int activityIndex) async {
+    TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+    if (picked != null) {
+      String formattedTime = picked.format(context); // Format the time
+      setState(() {
+        activity['time'] = formattedTime; // Update the time in the activity
+      });
+      _saveTravelItineraries(); // Save changes
+    }
   }
-}
 
+  void _addTravelItinerary() async {
+    Map<String, dynamic> newItinerary = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        String destination = '';
+        String stayingPeriod = '';
+        String budget = '';
+        List<Map<String, dynamic>> days = [];
+        int dayCounter = 0;
 
-void _addTravelItinerary() async {
-  Map<String, dynamic> newItinerary = await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      String destination = '';
-      String stayingPeriod = '';
-      String budget = '';
-      List<Map<String, dynamic>> days = [];
-      int dayCounter = 0;
-
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return Dialog(
-            backgroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  const Text(
-                    'Add New Travel',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 24,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    onChanged: (value) => destination = value,
-                    decoration: InputDecoration(
-                      labelText: 'Destination',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12), // Rounded corners
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    // Title Section
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: const Text(
+                        'Add New Travel',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                          color: Colors.blueGrey,
+                        ),
                       ),
-                      prefixIcon: const Icon(Icons.location_on),
                     ),
-                  ),
-                  const SizedBox(height: 15),
+                    const SizedBox(height: 10),
 
-                  // Container for Staying Period
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey), // Border color
-                      borderRadius: BorderRadius.circular(12), // Rounded corners
+                    // Destination Input Card
+                    Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Destination',
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.grey)),
+                            TextField(
+                              onChanged: (value) => destination = value,
+                              decoration: const InputDecoration(
+                                hintText: 'Enter destination',
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          stayingPeriod.isNotEmpty ? stayingPeriod : 'Select Staying Period',
+                    const SizedBox(height: 10),
+
+                    // Staying Period with Calendar Pop-up
+                    Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        title: Text(
+                          stayingPeriod.isNotEmpty
+                              ? stayingPeriod
+                              : 'Select Staying Period',
                           style: TextStyle(
-                            color: stayingPeriod.isNotEmpty ? Colors.black : Colors.grey,
-                            fontSize: 16,
+                            color: stayingPeriod.isNotEmpty
+                                ? Colors.black
+                                : Colors.grey,
                           ),
                         ),
-                        ElevatedButton(
+                        trailing: IconButton(
+                          icon: const Icon(Icons.calendar_today,
+                              color: Colors.blueGrey),
                           onPressed: () async {
-                            DateTimeRange? pickedRange = await showDateRangePicker(
+                            DateTimeRange? pickedRange =
+                                await showDateRangePicker(
                               context: context,
                               firstDate: DateTime.now(),
                               lastDate: DateTime(2101),
+                              builder: (context, child) {
+                                return Dialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  insetPadding: EdgeInsets.symmetric(
+                                    horizontal:
+                                        MediaQuery.of(context).size.width *
+                                            0.1, // Dynamic horizontal padding
+                                    vertical:
+                                        MediaQuery.of(context).size.height *
+                                            0.2, // Dynamic vertical padding
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(10),
+                                    height: MediaQuery.of(context).size.height *
+                                        0.6, // Adjusted height
+                                    width: MediaQuery.of(context).size.width *
+                                        0.85, // Adjusted width
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(15),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            'Select Dates',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.blueGrey,
+                                            ),
+                                          ),
+                                        ),
+                                        if (child != null)
+                                          Expanded(child: child),
+                                        const SizedBox(height: 10),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
                             );
+
+                            // When the range is picked, update the stayingPeriod with the selected dates
                             if (pickedRange != null) {
                               setState(() {
                                 stayingPeriod =
@@ -485,265 +519,323 @@ void _addTravelItinerary() async {
                               });
                             }
                           },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Budget Input Card
+                    Card(
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Budget',
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.grey)),
+                            TextField(
+                              onChanged: (value) => budget = value,
+                              decoration: const InputDecoration(
+                                hintText: 'Enter budget',
+                                border: InputBorder.none,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Check if the width is narrow, such as on mobile
+                        bool isNarrow = constraints.maxWidth < 600;
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: isNarrow
+                                  ? MainAxisAlignment.center
+                                  : MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Add Day Button
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {
+                                      setState(() {
+                                        days.add({'activities': []});
+                                        dayCounter++;
+                                      });
+                                    },
+                                    icon: const Icon(Icons.add),
+                                    label: const Text(''),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.orange,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                if (!isNarrow)
+                                  const SizedBox(
+                                      width:
+                                          10), // Add spacing for wider layouts
+
+                                // Day Counter Text
+                                Text('$dayCounter days added',
+                                    textAlign: isNarrow
+                                        ? TextAlign.center
+                                        : TextAlign.left),
+                                if (!isNarrow)
+                                  const SizedBox(
+                                      width:
+                                          10), // Add spacing for wider layouts
+
+                                // Remove Day Button
+                                Expanded(
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {
+                                      if (dayCounter > 0) {
+                                        setState(() {
+                                          days.removeLast();
+                                          dayCounter--;
+                                        });
+                                      }
+                                    },
+                                    icon: const Icon(Icons.remove),
+                                    label: const Text(''),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.orange,
+                                      foregroundColor: Colors.white,
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                          ],
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Save and Cancel Buttons
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          child: const Text(
+                            'Cancel',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context, {
+                              'destination': destination,
+                              'stayingPeriod': stayingPeriod,
+                              'budget': budget,
+                              'days': days,
+                            });
+                          },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue, // Button color
+                            backgroundColor: Colors.blueGrey,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12), // Rounded corners
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Select', style: TextStyle(color: Colors.white)),
+                          child: const Text('Save',
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  TextField(
-                    onChanged: (value) => budget = value,
-                    decoration: InputDecoration(
-                      labelText: 'Budget',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12), // Rounded corners
-                      ),
-                      prefixIcon: const Icon(Icons.money),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Days and Activities:',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildDayActivitiesTextField(days), // Assuming this function is defined elsewhere
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          setState(() {
-                            days.add({'activities': []});
-                            dayCounter++;
-                          });
-                        },
-                        icon: const Icon(Icons.add),
-                        label: const Text('Add Day'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12), // Rounded corners
-                          ),
-                        ),
-                      ),
-                      Text('$dayCounter days added'),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          if (dayCounter > 0) {
-                            setState(() {
-                              days.removeLast();
-                              dayCounter--;
-                            });
-                          }
-                        },
-                        icon: const Icon(Icons.remove),
-                        label: const Text('Remove Day'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12), // Rounded corners
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                          'Cancel',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context, {
-                            'destination': destination,
-                            'stayingPeriod': stayingPeriod,
-                            'budget': budget,
-                            'days': days,
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue, // Button color
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12), // Rounded corners
-                          ),
-                        ),
-                        child: const Text('Save', style: TextStyle(color: Colors.white)),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
-      );
-    },
-  );
+            );
+          },
+        );
+      },
+    );
 
-  if (newItinerary != null) {
-    setState(() {
-      travelItineraries.add(newItinerary);
-      _saveTravelItineraries(); // Save itinerary after adding
-    });
+    if (newItinerary != null) {
+      setState(() {
+        travelItineraries.add(newItinerary);
+        _saveTravelItineraries(); // Save itinerary after adding
+      });
+    }
   }
-}
 
+  void _editTravelItinerary(int index) async {
+    TextEditingController destinationController =
+        TextEditingController(text: travelItineraries[index]['destination']);
+    TextEditingController budgetController =
+        TextEditingController(text: travelItineraries[index]['budget']);
+    String stayingPeriod = travelItineraries[index]['stayingPeriod'];
+    List<Map<String, dynamic>> days =
+        List.from(travelItineraries[index]['days']);
+    int dayCounter = days.length;
 
-void _editTravelItinerary(int index) async {
-  TextEditingController destinationController = TextEditingController(text: travelItineraries[index]['destination']);
-  TextEditingController budgetController = TextEditingController(text: travelItineraries[index]['budget']);
-  String stayingPeriod = travelItineraries[index]['stayingPeriod'];
-  List<Map<String, dynamic>> days = List.from(travelItineraries[index]['days']);
-  int dayCounter = days.length;
-
-  Map<String, dynamic> editedItinerary = await showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Edit Travel'),
-            content: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  TextField(
-                    controller: destinationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Destination',
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  
-                  // Add Calendar Picker for Staying Period
-                  ElevatedButton(
-                    onPressed: () async {
-                      DateTimeRange? pickedRange = await showDateRangePicker(
-                        context: context,
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime(2101),
-                      );
-                      if (pickedRange != null) {
-                        setState(() {
-                          stayingPeriod =
-                              '${pickedRange.start.toString().split(' ')[0]} to ${pickedRange.end.toString().split(' ')[0]}';
-                        });
-                      }
-                    },
-                    child: const Text('Edit Staying Period'),
-                  ),
-                  stayingPeriod.isNotEmpty
-                      ? Text(
-                          'Staying Period: $stayingPeriod',
-                          style: const TextStyle(fontSize: 16),
-                        )
-                      : const SizedBox.shrink(),
-                  const SizedBox(height: 10),
-                  
-                  TextField(
-                    controller: budgetController,
-                    decoration: const InputDecoration(
-                      labelText: 'Budget',
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Days and Activities:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  _buildDayActivitiesTextField(days),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            days.add({'activities': []});
-                            dayCounter++;
-                          });
-                        },
-                        child: const Text('Add Day'),
+    Map<String, dynamic> editedItinerary = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              insetPadding: EdgeInsets.symmetric(
+                horizontal:
+                    MediaQuery.of(context).size.width * 0.1, // Wider dialog box
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius:
+                    BorderRadius.circular(20), // More rounded for modern look
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(
+                    20), // Uniform padding for neat spacing
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment
+                        .stretch, // Full width for all elements
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      // Destination Input
+                      TextField(
+                        controller: destinationController,
+                        decoration: const InputDecoration(
+                          labelText: 'Destination',
+                          border: OutlineInputBorder(),
+                        ),
                       ),
-                      const SizedBox(width: 10),
-                      Text('$dayCounter days added'),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (dayCounter > 0) {
-                            setState(() {
-                              days.removeLast();
-                              dayCounter--;
-                            });
-                          }
-                        },
-                        child: const Text('Remove Day'),
+                      const SizedBox(height: 20),
+
+                      // Budget Input
+                      TextField(
+                        controller: budgetController,
+                        decoration: const InputDecoration(
+                          labelText: 'Budget',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Add / Remove Day Buttons
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              setState(() {
+                                days.add({'activities': []});
+                                dayCounter++;
+                              });
+                            },
+                            icon: const Icon(Icons.add),
+                            label: const Text('Add Day'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.teal,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                          ),
+                          Text('$dayCounter days added',
+                              style: const TextStyle(color: Colors.black54)),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              if (dayCounter > 0) {
+                                setState(() {
+                                  days.removeLast();
+                                  dayCounter--;
+                                });
+                              }
+                            },
+                            icon: const Icon(Icons.remove),
+                            label: const Text('Remove Day'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+
+                      // Actions Row
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context, {
+                                'destination': destinationController.text,
+                                'stayingPeriod': stayingPeriod,
+                                'budget': budgetController.text,
+                                'days': days,
+                              });
+                            },
+                            child: const Text('Save'),
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 24, vertical: 16),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context, {
-                    'destination': destinationController.text,
-                    'stayingPeriod': stayingPeriod,
-                    'budget': budgetController.text,
-                    'days': days,
-                  });
-                },
-                child: const Text('Save'),
-              ),
-            ],
-          );
-        },
-      );
-    },
-  );
+            );
+          },
+        );
+      },
+    );
 
-  if (editedItinerary != null) {
-    setState(() {
-      travelItineraries[index] = editedItinerary;
-      _saveTravelItineraries(); // Save itinerary after editing
-    });
+    if (editedItinerary != null) {
+      setState(() {
+        travelItineraries[index] = editedItinerary;
+        _saveTravelItineraries(); // Save itinerary after editing
+      });
+    }
   }
-}
-
 
   Widget _buildDayActivitiesTextField(List<Map<String, dynamic>> days) {
     return Column(
@@ -752,61 +844,109 @@ void _editTravelItinerary(int index) async {
         days.length,
         (dayIndex) {
           Map<String, dynamic> day = days[dayIndex];
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                children: List.generate(
-                  day['activities'].length,
-                  (activityIndex) {
-                    Map<String, dynamic> activity = day['activities'][activityIndex];
-                    TextEditingController timeController = TextEditingController(text: activity['time']);
-                    TextEditingController activityController = TextEditingController(text: activity['activity']);
-                    return Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: timeController,
-                            onChanged: (value) {
-                              setState(() {
-                                activity['time'] = value;
-                              });
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Time',
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          flex: 2,
-                          child: TextField(
-                            controller: activityController,
-                            onChanged: (value) {
-                              setState(() {
-                                activity['activity'] = value;
-                              });
-                            },
-                            decoration: const InputDecoration(
-                              labelText: 'Activity',
-                            ),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () {
-                            setState(() {
-                              day['activities'].removeAt(activityIndex);
-                            });
-                          },
-                        ),
-                      ],
-                    );
-                  },
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Day label (e.g., "Day 1", "Day 2")
+                Text(
+                  'Day ${dayIndex + 1}',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blueAccent,
+                  ),
                 ),
-              ),
-              if (dayIndex != days.length - 1) const Divider(),
-            ],
+                const SizedBox(height: 10),
+
+                // Activities list for the day
+                Column(
+                  children: List.generate(
+                    day['activities'].length,
+                    (activityIndex) {
+                      Map<String, dynamic> activity =
+                          day['activities'][activityIndex];
+                      TextEditingController timeController =
+                          TextEditingController(text: activity['time']);
+                      TextEditingController activityController =
+                          TextEditingController(text: activity['activity']);
+
+                      return Card(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 6), // Card for each activity
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(12), // Rounded corners
+                        ),
+                        elevation: 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: timeController,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      activity['time'] = value;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    labelText: 'Time',
+                                    labelStyle:
+                                        TextStyle(color: Colors.grey[600]),
+                                    filled: true,
+                                    fillColor: Colors.grey[200],
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                flex: 2,
+                                child: TextField(
+                                  controller: activityController,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      activity['activity'] = value;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    labelText: 'Activity',
+                                    labelStyle:
+                                        TextStyle(color: Colors.grey[600]),
+                                    filled: true,
+                                    fillColor: Colors.grey[200],
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.redAccent),
+                                onPressed: () {
+                                  setState(() {
+                                    day['activities'].removeAt(activityIndex);
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           );
         },
       ),
