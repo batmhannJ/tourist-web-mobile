@@ -197,7 +197,7 @@ function LoginData() {
                 <br />
                 <p>Download our application by clicking the link below:</p>
                 <a
-                    href="https://drive.google.com/file/d/1_Ac9qjl1lmbXvaqOi1Wd7Dj78jaPovof/view?usp=sharing"
+                    href="https://drive.google.com/file/d/15daXcKaJucWRqZWDEx4NwAg7fxuQaiXR/view?usp=drivesdk"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="download-link"
