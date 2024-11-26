@@ -5,10 +5,11 @@ import "leaflet/dist/leaflet.css";
 import axios from "axios";
 
 // Define a custom icon
-const customIcon = L.AwesomeMarkers.icon({
-    icon: "flag", // You can change this to icons like "coffee", "home", "flag", etc.
-    markerColor: "red", // Options: red, darkred, orange, green, blue, purple, darkpurple, cadetblue
-    prefix: "fa", // This is for FontAwesome icons
+const customIcon = new L.Icon({
+    iconUrl: "https://leafletjs.com/examples/custom-icons/leaf-red.png",
+    iconSize: [38, 38], // size of the icon
+    iconAnchor: [22, 38], // point of the icon which will correspond to marker's location
+    popupAnchor: [0, -38], // point from which the popup should open relative to the iconAnchor
 });
 
 const ManageLocations = () => {
