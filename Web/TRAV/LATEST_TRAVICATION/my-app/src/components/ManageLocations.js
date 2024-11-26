@@ -4,6 +4,14 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 
+// Define a custom icon
+const customIcon = new L.Icon({
+    iconUrl: "https://leafletjs.com/examples/custom-icons/leaf-red.png",
+    iconSize: [38, 38], // size of the icon
+    iconAnchor: [22, 38], // point of the icon which will correspond to marker's location
+    popupAnchor: [0, -38], // point from which the popup should open relative to the iconAnchor
+});
+
 const ManageLocations = () => {
     const [locations, setLocations] = useState([]);
     const [newLocation, setNewLocation] = useState({
@@ -13,7 +21,6 @@ const ManageLocations = () => {
         longitude: "",
         description: "",
     });
-    const [selectedCity, setSelectedCity] = useState("");
     const [selectedImage, setSelectedImage] = useState(null);
 
     useEffect(() => {
@@ -24,7 +31,6 @@ const ManageLocations = () => {
             .catch((error) => console.error("Error fetching locations:", error));
     }, []);
 
-    // Update location state when map pin is dropped
     const MapEventHandler = () => {
         useMapEvents({
             click: (e) => {
@@ -101,7 +107,7 @@ const ManageLocations = () => {
                         {newLocation.latitude && newLocation.longitude && (
                             <Marker
                                 position={[newLocation.latitude, newLocation.longitude]}
-                                icon={L.icon({ iconUrl: "https://leafletjs.com/examples/custom-icons/leaf-red.png" })}
+                                icon={customIcon}
                             />
                         )}
                     </MapContainer>
