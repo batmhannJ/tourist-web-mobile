@@ -12,7 +12,7 @@ const path = require('path');
 
 const cors = require("cors");
 const { Collection } = require("mongoose");
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264', 'http://localhost:43264','https://travication.vercel.app', 'https://travications.onrender.com', 'https://travication.vercel.app/api/check-session']; // Add all allowed origins
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http://localhost:43264', 'http://localhost:43264','https://travication.vercel.app', 'https://travications.onrender.com', 'https://travication.vercel.app/api/check-session', 'https://travication.onrender.com']; // Add all allowed origins
 require('dotenv').config();
 const app = express()
 const PORT = process.env.PORT || 4000
