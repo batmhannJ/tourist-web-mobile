@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 
 // Create a transporteri using Gmail service
-const transporter = nodemailer.createTransport({
+const transporte r = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'olshco.electionupdates@gmail.com', 
