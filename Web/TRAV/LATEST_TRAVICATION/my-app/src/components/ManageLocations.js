@@ -196,6 +196,9 @@ function ManageLocations() {
         }
     };
 
+    if (!isLoaded) return <div>Loading Google Maps...</div>;
+
+
     return (
         <div className="form-container">
             <h1>Manage Locations</h1>
@@ -227,26 +230,30 @@ function ManageLocations() {
         </div>
 
         {/* Google Map */}
-      <div>
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          center={
-            selectedCity && cityData[selectedCity]
-              ? {
-                  lat: (cityData[selectedCity].latitude.min + cityData[selectedCity].latitude.max) / 2,
-                  lng: (cityData[selectedCity].longitude.min + cityData[selectedCity].longitude.max) / 2,
-                }
-              : { lat: 12.8797, lng: 121.7740 } // Default to Philippines
-          }
-          zoom={selectedCity ? 12 : 5}
-          onClick={handleMapClick}
-        >
-          {newLocation.latitude && newLocation.longitude && (
-            <Marker
-              position={{ lat: parseFloat(newLocation.latitude), lng: parseFloat(newLocation.longitude) }}
-            />
-          )}
-        </GoogleMap>
+      <div className="field-group">
+      <GoogleMap
+  mapContainerStyle={mapContainerStyle}
+  center={
+    selectedCity && cityData[selectedCity]
+      ? {
+          lat: (cityData[selectedCity].latitude.min + cityData[selectedCity].latitude.max) / 2,
+          lng: (cityData[selectedCity].longitude.min + cityData[selectedCity].longitude.max) / 2,
+        }
+      : { lat: 12.8797, lng: 121.7740 }
+  }
+  zoom={selectedCity ? 12 : 5}
+  onClick={(event) => {
+    console.log("Map Clicked at Lat:", event.latLng.lat(), "Lng:", event.latLng.lng());
+    handleMapClick(event);
+  }}
+>
+  {newLocation.latitude && newLocation.longitude && (
+    <Marker
+      position={{ lat: parseFloat(newLocation.latitude), lng: parseFloat(newLocation.longitude) }}
+    />
+  )}
+</GoogleMap>
+
       </div>
 
         {/* Latitude */}
