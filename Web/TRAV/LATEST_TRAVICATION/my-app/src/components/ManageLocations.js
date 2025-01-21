@@ -42,6 +42,11 @@ function ManageLocations() {
             });
     }, []);
 
+    
+    const handleImageChange = (e) => {
+        setSelectedImage(e.target.files[0]);
+    };
+
     const handleCityChange = (e) => {
         const selectedCity = e.target.value;
         setSelectedCity(selectedCity);
