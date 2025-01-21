@@ -95,11 +95,6 @@ function ManageLocations() {
         }
     };
 
-    const handleEditLocation = (index) => {
-        setEditingLocation(index);
-        setNewLocation({ ...locations[index] });
-    };
-
     const handleUpdateLocation = async (e) => {
         e.preventDefault();
 
@@ -148,22 +143,6 @@ function ManageLocations() {
         } catch (error) {
             console.error("Error updating location:", error);
             alert("Error updating location. Please try again.");
-        }
-    };
-
-    const handleDeleteManager = async (id, index) => {
-        const confirmDelete = window.confirm("Are you sure you want to delete this?");
-        if(confirmDelete){
-            try {
-                await axios.delete(`https://travication-backend.onrender.com/deletelocation/${id}`);
-                const updatedLocations = [...locations];
-                updatedLocations.splice(index, 1);
-                setLocations(updatedLocations);
-                alert("Location deleted successfully.");
-            } catch (e) {
-                alert("Location delete error");
-                console.error(e);
-            }
         }
     };
 
@@ -289,13 +268,6 @@ function ManageLocations() {
                                     <p>No image available</p>
                                 )}
                             </td>
-
-                            {/*<td>
-                            <div className="action-buttons">
-                                <button className="edit-button" onClick={() => handleEditLocation(index)}>Edit</button>
-                                <button className="delete-button" onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
-                            </div>
-                            </td>*/}
                         </tr>
                     ))}
                 </tbody>
