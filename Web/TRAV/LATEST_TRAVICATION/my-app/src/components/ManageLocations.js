@@ -59,6 +59,35 @@ function ManageLocations() {
         return lat >= latMin && lat <= latMax && lon >= lonMin && lon <= lonMax;
     };
 
+    useEffect(() => {
+        if (selectedCity) {
+            initMap();
+        }
+    }, [selectedCity]);
+
+    const initMap = () => {
+        const map = new window.google.maps.Map(document.getElementById('map'), {
+            center: { lat: 16.4023, lng: 120.5960 }, // Default center
+            zoom: 13,
+        });
+
+        map.addListener('click', (e) => {
+            const lat = e.latLng.lat();
+            const lon = e.latLng.lng();
+
+            if (!selectedCity) {
+                alert('Please select a city first.');
+                return;
+            }
+
+            if (isWithinBoundary(lat, lon)) {
+                setNewLocation({ ...newLocation, latitude: lat.toFixed(6), longitude: lon.toFixed(6) });
+            } else {
+                alert(`Coordinates out of bounds for ${selectedCity}.`);
+            }
+        });
+    };
+
     const handleAddLocation = async () => {
         const lat = parseFloat(newLocation.latitude);
         const lon = parseFloat(newLocation.longitude);
@@ -163,6 +192,13 @@ function ManageLocations() {
                     </option>
                 ))}
             </select>
+        </div>
+
+         {/* Destination Name */}
+         <div className="field-group">
+            <label htmlFor="destinationName">Select Location on Map: </label>
+            <div id="map" style={{ height: '400px', width: '100%' }}></div>
+
         </div>
 
         {/* Destination Name */}
