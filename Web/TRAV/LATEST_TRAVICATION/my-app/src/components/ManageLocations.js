@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "./ContactFormStyles.css";
+import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
+
+const mapContainerStyle = {
+    width: '100%',
+    height: '400px',
+  };
 
 function ManageLocations() {
     const [locations, setLocations] = useState([]);
@@ -8,6 +14,10 @@ function ManageLocations() {
     const [newLocation, setNewLocation] = useState({ city: '', destinationName: '', latitude: '', longitude: '', description: '' });
     const [selectedCity, setSelectedCity] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
+
+    const { isLoaded } = useLoadScript({
+        googleMapsApiKey: "AIzaSyBEcu_p865o6zGHCcA9oDlKl04xeFCBaIs",
+      });
 
     // Predefined city data with latitude and longitude boundaries
     const cityData = {
@@ -32,25 +42,39 @@ function ManageLocations() {
             });
     }, []);
 
-    const handleImageChange = (e) => {
-        setSelectedImage(e.target.files[0]);
-    };
-
     const handleCityChange = (e) => {
         const selectedCity = e.target.value;
         setSelectedCity(selectedCity);
-
+    
         if (selectedCity && cityData[selectedCity]) {
-            setNewLocation({
-                ...newLocation,
-                city: selectedCity,
-                latitude: '',
-                longitude: ''
-            });
-        } else {
-            setNewLocation({ ...newLocation, city: '', latitude: '', longitude: '' });
+          setNewLocation({
+            ...newLocation,
+            city: selectedCity,
+            latitude: '',
+            longitude: ''
+          });
         }
-    };
+      };
+    
+      const handleMapClick = (event) => {
+        const lat = event.latLng.lat();
+        const lng = event.latLng.lng();
+    
+        if (!cityData[selectedCity]) return;
+    
+        const { latitude, longitude } = cityData[selectedCity];
+        if (lat >= latitude.min && lat <= latitude.max && lng >= longitude.min && lng <= longitude.max) {
+          setNewLocation({
+            ...newLocation,
+            latitude: lat.toFixed(6),
+            longitude: lng.toFixed(6),
+          });
+        } else {
+          alert("Selected location is outside the city boundaries.");
+        }
+      };
+    
+      if (!isLoaded) return <div>Loading Map...</div>;
 
     const isWithinBoundary = (lat, lon) => {
         const { min: latMin, max: latMax } = cityData[selectedCity].latitude;
@@ -196,6 +220,29 @@ function ManageLocations() {
                 onChange={(e) => setNewLocation({ ...newLocation, destinationName: e.target.value })}
             />
         </div>
+
+        {/* Google Map */}
+      <div>
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={
+            selectedCity && cityData[selectedCity]
+              ? {
+                  lat: (cityData[selectedCity].latitude.min + cityData[selectedCity].latitude.max) / 2,
+                  lng: (cityData[selectedCity].longitude.min + cityData[selectedCity].longitude.max) / 2,
+                }
+              : { lat: 12.8797, lng: 121.7740 } // Default to Philippines
+          }
+          zoom={selectedCity ? 12 : 5}
+          onClick={handleMapClick}
+        >
+          {newLocation.latitude && newLocation.longitude && (
+            <Marker
+              position={{ lat: parseFloat(newLocation.latitude), lng: parseFloat(newLocation.longitude) }}
+            />
+          )}
+        </GoogleMap>
+      </div>
 
         {/* Latitude */}
         <div className="field-group">
