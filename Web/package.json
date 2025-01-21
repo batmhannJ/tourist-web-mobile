@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@react-google-maps/api": "^2.20.5",
+    "@react-google-maps/api": "^2.19.0",
     "react-slick": "^0.30.2",
     "slick-carousel": "^1.8.1"
   }

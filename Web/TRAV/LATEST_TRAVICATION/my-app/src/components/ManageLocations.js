@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "./ContactFormStyles.css";
-import { GoogleMap, Marker, useLoadScript } from '@react-google-maps/api';
+import { GoogleMap, Marker } from '@react-google-maps/api';
 
 const mapContainerStyle = {
     width: '100%',
@@ -17,9 +17,10 @@ function ManageLocations() {
 
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: "AIzaSyBEcu_p865o6zGHCcA9oDlKl04xeFCBaIs",
+        
       });
 
-      const [mapCenter, setMapCenter] = useState({ lat: 12.8797, lng: 121.7740 }); // Default to Philippines
+      const mapCenter = { lat: 12.8797, lng: 121.7740 }; // Philippines center
       const [mapZoom, setMapZoom] = useState(5); // Default zoom
     
 
@@ -239,7 +240,7 @@ function ManageLocations() {
       <GoogleMap
             mapContainerStyle={mapContainerStyle}
             center={mapCenter}
-            zoom={mapZoom}
+            zoom={5}
             onClick={handleMapClick}
           >
             {newLocation.latitude && newLocation.longitude && (
