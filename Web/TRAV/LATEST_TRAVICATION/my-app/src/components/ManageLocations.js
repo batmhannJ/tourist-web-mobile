@@ -263,8 +263,6 @@ const formattedDate = today.toISOString().split('T')[0];
         }
     };
 
-    const date = new Date(location.dateAdded);
-    const formattedDate = date.toISOString().split('T')[0]; // Extract YYYY-MM-DD
     return (
         <div className="form-container">
             <h1>Manage Locations</h1>
@@ -376,6 +374,7 @@ const formattedDate = today.toISOString().split('T')[0];
                             <td>{location.latitude}</td>
                             <td>{location.longitude}</td>
                             <td>{location.description}</td>
+                            
 <td>{formattedDate}</td>
                             <td>
                                 {location.image ? (
