@@ -366,8 +366,11 @@ app.use('/uploads', express.static('uploads'));
 
 // Add location route with image upload
 app.post('/addlocation', upload.single('image'), (req, res) => {
+    console.log("Uploaded File: ", req.file);
+
     const { city, destinationName, latitude, longitude, description } = req.body;
     const imagePath = req.file ? req.file.path.replace(/\\/g, '/') : ''; // Normalize path
+    console.log("Request Body: ", req.body);
 
     // Save the location and image path to the database
     // Example: save to MongoDB with mongoose
@@ -382,7 +385,10 @@ app.post('/addlocation', upload.single('image'), (req, res) => {
 
     newLocation.save()
         .then(() => res.json({ message: 'Location added successfully' }))
-        .catch(err => res.status(500).json({ error: 'Error adding location' }));
+        .catch(err => {
+            console.error("Database Save Error: ", err);
+            res.status(500).json({ error: 'Error adding location' });
+        });
 });
 
 app.get("/getlocation", async(req, res) => {
