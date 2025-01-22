@@ -98,7 +98,7 @@ function ManageLocations() {
         if (!document.getElementById('google-maps-script')) {
             const script = document.createElement('script');
             script.id = 'google-maps-script';
-            script.src = `https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places`;
+            script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBEcu_p865o6zGHCcA9oDlKl04xeFCBaIs&libraries=places`;
             script.async = true;
             script.defer = true;
             script.onload = () => initMap(); // Ensure the map initializes only after the script loads
