@@ -5,6 +5,16 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
+
+const customIcon = new L.Icon({
+    iconUrl: '../assets/icon.png',
+    iconSize: [25, 41], // Size of the icon
+    iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
+    popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
+    shadowUrl: 'path-to-your-shadow.png', // Optional, replace with your shadow image path
+    shadowSize: [41, 41], // Size of the shadow
+});
+
 function ManageLocations() {
     const [locations, setLocations] = useState([]);
     const [editingLocation, setEditingLocation] = useState(null);
