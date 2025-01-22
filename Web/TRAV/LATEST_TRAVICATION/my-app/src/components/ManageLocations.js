@@ -108,43 +108,56 @@ function ManageLocations() {
         }
       };
     
-const initMap = () => {
-    if (!window.google || !window.google.maps) {
-        console.error("Google Maps script not loaded or initialized.");
-        return;
-    }
-
-    const map = new window.google.maps.Map(document.getElementById('map'), {
-        center: { lat: 16.4023, lng: 120.5960 },
-        zoom: 13,
-    });
-
-    let marker = null;
-
-    map.addListener('click', (e) => {
-        const lat = e.latLng.lat();
-        const lon = e.latLng.lng();
-
-        if (!selectedCity) {
-            alert('Please select a city first.');
+      const initMap = () => {
+        if (!window.google || !window.google.maps) {
+            console.error("Google Maps script not loaded or initialized.");
             return;
         }
-
-        if (isWithinBoundary(lat, lon)) {
-            setNewLocation({ ...newLocation, latitude: lat.toFixed(6), longitude: lon.toFixed(6) });
-
-            if (marker) marker.setMap(null);
-            marker = new window.google.maps.Marker({
-                position: { lat, lng: lon },
-                map,
-                title: "Selected Location",
-            });
-        } else {
-            alert(`Coordinates out of bounds for ${selectedCity}.`);
+    
+        const map = new window.google.maps.Map(document.getElementById('map'), {
+            center: { lat: 16.4023, lng: 120.5960 }, // Default center (Baguio)
+            zoom: 13,
+        });
+    
+        let marker = null;
+    
+        map.addListener('click', (e) => {
+            const lat = e.latLng.lat();
+            const lon = e.latLng.lng();
+    
+            if (!selectedCity) {
+                alert('Please select a city first.');
+                return;
+            }
+    
+            if (isWithinBoundary(lat, lon)) {
+                setNewLocation({ ...newLocation, latitude: lat.toFixed(6), longitude: lon.toFixed(6) });
+    
+                if (marker) marker.setMap(null);
+                marker = new window.google.maps.Marker({
+                    position: { lat, lng: lon },
+                    map,
+                    title: "Selected Location",
+                });
+            } else {
+                alert(`Coordinates out of bounds for ${selectedCity}.`);
+            }
+        });
+    
+        // Update map center based on selected city
+        const cityCoordinates = {
+            Baguio: { lat: 16.4023, lng: 120.5960 },
+            Bohol: { lat: 9.7480, lng: 123.9177 },
+            Cebu: { lat: 10.3157, lng: 123.8854 },
+            Boracay: { lat: 11.9675, lng: 121.9268 },
+            Batanes: { lat: 20.4541, lng: 121.9576 }
+        };
+    
+        if (selectedCity && cityCoordinates[selectedCity]) {
+            map.setCenter(cityCoordinates[selectedCity]);
         }
-    });
-};
-
+    };
+    
 useEffect(() => {
     loadGoogleMapsScript();  // Call to load the script when component mounts
 }, []);
