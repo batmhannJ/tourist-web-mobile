@@ -368,9 +368,6 @@ app.use('/uploads', express.static('uploads'));
 
 // Add location route with image upload
 app.post('/addlocation', upload.single('image'), (req, res) => {
-    console.log('Request body:', req.body);
-    console.log('Uploaded file:', req.file);
-
     const { city, destinationName, latitude, longitude, description } = req.body;
     const imagePath = req.file ? req.file.path.replace(/\\/g, '/') : ''; // Normalize path
 
@@ -382,8 +379,7 @@ app.post('/addlocation', upload.single('image'), (req, res) => {
         latitude,
         longitude,
         description,
-        image: imagePath,
-        dateAdded: new Date(), // Explicitly set the current date
+        image: imagePath// Store image path
     });
 
     newLocation.save()
