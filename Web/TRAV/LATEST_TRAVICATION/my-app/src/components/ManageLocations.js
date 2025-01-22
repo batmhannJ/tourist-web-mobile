@@ -351,6 +351,7 @@ useEffect(() => {
                         <th>Latitude</th>
                         <th>Longitude</th>
                         <th>Description</th>
+                        <th>Date Added</th> {/* New column */}
                         <th>Image</th> {/* New column for the image */}
                     </tr>
                 </thead>
@@ -362,6 +363,7 @@ useEffect(() => {
                             <td>{location.latitude}</td>
                             <td>{location.longitude}</td>
                             <td>{location.description}</td>
+                            <td>{new Date(location.dateAdded).toLocaleDateString()}</td> {/* Format the date */}
                             <td>
                                 {location.image ? (
                                     <>
@@ -371,10 +373,6 @@ useEffect(() => {
                                             alt={location.destinationName} 
                                             width="300" 
                                             height="300"
-                                            /*onError={(e) => {
-                                                console.error('Error loading image:', e.target.src);
-                                                e.target.src = '/fallback-image.jpg'; // Optional fallback image
-                                            }}*/
                                         />
                                     </>
                                 ) : (
