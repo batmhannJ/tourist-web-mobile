@@ -20,6 +20,8 @@ const PORT = process.env.PORT || 4000
 app.use(
     helmet({
       contentSecurityPolicy: false, // Disable CSP if not needed
+      crossOriginEmbedderPolicy: false, // Disable COEP
+
     })
   );
   app.use((req, res, next) => {
