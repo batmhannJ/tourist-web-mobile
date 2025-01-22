@@ -92,42 +92,7 @@ function ManageLocations() {
         }
     }, [selectedCity]);
 
-    const initMap = () => {
-        if (!window.google || !window.google.maps) {
-            console.error("Google Maps script not loaded or initialized.");
-            return;
-        }
-    
-        const map = new window.google.maps.Map(document.getElementById('map'), {
-            center: { lat: 16.4023, lng: 120.5960 },
-            zoom: 13,
-        });
-    
-        let marker = null;
-    
-        map.addListener('click', (e) => {
-            const lat = e.latLng.lat();
-            const lon = e.latLng.lng();
-    
-            if (!selectedCity) {
-                alert('Please select a city first.');
-                return;
-            }
-    
-            if (isWithinBoundary(lat, lon)) {
-                setNewLocation({ ...newLocation, latitude: lat.toFixed(6), longitude: lon.toFixed(6) });
-    
-                if (marker) marker.setMap(null);
-                marker = new window.google.maps.Marker({
-                    position: { lat, lng: lon },
-                    map,
-                    title: "Selected Location",
-                });
-            } else {
-                alert(`Coordinates out of bounds for ${selectedCity}.`);
-            }
-        });
-    };
+
     
     const loadGoogleMapsScript = () => {
         if (!document.getElementById('google-maps-script')) {
@@ -143,9 +108,46 @@ function ManageLocations() {
         }
       };
     
-      useEffect(() => {
-        loadGoogleMapsScript();
-      }, [selectedCity]);
+const initMap = () => {
+    if (!window.google || !window.google.maps) {
+        console.error("Google Maps script not loaded or initialized.");
+        return;
+    }
+
+    const map = new window.google.maps.Map(document.getElementById('map'), {
+        center: { lat: 16.4023, lng: 120.5960 },
+        zoom: 13,
+    });
+
+    let marker = null;
+
+    map.addListener('click', (e) => {
+        const lat = e.latLng.lat();
+        const lon = e.latLng.lng();
+
+        if (!selectedCity) {
+            alert('Please select a city first.');
+            return;
+        }
+
+        if (isWithinBoundary(lat, lon)) {
+            setNewLocation({ ...newLocation, latitude: lat.toFixed(6), longitude: lon.toFixed(6) });
+
+            if (marker) marker.setMap(null);
+            marker = new window.google.maps.Marker({
+                position: { lat, lng: lon },
+                map,
+                title: "Selected Location",
+            });
+        } else {
+            alert(`Coordinates out of bounds for ${selectedCity}.`);
+        }
+    });
+};
+
+useEffect(() => {
+    loadGoogleMapsScript();  // Call to load the script when component mounts
+}, []);
     
 
     const handleAddLocation = async () => {
@@ -270,27 +272,6 @@ function ManageLocations() {
                 value={newLocation.destinationName}
                 onChange={(e) => setNewLocation({ ...newLocation, destinationName: e.target.value })}
             />
-        </div>
-
-        {/* map */}
-        <div className="field-group">
-            <label htmlFor="map">Map:</label>
-            <input type="file" onChange={(e) => setSelectedImage(e.target.files[0])} />
-            <div style={{ height: "400px", margin: "20px 0" }}>
-                    <MapContainer center={[12.8797, 121.7740]} zoom={6} style={{ height: "100%", width: "100%" }}>
-                        <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                            attribution="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
-                        />
-                        <MapEventHandler />
-                        {newLocation.latitude && newLocation.longitude && (
-                            <Marker
-                                position={[newLocation.latitude, newLocation.longitude]}
-                                icon={customIcon}
-                            />
-                        )}
-                    </MapContainer>
-                </div>
         </div>
 
         {/* Latitude */}
