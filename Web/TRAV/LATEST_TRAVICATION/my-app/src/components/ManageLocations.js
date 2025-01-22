@@ -35,7 +35,11 @@ function ManageLocations() {
         axios.get('https://travication-backend.onrender.com/getlocation')
             .then(response => {
                 if (Array.isArray(response.data)) {
-                    setLocations(response.data);
+                    const updatedLocations = response.data.map(location => ({
+                        ...location,
+                        dateAdded: location.dateAdded || new Date().toISOString().split('T')[0], // Default to today's date
+                    }));
+                    setLocations(updatedLocations);
                 } else {
                     console.error('Response data is not an array:', response.data);
                 }
@@ -44,20 +48,7 @@ function ManageLocations() {
                 console.error('Error fetching locations:', error);
             });
     }, []);
-
-        // Update location state when map pin is dropped
-        const MapEventHandler = () => {
-            useMapEvents({
-                click: (e) => {
-                    setNewLocation({
-                        ...newLocation,
-                        latitude: e.latlng.lat.toFixed(6),
-                        longitude: e.latlng.lng.toFixed(6),
-                    });
-                },
-            });
-            return null;
-        };
+    
 
     const handleImageChange = (e) => {
         setSelectedImage(e.target.files[0]);
@@ -87,10 +78,18 @@ function ManageLocations() {
     };
 
     useEffect(() => {
-        if (selectedCity) {
-            initMap();
-        }
+        const checkScriptLoaded = () => {
+            if (window.google && window.google.maps) {
+                initMap();
+            } else {
+                console.error('Google Maps script is not loaded yet.');
+            }
+        };
+    
+        const interval = setInterval(checkScriptLoaded, 100);
+        return () => clearInterval(interval); // Clean up the interval
     }, [selectedCity]);
+    
 
 
     
@@ -101,6 +100,10 @@ function ManageLocations() {
           script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBEcu_p865o6zGHCcA9oDlKl04xeFCBaIs&libraries=places`;
           script.async = true;
           script.defer = true;
+          script.onload = () => console.log('Google Maps script loaded successfully');
+          script.onerror = () => {
+                console.error("Failed to load Google Maps script");
+          };
           document.body.appendChild(script);
         }
       };
@@ -164,6 +167,12 @@ useEffect(() => {
     const handleAddLocation = async () => {
         const lat = parseFloat(newLocation.latitude);
         const lon = parseFloat(newLocation.longitude);
+
+        if (!cityData[selectedCity]) {
+            console.error("Invalid or missing city data for selectedCity:", selectedCity);
+            return;
+        }
+        
 
         if (!newLocation.city || !newLocation.destinationName || !newLocation.latitude || !newLocation.longitude || !newLocation.description || !selectedImage) {
             alert("Please fill all fields and select an image");
