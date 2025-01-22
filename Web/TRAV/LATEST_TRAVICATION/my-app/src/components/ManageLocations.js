@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "./ContactFormStyles.css";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 function ManageLocations() {
     const [locations, setLocations] = useState([]);
@@ -31,6 +34,20 @@ function ManageLocations() {
                 console.error('Error fetching locations:', error);
             });
     }, []);
+
+        // Update location state when map pin is dropped
+        const MapEventHandler = () => {
+            useMapEvents({
+                click: (e) => {
+                    setNewLocation({
+                        ...newLocation,
+                        latitude: e.latlng.lat.toFixed(6),
+                        longitude: e.latlng.lng.toFixed(6),
+                    });
+                },
+            });
+            return null;
+        };
 
     const handleImageChange = (e) => {
         setSelectedImage(e.target.files[0]);
@@ -221,6 +238,27 @@ function ManageLocations() {
                 value={newLocation.destinationName}
                 onChange={(e) => setNewLocation({ ...newLocation, destinationName: e.target.value })}
             />
+        </div>
+
+        {/* map */}
+        <div className="field-group">
+            <label htmlFor="map">Map:</label>
+            <input type="file" onChange={(e) => setSelectedImage(e.target.files[0])} />
+            <div style={{ height: "400px", margin: "20px 0" }}>
+                    <MapContainer center={[12.8797, 121.7740]} zoom={6} style={{ height: "100%", width: "100%" }}>
+                        <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution="&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors"
+                        />
+                        <MapEventHandler />
+                        {newLocation.latitude && newLocation.longitude && (
+                            <Marker
+                                position={[newLocation.latitude, newLocation.longitude]}
+                                icon={customIcon}
+                            />
+                        )}
+                    </MapContainer>
+                </div>
         </div>
 
         {/* Latitude */}
