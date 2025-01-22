@@ -191,7 +191,9 @@ useEffect(() => {
         formData.append("longitude", newLocation.longitude);
         formData.append("description", newLocation.description);
         formData.append("image", selectedImage);
-        formData.append("dateAdded", new Date().toISOString()); // Frontend sets the date here (if desired)
+        const today = new Date();
+const formattedDate = today.toISOString().split('T')[0];
+        formData.append("dateAdded", formattedDate); // Frontend sets the date here (if desired)
 
         try {
             await axios.post("https://travication-backend.onrender.com/addlocation", formData, {
