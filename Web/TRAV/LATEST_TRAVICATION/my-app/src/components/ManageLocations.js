@@ -152,7 +152,7 @@ function ManageLocations() {
                 Baguio: { lat: 16.4023, lng: 120.5960 },
                 Bohol: { lat: 9.7480, lng: 123.9177 },
                 Cebu: { lat: 10.3157, lng: 123.8854 },
-                Boracay: { lat: 11.9675, lng: 121.9268 },
+                Boracay: { lat: 11.9670, lng: 121.9300 },
                 Batanes: { lat: 20.4541, lng: 121.9576 },
             };
     
@@ -359,6 +359,7 @@ useEffect(() => {
                         <th>Latitude</th>
                         <th>Longitude</th>
                         <th>Description</th>
+                        <th>Date Added</th>
                         <th>Image</th> {/* New column for the image */}
                     </tr>
                 </thead>
@@ -370,6 +371,8 @@ useEffect(() => {
                             <td>{location.latitude}</td>
                             <td>{location.longitude}</td>
                             <td>{location.description}</td>
+                            <td>{new Date(location.dateAdded).toLocaleDateString()}</td>
+
                             <td>
                                 {location.image ? (
                                     <>

@@ -66,6 +66,7 @@ const locationSchema = new mongoose.Schema({
         type: String,  // Stores the file path or URL of the image
         required: false
     },
+    dateAdded: { type: Date, default: Date.now } // Add this field
 });
 
 const collection2 = mongoose.model("locationcollection", locationSchema)
