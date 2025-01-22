@@ -8,6 +8,7 @@ const { collection, collection2, Search, Otp, Marker, User } = require("./mongo"
 const nodemailer = require('nodemailer');
 const multer = require('multer'); // Import multer
 const path = require('path');
+const helmet = require("helmet"); // Import helmet
 
 
 const cors = require("cors");
@@ -16,7 +17,19 @@ const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http
 require('dotenv').config();
 const app = express()
 const PORT = process.env.PORT || 4000
-
+app.use(
+    helmet({
+      contentSecurityPolicy: false, // Disable CSP if not needed
+    })
+  );
+  app.use((req, res, next) => {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    next();
+  });
+  app.use((req, res, next) => {
+    res.setHeader("Referrer-Policy", "no-referrer"); // Options: no-referrer, origin, etc.
+    next();
+  });
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cors({

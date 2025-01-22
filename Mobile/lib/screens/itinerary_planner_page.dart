@@ -306,6 +306,23 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
             children: [
               ElevatedButton(
                 onPressed: () {
+                  _editTravelItinerary(index);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text(
+                  'Edit',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white, // Set the text color to white
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
                   setState(() {
                     travelItineraries.removeAt(index);
                     _saveTravelItineraries();
@@ -754,12 +771,12 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               });
                             },
                             icon: const Icon(Icons.add),
-                            label: const Text('Add Day'),
+                            label: const Text(''),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.teal,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 12),
+                                  horizontal: 6, vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
@@ -777,12 +794,12 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               }
                             },
                             icon: const Icon(Icons.remove),
-                            label: const Text('Remove Day'),
+                            label: const Text(''),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
                               foregroundColor: Colors.white,
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 12),
+                                  horizontal: 6, vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(14),
                               ),
