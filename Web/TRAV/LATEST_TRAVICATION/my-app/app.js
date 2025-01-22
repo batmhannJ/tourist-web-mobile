@@ -17,13 +17,13 @@ const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http
 require('dotenv').config();
 const app = express()
 const PORT = process.env.PORT || 4000
-app.use(
+/*app.use(
     helmet({
       contentSecurityPolicy: false, // Disable CSP if not needed
       crossOriginEmbedderPolicy: false, // Disable COEP
 
     })
-  );
+  );*/
   app.use((req, res, next) => {
     res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     next();
@@ -32,6 +32,14 @@ app.use(
     res.setHeader("Referrer-Policy", "no-referrer"); // Options: no-referrer, origin, etc.
     next();
   });
+  app.use((req, res, next) => {
+    res.setHeader(
+      "Permissions-Policy",
+      "geolocation=(), microphone=(), camera=(), display-capture=()" // Example policy
+    );
+    next();
+  });
+  
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 app.use(cors({
