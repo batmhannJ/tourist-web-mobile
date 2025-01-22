@@ -101,12 +101,10 @@ function ManageLocations() {
           script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBEcu_p865o6zGHCcA9oDlKl04xeFCBaIs&libraries=places`;
           script.async = true;
           script.defer = true;
-          script.onload = initMap;
           document.body.appendChild(script);
-        } else {
-          initMap();
         }
       };
+      
     
       const initMap = () => {
         if (!window.google || !window.google.maps) {
@@ -193,8 +191,12 @@ useEffect(() => {
                 }
             });
             alert("Location added successfully.");
+            setLocations([...locations, newLocation]);
+
             window.location.reload();
         } catch (e) {
+            console.error("Error adding location:", error);
+
             alert("Location add error");
         }
     };
