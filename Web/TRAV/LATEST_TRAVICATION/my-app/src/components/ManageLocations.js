@@ -367,37 +367,41 @@ const formattedDate = today.toISOString().split('T')[0];
                     </tr>
                 </thead>
                 <tbody>
-                    {locations.map((location, index) => (
-                        <tr key={location._id}>
-                            <td>{location.city}</td>
-                            <td>{location.destinationName}</td>
-                            <td>{location.latitude}</td>
-                            <td>{location.longitude}</td>
-                            <td>{location.description}</td>
-                            
-<td>{formattedDate}</td>
-                            <td>
-                                {location.image ? (
-                                    <>
-                                        {console.log('Fetching image from URL:', `https://travication-backend.onrender.com/${location.image.replace(/\\/g, '/')}`)}
-                                        <img 
-                                            src={`https://travication-backend.onrender.com/${location.image.replace(/\\/g, '/')}`} 
-                                            alt={location.destinationName} 
-                                            width="300" 
-                                            height="300"
-                                            /*onError={(e) => {
-                                                console.error('Error loading image:', e.target.src);
-                                                e.target.src = '/fallback-image.jpg'; // Optional fallback image
-                                            }}*/
-                                        />
-                                    </>
-                                ) : (
-                                    <p>No image available</p>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
+    {locations.map((location, index) => {
+        const date = new Date(location.dateAdded);
+        const formattedDate = date.toISOString().split('T')[0]; // Extract YYYY-MM-DD
+        return (
+            <tr key={location._id}>
+                <td>{location.city}</td>
+                <td>{location.destinationName}</td>
+                <td>{location.latitude}</td>
+                <td>{location.longitude}</td>
+                <td>{location.description}</td>
+                <td>{formattedDate}</td>
+                <td>
+                    {location.image ? (
+                        <>
+                            {console.log('Fetching image from URL:', `https://travication-backend.onrender.com/${location.image.replace(/\\/g, '/')}`)}
+                            <img 
+                                src={`https://travication-backend.onrender.com/${location.image.replace(/\\/g, '/')}`} 
+                                alt={location.destinationName} 
+                                width="300" 
+                                height="300"
+                                /*onError={(e) => {
+                                    console.error('Error loading image:', e.target.src);
+                                    e.target.src = '/fallback-image.jpg'; // Optional fallback image
+                                }}*/
+                            />
+                        </>
+                    ) : (
+                        <p>No image available</p>
+                    )}
+                </td>
+            </tr>
+        );
+    })}
+</tbody>
+
             </table>
         </div>
     );
