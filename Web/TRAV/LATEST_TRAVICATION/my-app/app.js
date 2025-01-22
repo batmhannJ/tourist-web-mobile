@@ -48,8 +48,6 @@ app.use(session({
 
 
 app.get('/check-session', (req, res) => {
-    //console.log(req.session); // Log session details
-
     if (req.session.user) {
         return res.json({ user: req.session.user });
     }
