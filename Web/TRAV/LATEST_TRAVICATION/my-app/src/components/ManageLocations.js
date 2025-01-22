@@ -70,23 +70,34 @@ function ManageLocations() {
             center: { lat: 16.4023, lng: 120.5960 }, // Default center
             zoom: 13,
         });
-
+    
+        let marker = null;
+    
         map.addListener('click', (e) => {
             const lat = e.latLng.lat();
             const lon = e.latLng.lng();
-
+    
             if (!selectedCity) {
                 alert('Please select a city first.');
                 return;
             }
-
+    
             if (isWithinBoundary(lat, lon)) {
                 setNewLocation({ ...newLocation, latitude: lat.toFixed(6), longitude: lon.toFixed(6) });
+    
+                // Place a pin on the map
+                if (marker) marker.setMap(null); // Remove the previous marker
+                marker = new window.google.maps.Marker({
+                    position: { lat, lng: lon },
+                    map,
+                    title: "Selected Location",
+                });
             } else {
                 alert(`Coordinates out of bounds for ${selectedCity}.`);
             }
         });
     };
+    
 
     const handleAddLocation = async () => {
         const lat = parseFloat(newLocation.latitude);
@@ -197,7 +208,7 @@ function ManageLocations() {
          {/* Destination Name */}
          <div className="field-group">
             <label htmlFor="destinationName">Select Location on Map: </label>
-            <div id="map" style={{ height: '400px', width: '100%' }}></div>
+            <div id="map" style={{ height: '400px', width: '100%', margin: '10px 0' }}></div>
 
         </div>
 
