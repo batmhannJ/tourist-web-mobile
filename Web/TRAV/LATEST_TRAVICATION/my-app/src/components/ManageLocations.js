@@ -198,14 +198,13 @@ useEffect(() => {
                     'Content-Type': 'multipart/form-data'
                 }
             });
+            console.log("Location added:", response.data);
             alert("Location added successfully.");
-            setLocations([...locations, newLocation]);
-
-            window.location.reload();
+            setLocations((prev) => [...prev, response.data]);
+            //window.location.reload();
         } catch (e) {
-            console.error("Error adding location:", e);
-
-            alert("Location add error");
+            console.error("Error adding location:", e.response?.data || e.message);
+            alert(`Error adding location: ${e.response?.data || e.message}`);
         }
     };
 
