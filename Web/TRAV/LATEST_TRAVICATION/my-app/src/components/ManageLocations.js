@@ -195,7 +195,7 @@ useEffect(() => {
 
             window.location.reload();
         } catch (e) {
-            console.error("Error adding location:", error);
+            console.error("Error adding location:", e);
 
             alert("Location add error");
         }
