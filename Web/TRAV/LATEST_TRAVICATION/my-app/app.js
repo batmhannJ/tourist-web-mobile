@@ -368,7 +368,7 @@ app.use('/uploads', express.static('uploads'));
 app.post('/addlocation', upload.single('image'), (req, res) => {
     console.log("Uploaded File: ", req.file);
 
-    const { city, destinationName, latitude, longitude, description } = req.body;
+    const { city, destinationName, latitude, longitude, description, dateAdded } = req.body;
     const imagePath = req.file ? req.file.path.replace(/\\/g, '/') : ''; // Normalize path
     console.log("Request Body: ", req.body);
     const locationDate = dateAdded ? new Date(dateAdded) : Date.now();
