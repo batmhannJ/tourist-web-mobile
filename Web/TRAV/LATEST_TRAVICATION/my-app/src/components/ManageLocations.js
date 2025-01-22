@@ -93,8 +93,13 @@ function ManageLocations() {
     }, [selectedCity]);
 
     const initMap = () => {
+        if (!window.google || !window.google.maps) {
+            console.error("Google Maps script not loaded or initialized.");
+            return;
+        }
+    
         const map = new window.google.maps.Map(document.getElementById('map'), {
-            center: { lat: 16.4023, lng: 120.5960 }, // Default center
+            center: { lat: 16.4023, lng: 120.5960 },
             zoom: 13,
         });
     
@@ -112,8 +117,7 @@ function ManageLocations() {
             if (isWithinBoundary(lat, lon)) {
                 setNewLocation({ ...newLocation, latitude: lat.toFixed(6), longitude: lon.toFixed(6) });
     
-                // Place a pin on the map
-                if (marker) marker.setMap(null); // Remove the previous marker
+                if (marker) marker.setMap(null);
                 marker = new window.google.maps.Marker({
                     position: { lat, lng: lon },
                     map,
@@ -124,6 +128,24 @@ function ManageLocations() {
             }
         });
     };
+    
+    const loadGoogleMapsScript = () => {
+        if (!document.getElementById('google-maps-script')) {
+          const script = document.createElement('script');
+          script.id = 'google-maps-script';
+          script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBEcu_p865o6zGHCcA9oDlKl04xeFCBaIs&libraries=places`;
+          script.async = true;
+          script.defer = true;
+          script.onload = initMap;
+          document.body.appendChild(script);
+        } else {
+          initMap();
+        }
+      };
+    
+      useEffect(() => {
+        loadGoogleMapsScript();
+      }, [selectedCity]);
     
 
     const handleAddLocation = async () => {
