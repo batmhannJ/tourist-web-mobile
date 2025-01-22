@@ -372,7 +372,7 @@ useEffect(() => {
                             <td>{location.latitude}</td>
                             <td>{location.longitude}</td>
                             <td>{location.description}</td>
-                            <td>{location.dateAdded.toLocaleDateString()}</td>
+                            <td>{new Date(location.dateAdded).toLocaleDateString()}</td>
 
                             <td>
                                 {location.image ? (
