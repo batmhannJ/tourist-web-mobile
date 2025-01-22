@@ -191,12 +191,11 @@ useEffect(() => {
                 }
             });
             alert("Location added successfully.");
-            setLocations([...locations, newLocation]);
+            //setLocations([...locations, newLocation]);
 
             window.location.reload();
         } catch (e) {
             console.error("Error adding location:", e);
-
             alert("Location add error");
         }
     };
