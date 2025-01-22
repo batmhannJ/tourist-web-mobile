@@ -381,7 +381,6 @@ app.post('/addlocation', upload.single('image'), (req, res) => {
         longitude,
         description,
         image: imagePath, // Store image path
-        dateAdded: Date.now(), // Ensure dateAdded is set
     });
 
     newLocation.save()
