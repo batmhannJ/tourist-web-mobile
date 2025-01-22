@@ -193,10 +193,8 @@ useEffect(() => {
         formData.append("image", selectedImage);
 
         try {
-            await axios.post("https://travication-backend.onrender.com/addlocation", formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+            const response = await axios.post("https://travication-backend.onrender.com/addlocation", formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
             });
             console.log("Location added:", response.data);
             alert("Location added successfully.");
