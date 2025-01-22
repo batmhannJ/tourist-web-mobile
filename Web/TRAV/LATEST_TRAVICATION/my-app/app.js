@@ -371,9 +371,8 @@ app.post('/addlocation', upload.single('image'), (req, res) => {
     const { city, destinationName, latitude, longitude, description } = req.body;
     const imagePath = req.file ? req.file.path.replace(/\\/g, '/') : ''; // Normalize path
     console.log("Request Body: ", req.body);
+    const locationDate = dateAdded ? new Date(dateAdded) : Date.now();
 
-    // Save the location and image path to the database
-    // Example: save to MongoDB with mongoose
     const newLocation = new collection2({
         city,
         destinationName,
@@ -381,6 +380,7 @@ app.post('/addlocation', upload.single('image'), (req, res) => {
         longitude,
         description,
         image: imagePath, // Store image path
+        dateAdded: locationDate
     });
 
     newLocation.save()
