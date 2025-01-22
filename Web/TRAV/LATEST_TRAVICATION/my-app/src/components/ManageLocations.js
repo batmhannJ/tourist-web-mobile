@@ -369,10 +369,10 @@ useEffect(() => {
                                             alt={location.destinationName} 
                                             width="300" 
                                             height="300"
-                                            onError={(e) => {
+                                            /*onError={(e) => {
                                                 console.error('Error loading image:', e.target.src);
                                                 e.target.src = '/fallback-image.jpg'; // Optional fallback image
-                                            }}
+                                            }}*/
                                         />
                                     </>
                                 ) : (
