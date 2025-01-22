@@ -193,16 +193,19 @@ useEffect(() => {
         formData.append("image", selectedImage);
 
         try {
-            const response = await axios.post("https://travication-backend.onrender.com/addlocation", formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
+            await axios.post("https://travication-backend.onrender.com/addlocation", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
-            console.log("Location added:", response.data);
             alert("Location added successfully.");
-            setLocations((prev) => [...prev, response.data]);
-            //window.location.reload();
+            setLocations([...locations, newLocation]);
+
+            window.location.reload();
         } catch (e) {
-            console.error("Error adding location:", e.response?.data || e.message);
-            alert(`Error adding location: ${e.response?.data || e.message}`);
+            console.error("Error adding location:", e);
+
+            alert("Location add error");
         }
     };
 
