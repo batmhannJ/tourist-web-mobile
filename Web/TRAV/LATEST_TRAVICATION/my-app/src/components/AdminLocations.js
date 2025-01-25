@@ -352,7 +352,7 @@ useEffect(() => {
                             <td>{location.destinationName}</td>
                             <td>{location.latitude}</td>
                             <td>{location.longitude}</td>
-                            <td>{formattedDate}</td>
+                            <td>{location.description}</td>
                             <td>
                                 {location.image ? (
                                     <img
@@ -369,7 +369,7 @@ useEffect(() => {
                                     'No image'
                                 )}
                             </td>
-                            <td>{location.dateAdded}</td>
+                            <td>{formattedDate}</td>
                             <td>
                                 <button onClick={() => handleEditLocation(index)}>Edit</button>
                                 <button onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
