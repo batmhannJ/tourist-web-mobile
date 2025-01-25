@@ -35,7 +35,7 @@ const PORT = process.env.PORT || 4000
   app.use((req, res, next) => {
     res.setHeader(
       "Permissions-Policy",
-      "geolocation=(), microphone=(), camera=(), display-capture=()" // Example policy
+      "microphone=(), camera=(), display-capture=()" // Example policy
     );
     next();
   });
