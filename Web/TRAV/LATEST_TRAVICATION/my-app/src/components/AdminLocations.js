@@ -343,13 +343,16 @@ useEffect(() => {
                     </tr>
                 </thead>
                 <tbody>
-                    {locations.map((location, index) => (
+                {locations.map((location, index) => {
+                                const date = new Date(location.dateAdded);
+                                const formattedDate = date.toISOString().split('T')[0]; // Extract YYYY-MM-DD
+                                return (
                         <tr key={location._id}>
                             <td>{location.city}</td>
                             <td>{location.destinationName}</td>
                             <td>{location.latitude}</td>
                             <td>{location.longitude}</td>
-                            <td>{location.description}</td>
+                            <td>{formattedDate}</td>
                             <td>
                                 {location.image ? (
                                     <img
@@ -372,7 +375,8 @@ useEffect(() => {
                                 <button onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
                             </td>
                         </tr>
-                    ))}
+                   );
+                })}
                 </tbody>
             </table>
         </div>
