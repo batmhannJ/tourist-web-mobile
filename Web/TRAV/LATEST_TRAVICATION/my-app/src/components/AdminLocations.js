@@ -366,7 +366,7 @@ useEffect(() => {
                                     'No image'
                                 )}
                             </td>
-                            <td>{location.dateUpdated}</td>
+                            <td>{location.dateAdded}</td>
                             <td>
                                 <button onClick={() => handleEditLocation(index)}>Edit</button>
                                 <button onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
