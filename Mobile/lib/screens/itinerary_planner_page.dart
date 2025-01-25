@@ -32,6 +32,7 @@ class ItineraryPlannerPage extends StatefulWidget {
 
 class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
   List<Map<String, dynamic>> travelItineraries = [];
+  Map<String, TextEditingController> _activityControllers = {};
 
   @override
   void initState() {
@@ -221,6 +222,21 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               (activityIndex) {
                                 Map<String, dynamic> activity =
                                     day['activities'][activityIndex];
+                                // Generate a unique key for the activity
+                                String controllerKey =
+                                    '$dayIndex-$activityIndex';
+
+                                // Check if a controller already exists, otherwise create one
+                                if (!_activityControllers
+                                    .containsKey(controllerKey)) {
+                                  _activityControllers[controllerKey] =
+                                      TextEditingController(
+                                          text: activity['activity']);
+                                }
+
+                                TextEditingController activityController =
+                                    _activityControllers[controllerKey]!;
+
                                 return Padding(
                                   padding:
                                       const EdgeInsets.symmetric(vertical: 4.0),
@@ -253,6 +269,7 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: TextField(
+                                          controller: activityController,
                                           onChanged: (value) {
                                             setState(() {
                                               activity['activity'] = value;
@@ -287,8 +304,8 @@ class _ItineraryPlannerPageState extends State<ItineraryPlannerPage> {
                               setState(() {
                                 day['activities']
                                     .add({'time': '', 'activity': ''});
-                                _saveTravelItineraries();
                               });
+                              _saveTravelItineraries();
                             },
                             child: const Text('Add Activity'),
                           ),

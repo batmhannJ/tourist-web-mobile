@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "./ContactFormStyles.css";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 function ManageLocations() {
     const [locations, setLocations] = useState([]);
@@ -32,6 +34,26 @@ function ManageLocations() {
             });
     }, []);
 
+    const isWithinBoundary = (lat, lon) => {
+        const { min: latMin, max: latMax } = cityData[selectedCity].latitude;
+        const { min: lonMin, max: lonMax } = cityData[selectedCity].longitude;
+        return lat >= latMin && lat <= latMax && lon >= lonMin && lon <= lonMax;
+    };
+
+    const MapEventHandler = () => {
+        useMapEvents({
+            click: (e) => {
+                const { lat, lng } = e.latlng;
+                if (isWithinBoundary(lat, lng)) {
+                    setNewLocation({ ...newLocation, latitude: lat.toFixed(6), longitude: lng.toFixed(6) });
+                } else {
+                    alert(`Coordinates out of bounds for ${selectedCity}.`);
+                }
+            },
+        });
+        return null;
+    };
+
     const handleImageChange = (e) => {
         setSelectedImage(e.target.files[0]);
     };
@@ -52,12 +74,12 @@ function ManageLocations() {
         }
     };
 
-    const isWithinBoundary = (lat, lon) => {
+    /*const isWithinBoundary = (lat, lon) => {
         const { min: latMin, max: latMax } = cityData[selectedCity].latitude;
         const { min: lonMin, max: lonMax } = cityData[selectedCity].longitude;
 
         return lat >= latMin && lat <= latMax && lon >= lonMin && lon <= lonMax;
-    };
+    };*/
 
     const handleEditLocation = (index) => {
         setEditingLocation(index);
@@ -149,6 +171,18 @@ function ManageLocations() {
                                 ))}
                             </select>
                         </div>
+
+                        <div className="field-group">
+                    <label htmlFor="map">Select Location on Map:</label>
+                    <MapContainer style={{ height: "400px", width: "100%" }} center={[16.4023, 120.596]} zoom={13}>
+                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                        <MapEventHandler />
+                        {newLocation.latitude && newLocation.longitude && (
+                            <Marker position={[newLocation.latitude, newLocation.longitude]} />
+                        )}
+                    </MapContainer>
+                </div>
+                {/* Other fields */}
 
                         {/* Destination Name */}
                         <div className="field-group">
