@@ -209,6 +209,11 @@ useEffect(() => {
             formData.append("image", selectedImage);
         }
 
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        formData.append("dateAdded", formattedDate); // Add dateUpdated field
+
+
         try {
             const response = await axios.patch(`https://travication-backend.onrender.com/editlocation/${id}`, formData, {
                 headers: {
@@ -333,6 +338,7 @@ useEffect(() => {
                         <th>Longitude</th>
                         <th>Description</th>
                         <th>Image</th>
+                        <th>Date Updated</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -360,6 +366,7 @@ useEffect(() => {
                                     'No image'
                                 )}
                             </td>
+                            <td>{location.dateUpdated}</td>
                             <td>
                                 <button onClick={() => handleEditLocation(index)}>Edit</button>
                                 <button onClick={() => handleDeleteManager(location._id, index)}>Delete</button>
