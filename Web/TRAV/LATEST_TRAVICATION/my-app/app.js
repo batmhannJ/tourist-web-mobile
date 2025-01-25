@@ -17,13 +17,13 @@ const allowedOrigins = ['http://localhost:3000', 'http://localhost:42284', 'http
 require('dotenv').config();
 const app = express()
 const PORT = process.env.PORT || 4000
-app.use(
+/*app.use(
     helmet({
       contentSecurityPolicy: false, // Disable CSP if not needed
       crossOriginEmbedderPolicy: false, // Disable COEP
 
     })
-  );
+  );*/
   app.use((req, res, next) => {
     res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
     next();
