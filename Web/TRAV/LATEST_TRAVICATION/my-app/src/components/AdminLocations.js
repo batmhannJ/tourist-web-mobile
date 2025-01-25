@@ -333,12 +333,12 @@ useEffect(() => {
                 <thead>
                     <tr>
                         <th>City</th>
-                        <th>Destination Name</th>
+                        <th>Name</th>
                         <th>Latitude</th>
                         <th>Longitude</th>
                         <th>Description</th>
                         <th>Image</th>
-                        <th>Date Updated</th>
+                        <th>Date Added</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
