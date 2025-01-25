@@ -2,7 +2,19 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import "./ContactFormStyles.css";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+
+const customIcon = new L.Icon({
+    iconUrl: '../assets/icon.png',
+    iconSize: [25, 41], // Size of the icon
+    iconAnchor: [12, 41], // Point of the icon which will correspond to marker's location
+    popupAnchor: [1, -34], // Point from which the popup should open relative to the iconAnchor
+    shadowUrl: 'path-to-your-shadow.png', // Optional, replace with your shadow image path
+    shadowSize: [41, 41], // Size of the shadow
+});
+
 
 function ManageLocations() {
     const [locations, setLocations] = useState([]);
@@ -33,12 +45,6 @@ function ManageLocations() {
                 console.error('Error fetching locations:', error);
             });
     }, []);
-
-    const isWithinBoundary = (lat, lon) => {
-        const { min: latMin, max: latMax } = cityData[selectedCity].latitude;
-        const { min: lonMin, max: lonMax } = cityData[selectedCity].longitude;
-        return lat >= latMin && lat <= latMax && lon >= lonMin && lon <= lonMax;
-    };
 
     const MapEventHandler = () => {
         useMapEvents({
@@ -74,12 +80,94 @@ function ManageLocations() {
         }
     };
 
-    /*const isWithinBoundary = (lat, lon) => {
+    const isWithinBoundary = (lat, lon) => {
         const { min: latMin, max: latMax } = cityData[selectedCity].latitude;
         const { min: lonMin, max: lonMax } = cityData[selectedCity].longitude;
 
         return lat >= latMin && lat <= latMax && lon >= lonMin && lon <= lonMax;
-    };*/
+    };
+
+    useEffect(() => {
+        if (selectedCity) {
+            initMap();
+        }
+    }, [selectedCity]);
+
+     
+    const loadGoogleMapsScript = () => {
+        if (!document.getElementById('google-maps-script')) {
+            const script = document.createElement('script');
+            script.id = 'google-maps-script';
+            script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBEcu_p865o6zGHCcA9oDlKl04xeFCBaIs&libraries=places`;
+            script.async = true;
+            script.defer = true;
+            script.onload = () => initMap(); // Ensure the map initializes only after the script loads
+            document.body.appendChild(script);
+        } else {
+            initMap(); // If script already exists, initialize the map
+        }
+    };
+    
+      
+    
+    const initMap = () => {
+        try {
+            if (!window.google || !window.google.maps) {
+                console.error("Google Maps script not loaded or initialized.");
+                return;
+            }
+    
+            const map = new window.google.maps.Map(document.getElementById('map'), {
+                center: { lat: 16.4023, lng: 120.5960 }, // Default center
+                zoom: 13,
+            });
+    
+            let marker = null;
+    
+            map.addListener('click', (e) => {
+                const lat = e.latLng.lat();
+                const lon = e.latLng.lng();
+    
+                if (!selectedCity) {
+                    alert('Please select a city first.');
+                    return;
+                }
+    
+                if (isWithinBoundary(lat, lon)) {
+                    setNewLocation({ ...newLocation, latitude: lat.toFixed(6), longitude: lon.toFixed(6) });
+    
+                    if (marker) marker.setMap(null);
+                    marker = new window.google.maps.Marker({
+                        position: { lat, lng: lon },
+                        map,
+                        title: "Selected Location",
+                    });
+                } else {
+                    alert(`Coordinates out of bounds for ${selectedCity}.`);
+                }
+            });
+    
+            // Update map center based on selected city
+            const cityCoordinates = {
+                Baguio: { lat: 16.4023, lng: 120.5960 },
+                Bohol: { lat: 9.7480, lng: 123.9177 },
+                Cebu: { lat: 10.3157, lng: 123.8854 },
+                Boracay: { lat: 11.9670, lng: 121.9300 },
+                Batanes: { lat: 20.4541, lng: 121.9576 },
+            };
+    
+            if (selectedCity && cityCoordinates[selectedCity]) {
+                map.setCenter(cityCoordinates[selectedCity]);
+            }
+        } catch (error) {
+            console.error("Error initializing Google Maps:", error);
+        }
+    };    
+    
+useEffect(() => {
+    loadGoogleMapsScript();  // Call to load the script when component mounts
+}, []);
+
 
     const handleEditLocation = (index) => {
         setEditingLocation(index);
@@ -171,18 +259,12 @@ function ManageLocations() {
                                 ))}
                             </select>
                         </div>
+    {/* Destination Name */}
+    <div className="field-group">
+            <label htmlFor="destinationName">Select Location on Map: </label>
+            <div id="map" style={{ height: '400px', width: '100%', margin: '10px 0' }}></div>
 
-                        <div className="field-group">
-                    <label htmlFor="map">Select Location on Map:</label>
-                    <MapContainer style={{ height: "400px", width: "100%" }} center={[16.4023, 120.596]} zoom={13}>
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        <MapEventHandler />
-                        {newLocation.latitude && newLocation.longitude && (
-                            <Marker position={[newLocation.latitude, newLocation.longitude]} />
-                        )}
-                    </MapContainer>
-                </div>
-                {/* Other fields */}
+        </div>
 
                         {/* Destination Name */}
                         <div className="field-group">
